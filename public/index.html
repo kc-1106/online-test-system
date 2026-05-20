@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>PSVT-R Online Test</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial,sans-serif;
+        }
+
+        body{
+
+            background:linear-gradient(
+                135deg,
+                #0f172a,
+                #1e293b
+            );
+
+            min-height:100vh;
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            padding:30px;
+        }
+
+        .container{
+
+            width:100%;
+
+            max-width:900px;
+
+            background:white;
+
+            border-radius:20px;
+
+            padding:40px;
+
+            box-shadow:
+                0px 0px 25px rgba(0,0,0,0.4);
+        }
+
+        h1{
+
+            text-align:center;
+
+            margin-bottom:25px;
+
+            color:#0f172a;
+        }
+
+        h2{
+
+            color:#1e293b;
+
+            margin-bottom:20px;
+        }
+
+        label{
+
+            display:block;
+
+            margin-top:15px;
+
+            margin-bottom:8px;
+
+            font-weight:bold;
+        }
+
+        input{
+
+            width:100%;
+
+            padding:12px;
+
+            border-radius:10px;
+
+            border:1px solid #cbd5e1;
+
+            font-size:16px;
+        }
+
+        input:focus{
+
+            outline:none;
+
+            border-color:#2563eb;
+
+            box-shadow:
+                0px 0px 10px rgba(37,99,235,0.3);
+        }
+
+        button{
+
+            width:100%;
+
+            padding:15px;
+
+            margin-top:25px;
+
+            border:none;
+
+            border-radius:12px;
+
+            background:#2563eb;
+
+            color:white;
+
+            font-size:18px;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        button:hover{
+
+            background:#1d4ed8;
+        }
+
+        #instructionPage,
+        #testSection,
+        #result{
+
+            display:none;
+        }
+
+        .instruction-box{
+
+            background:#f8fafc;
+
+            padding:25px;
+
+            border-radius:15px;
+
+            line-height:1.8;
+
+            border-left:6px solid #2563eb;
+        }
+
+        .instruction-box ol{
+
+            margin-left:25px;
+        }
+
+        .question-box{
+
+            text-align:center;
+        }
+
+        .question-image{
+
+            width:100%;
+
+            max-width:650px;
+
+            margin-top:20px;
+
+            border-radius:15px;
+
+            box-shadow:
+                0px 0px 15px rgba(0,0,0,0.3);
+        }
+
+        .options{
+
+            margin-top:30px;
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(auto-fit,minmax(120px,1fr));
+
+            gap:15px;
+        }
+
+        .option{
+
+            background:#f1f5f9;
+
+            padding:15px;
+
+            border-radius:12px;
+
+            cursor:pointer;
+
+            border:2px solid transparent;
+
+            transition:0.3s;
+        }
+
+        .option:hover{
+
+            background:#dbeafe;
+
+            border-color:#2563eb;
+        }
+
+        .option input{
+
+            margin-right:8px;
+        }
+
+        #timer{
+
+            text-align:right;
+
+            color:red;
+
+            font-size:22px;
+
+            font-weight:bold;
+
+            margin-bottom:20px;
+        }
+
+        .score-box{
+
+            text-align:center;
+
+            padding:40px;
+        }
+
+        .score{
+
+            font-size:40px;
+
+            color:#2563eb;
+
+            font-weight:bold;
+
+            margin-top:20px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- REGISTRATION -->
+
+    <div id="registrationForm">
+
+        <h1>PSVT-R Online Assessment</h1>
+
+        <label>Name</label>
+        <input type="text" id="name">
+
+        <label>Age</label>
+        <input type="number" id="age">
+
+        <label>Profession</label>
+        <input type="text" id="profession">
+
+        <label>Experience</label>
+        <input type="text" id="experience">
+
+        <label>Email</label>
+        <input type="email" id="email">
+
+        <label>Institute / College Name</label>
+        <input type="text" id="college">
+
+        <label>Department</label>
+        <input type="text" id="department">
+
+        <button onclick="startTest()">
+            Continue
+        </button>
+
+    </div>
+
+    <!-- INSTRUCTIONS -->
+
+    <div id="instructionPage">
+
+        <h1>PSVT-R Instructions</h1>
+
+        <div class="instruction-box">
+
+            <p>
+                This test consists of 10 questions designed
+                to see how well you can visualize the
+                rotation of three dimensional objects.
+            </p>
+
+            <br>
+
+            <p>You are to:</p>
+
+            <ol>
+
+                <li>
+                    Study how the object in the top line
+                    of the question is rotated.
+                </li>
+
+                <li>
+                    Picture in your mind what the object
+                    shown in the middle line looks like
+                    when rotated in exactly the same manner.
+                </li>
+
+                <li>
+                    Select the correct answer from
+                    A, B, C, D or E.
+                </li>
+
+            </ol>
+
+            <br>
+
+            <p>
+                Each question has only ONE correct answer.
+            </p>
+
+            <button onclick="beginActualTest()">
+                Start Actual Test
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- TEST -->
+
+    <div id="testSection">
+
+        <div id="timer"></div>
+
+        <div class="question-box">
+
+            <h2 id="questionTitle"></h2>
+
+            <img
+                id="questionImage"
+                class="question-image"
+            >
+
+            <div
+                class="options"
+                id="optionsContainer">
+
+            </div>
+
+        </div>
+
+        <button onclick="nextQuestion()">
+            Next Question
+        </button>
+
+    </div>
+
+    <!-- RESULT -->
+
+    <div id="result">
+
+        <div class="score-box">
+
+            <h1>Assessment Completed</h1>
+
+            <div
+                class="score"
+                id="scoreText">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
