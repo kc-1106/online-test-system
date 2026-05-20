@@ -8,6 +8,8 @@ const path = require("path");
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 
 app.use(express.json());
@@ -15,7 +17,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")));
 
 mongoose.connect(
-    "mongodb://127.0.0.1:27017/psvt_test_db"
+    "mongodb+srv://2503717624322301_db_user:2503717624322301_kc@cluster0.xjtobyq.mongodb.net/?appName=Cluster0"
 )
 .then(() => {
 
