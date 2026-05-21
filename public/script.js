@@ -364,9 +364,30 @@ async function finishTest(){
         alert("Saving Failed");
 
     }
-   function exitTest(){
+   function exitTest() {
 
-    window.location.href = "thankyou.html";
+    alert("Exit button clicked");
+
+    document.body.innerHTML = `
+
+        <div style="
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            flex-direction:column;
+            background:#0f172a;
+            color:white;
+            font-family:Arial;
+        ">
+
+            <h1>Thank You!</h1>
+
+            <p>You may now close this tab.</p>
+
+        </div>
+
+    `;
 
 }
 }
