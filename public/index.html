@@ -372,20 +372,58 @@
 
     <!-- RESULT -->
 
-    <div id="result">
+    <!-- RESULT -->
 
-        <div class="score-box">
+<div id="result">
 
-            <h1>Assessment Completed</h1>
+    <div class="score-box">
 
-            <div
-                class="score"
-                id="scoreText">
-            </div>
+        <h1>Assessment Completed</h1>
+
+        <div
+            class="score"
+            id="scoreText">
+        </div>
+
+        <!-- Confirmation Message -->
+
+        <div
+            style="
+                margin-top:25px;
+                padding:20px;
+                background:#f8fafc;
+                border-left:6px solid #2563eb;
+                border-radius:12px;
+                font-size:18px;
+                line-height:1.7;
+                color:#1e293b;
+            ">
+
+            ✅ Your assessment has been submitted successfully.
+
+            <br><br>
+
+            📩 Please wait for the confirmation message
+            from our team regarding your assessment status.
 
         </div>
 
+        <!-- Exit Button -->
+
+        <button
+            onclick="exitTest()"
+            style="
+                margin-top:30px;
+                background:#dc2626;
+            ">
+
+            Exit
+
+        </button>
+
     </div>
+
+</div>
 
 </div>
 <script src="script.js"></script>
