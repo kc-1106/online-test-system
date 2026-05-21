@@ -364,15 +364,11 @@ async function finishTest(){
         alert("Saving Failed");
 
     }
-    function exitTest() {
+    function exitTest(){
 
     alert("Thank you for attending the assessment.");
 
-    window.close();
-
-    // If browser blocks close:
-    // window.location.href = "https://google.com";
+    window.location.href = "about:blank";
 
 }
-
 }
