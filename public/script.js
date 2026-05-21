@@ -364,11 +364,9 @@ async function finishTest(){
         alert("Saving Failed");
 
     }
-    function exitTest(){
+   function exitTest(){
 
-    alert("Thank you for attending the assessment.");
-
-    window.location.href = "about:blank";
+    window.location.href = "thankyou.html";
 
 }
 }
