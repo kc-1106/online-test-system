@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")));
 
 mongoose.connect(
-    "mongodb+srv://2503717624322301_db_user:2503717624322301_kc@cluster0.xjtobyq.mongodb.net/?appName=Cluster0"
+    "mongodb+srv://2503717624322301_db_user:2503717624322301_kc@cluster0.xjtobyq.mongodb.net/online_test_system?retryWrites=true&w=majority"
 )
 .then(() => {
 

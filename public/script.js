@@ -335,7 +335,7 @@ async function finishTest(){
 
         const response =
             await fetch(
-                "https://online-test-system-pqd0.onrender.com",
+                "https://online-test-system-pqd0.onrender.com/save-result",
                 {
 
                     method:"POST",
