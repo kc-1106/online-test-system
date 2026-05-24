@@ -287,9 +287,6 @@ async function finishTest(){
         "testSection"
     ).style.display = "none";
 
-    document.getElementById(
-        "result"
-    ).style.display = "block";
 
     document.getElementById(
         "scoreText"
@@ -355,9 +352,52 @@ async function finishTest(){
 
         console.log(data);
 
-        alert("Result Saved Successfully");
-        generateReport();
+        let totalTime = 0;
 
+userAnswers.forEach(answer => {
+
+    totalTime +=
+        answer.timeTakenInSeconds;
+
+});
+
+const reportData = {
+
+    name:
+        document.getElementById("name").value,
+
+    email:
+        document.getElementById("email").value,
+
+    score: score,
+
+    totalQuestions:
+        questions.length,
+
+    correctAnswers: score,
+
+    wrongAnswers:
+        questions.length - score,
+
+    accuracy:
+        (
+            (score / questions.length) * 100
+        ).toFixed(2),
+
+    totalTime:
+        Math.floor(totalTime),
+
+    answers: userAnswers
+
+};
+
+localStorage.setItem(
+    "testReport",
+    JSON.stringify(reportData)
+);
+
+        window.location.href = "report.html";
+        
     }catch(error){
 
         console.log(error);

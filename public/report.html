@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Test Report</title>
+
+<style>
+
+body{
+
+    font-family:Arial,sans-serif;
+
+    background:#0f172a;
+
+    color:white;
+
+    padding:40px;
+}
+
+.container{
+
+    max-width:1000px;
+
+    margin:auto;
+
+    background:white;
+
+    color:black;
+
+    padding:40px;
+
+    border-radius:20px;
+}
+
+h1{
+
+    text-align:center;
+
+    margin-bottom:30px;
+
+    color:#2563eb;
+}
+
+.info p{
+
+    font-size:20px;
+
+    margin:15px 0;
+}
+
+table{
+
+    width:100%;
+
+    margin-top:30px;
+
+    border-collapse:collapse;
+}
+
+th,td{
+
+    border:1px solid #ccc;
+
+    padding:12px;
+
+    text-align:center;
+}
+
+th{
+
+    background:#2563eb;
+
+    color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Test Report</h1>
+
+    <div id="reportData"></div>
+
+</div>
+
+<script>
+
+const report =
+    JSON.parse(
+        localStorage.getItem("testReport")
+    );
+
+let html = `
+
+<div class="info">
+
+<p><strong>Name :</strong>
+${report.name}</p>
+
+<p><strong>Email :</strong>
+${report.email}</p>
+
+<p><strong>Total Score :</strong>
+${report.score} / ${report.totalQuestions}</p>
+
+<p><strong>Correct Answers :</strong>
+${report.correctAnswers}</p>
+
+<p><strong>Wrong Answers :</strong>
+${report.wrongAnswers}</p>
+
+<p><strong>Accuracy :</strong>
+${report.accuracy}%</p>
+
+<p><strong>Total Time Taken :</strong>
+${report.totalTime} seconds</p>
+
+</div>
+
+<h2 style="margin-top:40px;">
+Question-wise Analysis
+</h2>
+
+<table>
+
+<tr>
+
+<th>Question</th>
+<th>Your Answer</th>
+<th>Correct Answer</th>
+<th>Status</th>
+<th>Time Taken</th>
+
+</tr>
+
+`;
+
+report.answers.forEach(answer => {
+
+    html += `
+
+    <tr>
+
+        <td>${answer.question}</td>
+
+        <td>
+            ${
+                answer.selectedOption
+                || "Not Answered"
+            }
+        </td>
+
+        <td>${answer.correctAnswer}</td>
+
+        <td>
+
+            ${
+                answer.isCorrect
+                ? "✅ Correct"
+                : "❌ Wrong"
+            }
+
+        </td>
+
+        <td>
+            ${Math.floor(
+                answer.timeTakenInSeconds
+            )} sec
+        </td>
+
+    </tr>
+
+    `;
+});
+
+html += `</table>`;
+
+document.getElementById(
+    "reportData"
+).innerHTML = html;
+
+</script>
+
+</body>
+</html>
