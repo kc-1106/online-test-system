@@ -114,3 +114,28 @@ button:hover{
 
     background:#b91c1c;
 }
+.report-table{
+
+    width:100%;
+
+    margin-top:30px;
+
+    border-collapse:collapse;
+}
+
+.report-table th,
+.report-table td{
+
+    border:1px solid #ccc;
+
+    padding:12px;
+
+    text-align:center;
+}
+
+.report-table th{
+
+    background:#2563eb;
+
+    color:white;
+}
