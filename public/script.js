@@ -83,6 +83,62 @@ let timer;
 
 let questionStartTime;
 
+// BLOCK TEST AFTER COMPLETION
+
+if(localStorage.getItem("testCompleted") === "true"){
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            document.body.innerHTML = `
+
+            <div style="
+                height:100vh;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                background:#0f172a;
+                color:white;
+                font-family:Arial;
+                text-align:center;
+                padding:30px;
+            ">
+
+                <div>
+
+                    <h1 style="
+                        font-size:45px;
+                        margin-bottom:25px;
+                    ">
+                        Test Already Completed
+                    </h1>
+
+                    <p style="
+                        font-size:22px;
+                        line-height:1.8;
+                    ">
+
+                        You have already submitted
+                        your assessment.
+
+                        <br><br>
+
+                        Retest is not allowed.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+    );
+
+}
+
 // START TEST
 function startTest(){
 
@@ -126,10 +182,8 @@ function startTest(){
 
 }
 
-// START ACTUAL TEST
+// BEGIN TEST
 function beginActualTest(){
-
-    // BLOCK RETAKE
 
     if(localStorage.getItem("testCompleted")){
 
@@ -516,7 +570,21 @@ function finishTest(){
 
     );
 
-    // REDIRECT
+    // BLOCK BACK BUTTON
+
+    history.pushState(
+        null,
+        null,
+        location.href
+    );
+
+    window.onpopstate = function () {
+
+        history.go(1);
+
+    };
+
+    // REDIRECT TO REPORT
 
     window.location.href =
         "report.html";
