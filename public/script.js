@@ -90,6 +90,7 @@ let questionStartTime;
 function startTest(){
 
     const fields = [
+
         "name",
         "age",
         "profession",
@@ -97,16 +98,25 @@ function startTest(){
         "email",
         "college",
         "department"
+
     ];
 
     for(let field of fields){
 
-        if(document.getElementById(field).value.trim() === ""){
+        if(
+
+            document.getElementById(field)
+            .value
+            .trim() === ""
+
+        ){
 
             alert("Please fill all fields");
 
             return;
+
         }
+
     }
 
     document.getElementById(
@@ -116,9 +126,10 @@ function startTest(){
     document.getElementById(
         "instructionPage"
     ).style.display = "block";
+
 }
 
-// START ACTUAL TEST
+// BEGIN TEST
 function beginActualTest(){
 
     document.getElementById(
@@ -130,6 +141,7 @@ function beginActualTest(){
     ).style.display = "block";
 
     loadQuestion();
+
 }
 
 // LOAD QUESTION
@@ -159,27 +171,47 @@ function loadQuestion(){
 
         optionsHTML += `
 
-            <label class="option">
+        <label class="option">
 
-                <input
-                    type="radio"
-                    name="option"
-                    value="${option}"
-                    onchange="selectAnswer('${option}')"
-                >
+            <input
+                type="radio"
+                name="option"
+                value="${option}"
+                onchange="selectAnswer('${option}')"
+            >
 
-                ${option}
+            ${option}
 
-            </label>
+        </label>
 
         `;
+
     });
 
     document.getElementById(
         "optionsContainer"
     ).innerHTML = optionsHTML;
 
+    // CHANGE BUTTON TEXT
+
+    if(currentQuestion === questions.length - 1){
+
+        document.getElementById(
+            "nextBtn"
+        ).innerHTML = "Finish Test";
+
+    }
+
+    else{
+
+        document.getElementById(
+            "nextBtn"
+        ).innerHTML = "Next Question";
+
+    }
+
     startQuestionTimer();
+
 }
 
 // TIMER
@@ -188,6 +220,7 @@ function startQuestionTimer(){
     document.getElementById(
         "timer"
     ).innerHTML =
+
         "Time Left : "
         + questionTime
         + " sec";
@@ -199,6 +232,7 @@ function startQuestionTimer(){
         document.getElementById(
             "timer"
         ).innerHTML =
+
             "Time Left : "
             + questionTime
             + " sec";
@@ -210,15 +244,18 @@ function startQuestionTimer(){
             nextQuestion();
 
             return;
+
         }
 
     },1000);
+
 }
 
 // SELECT ANSWER
 function selectAnswer(answer){
 
     selectedAnswer = answer;
+
 }
 
 // NEXT QUESTION
@@ -241,17 +278,18 @@ function nextQuestion(){
             questions[currentQuestion].image,
 
         selectedOption:
-            selectedAnswer,
+            selectedAnswer || "Not Answered",
 
         correctAnswer:
             questions[currentQuestion].answer,
 
         isCorrect:
+
             selectedAnswer ===
             questions[currentQuestion].answer,
 
         timeTakenInSeconds:
-            timeTaken
+            Math.floor(timeTaken)
 
     });
 
@@ -270,151 +308,144 @@ function nextQuestion(){
 
     selectedAnswer = "";
 
+    // LOAD NEXT QUESTION
+
     if(currentQuestion < questions.length){
 
         loadQuestion();
 
     }
 
-    else{
+    // FINISH TEST
 
-        clearInterval(timer);
+    else{
 
         document.getElementById(
             "timer"
-        ).innerHTML = "Submitting...";
+        ).innerHTML =
+            "Generating Report...";
 
-        setTimeout(() => {
-
-            finishTest();
-
-        },500);
+        finishTest();
 
     }
 
 }
 
 // FINISH TEST
-async function finishTest(){
+function finishTest(){
 
     clearInterval(timer);
 
-    const resultData = {
+    let totalTime = 0;
+
+    userAnswers.forEach(answer => {
+
+        totalTime +=
+            answer.timeTakenInSeconds;
+
+    });
+
+    // SAVE REPORT DATA
+
+    const reportData = {
 
         name:
             document.getElementById("name").value,
 
-        age:
-            document.getElementById("age").value,
-
-        profession:
-            document.getElementById("profession").value,
-
-        experience:
-            document.getElementById("experience").value,
-
         email:
             document.getElementById("email").value,
-
-        college:
-            document.getElementById("college").value,
-
-        department:
-            document.getElementById("department").value,
 
         score: score,
 
         totalQuestions:
             questions.length,
 
+        correctAnswers: score,
+
+        wrongAnswers:
+            questions.length - score,
+
+        accuracy:
+
+            (
+                (score / questions.length) * 100
+            ).toFixed(2),
+
+        totalTime:
+            totalTime,
+
         answers: userAnswers
 
     };
 
-    try{
+    // STORE IN LOCAL STORAGE
 
-        document.getElementById(
-            "timer"
-        ).innerHTML =
-            "Saving Result...";
+    localStorage.setItem(
 
-        const response =
-            await fetch(
-                "https://online-test-system-pqd0.onrender.com/save-result",
-                {
+        "testReport",
 
-                    method:"POST",
+        JSON.stringify(reportData)
 
-                    headers:{
-                        "Content-Type":
-                        "application/json"
-                    },
+    );
 
-                    body:JSON.stringify(resultData)
+    // SAVE TO DATABASE FAST
 
-                }
-            );
+    fetch(
 
-        const data =
-            await response.json();
+        "https://online-test-system-pqd0.onrender.com/save-result",
 
-        console.log(data);
+        {
 
-        let totalTime = 0;
+            method:"POST",
 
-        userAnswers.forEach(answer => {
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
 
-            totalTime +=
-                answer.timeTakenInSeconds;
+            body:JSON.stringify({
 
-        });
+                name:
+                    document.getElementById("name").value,
 
-        const reportData = {
+                age:
+                    document.getElementById("age").value,
 
-            name:
-                document.getElementById("name").value,
+                profession:
+                    document.getElementById("profession").value,
 
-            email:
-                document.getElementById("email").value,
+                experience:
+                    document.getElementById("experience").value,
 
-            score: score,
+                email:
+                    document.getElementById("email").value,
 
-            totalQuestions:
-                questions.length,
+                college:
+                    document.getElementById("college").value,
 
-            correctAnswers: score,
+                department:
+                    document.getElementById("department").value,
 
-            wrongAnswers:
-                questions.length - score,
+                score: score,
 
-            accuracy:
-                (
-                    (score / questions.length) * 100
-                ).toFixed(2),
+                totalQuestions:
+                    questions.length,
 
-            totalTime:
-                Math.floor(totalTime),
+                answers: userAnswers
 
-            answers: userAnswers
+            })
 
-        };
+        }
 
-        localStorage.setItem(
-            "testReport",
-            JSON.stringify(reportData)
-        );
+    );
+
+    // REDIRECT FAST
+
+    setTimeout(() => {
 
         window.location.href =
             "report.html";
 
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        alert("Saving Failed");
-
-    }
+    },1000);
 
 }
