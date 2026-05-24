@@ -142,35 +142,139 @@ if(localStorage.getItem("testCompleted") === "true"){
 // START TEST
 function startTest(){
 
-    const fields = [
+    const name =
+        document.getElementById("name")
+        .value.trim();
 
-        "name",
-        "age",
-        "profession",
-        "experience",
-        "email",
-        "college",
-        "department"
+    const age =
+        document.getElementById("age")
+        .value.trim();
 
-    ];
+    const profession =
+        document.getElementById("profession")
+        .value.trim();
 
-    for(let field of fields){
+    const experience =
+        document.getElementById("experience")
+        .value.trim();
 
-        if(
+    const email =
+        document.getElementById("email")
+        .value.trim();
 
-            document.getElementById(field)
-            .value
-            .trim() === ""
+    const college =
+        document.getElementById("college")
+        .value.trim();
 
-        ){
+    const department =
+        document.getElementById("department")
+        .value.trim();
 
-            alert("Please fill all fields");
+    // NAME VALIDATION
 
-            return;
+    if(name === ""){
 
-        }
+        alert("Please enter your name");
+
+        return;
 
     }
+
+    if(name.length < 3){
+
+        alert(
+            "Name must contain minimum 3 letters"
+        );
+
+        return;
+
+    }
+
+    // AGE VALIDATION
+
+    if(age === ""){
+
+        alert("Please enter your age");
+
+        return;
+
+    }
+
+    if(age < 15 || age > 80){
+
+        alert(
+            "Age must be between 15 and 80"
+        );
+
+        return;
+
+    }
+
+    // EMAIL VALIDATION
+
+    const emailPattern =
+
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailPattern.test(email)){
+
+        alert(
+            "Please enter a valid email address"
+        );
+
+        return;
+
+    }
+
+    // PROFESSION VALIDATION
+
+    if(profession === ""){
+
+        alert(
+            "Please enter your profession"
+        );
+
+        return;
+
+    }
+
+    // EXPERIENCE VALIDATION
+
+    if(experience === ""){
+
+        alert(
+            "Please enter your experience"
+        );
+
+        return;
+
+    }
+
+    // COLLEGE VALIDATION
+
+    if(college === ""){
+
+        alert(
+            "Please enter your college name"
+        );
+
+        return;
+
+    }
+
+    // DEPARTMENT VALIDATION
+
+    if(department === ""){
+
+        alert(
+            "Please enter your department"
+        );
+
+        return;
+
+    }
+
+    // SUCCESS
 
     document.getElementById(
         "registrationForm"
@@ -181,7 +285,6 @@ function startTest(){
     ).style.display = "block";
 
 }
-
 // BEGIN TEST
 function beginActualTest(){
 
