@@ -74,11 +74,8 @@ const questions = [
 
 let currentQuestion = 0;
 
-let score = 0;
-
-let selectedAnswer = "";
-
-let userAnswers = [];
+let userAnswers =
+    new Array(questions.length).fill(null);
 
 let questionTime = 60;
 
@@ -129,8 +126,20 @@ function startTest(){
 
 }
 
-// BEGIN TEST
+// START ACTUAL TEST
 function beginActualTest(){
+
+    // BLOCK RETAKE
+
+    if(localStorage.getItem("testCompleted")){
+
+        alert(
+            "You have already completed the test."
+        );
+
+        return;
+
+    }
 
     document.getElementById(
         "instructionPage"
@@ -151,8 +160,6 @@ function loadQuestion(){
 
     questionTime = 60;
 
-    selectedAnswer = "";
-
     questionStartTime = new Date();
 
     const q = questions[currentQuestion];
@@ -169,6 +176,17 @@ function loadQuestion(){
 
     q.options.forEach(option => {
 
+        const checked =
+
+            userAnswers[currentQuestion]
+            &&
+            userAnswers[currentQuestion]
+            .selectedOption === option
+
+            ? "checked"
+
+            : "";
+
         optionsHTML += `
 
         <label class="option">
@@ -177,6 +195,7 @@ function loadQuestion(){
                 type="radio"
                 name="option"
                 value="${option}"
+                ${checked}
                 onchange="selectAnswer('${option}')"
             >
 
@@ -192,7 +211,25 @@ function loadQuestion(){
         "optionsContainer"
     ).innerHTML = optionsHTML;
 
-    // CHANGE BUTTON TEXT
+    // PREVIOUS BUTTON
+
+    if(currentQuestion === 0){
+
+        document.getElementById(
+            "prevBtn"
+        ).disabled = true;
+
+    }
+
+    else{
+
+        document.getElementById(
+            "prevBtn"
+        ).disabled = false;
+
+    }
+
+    // FINISH BUTTON
 
     if(currentQuestion === questions.length - 1){
 
@@ -243,8 +280,6 @@ function startQuestionTimer(){
 
             nextQuestion();
 
-            return;
-
         }
 
     },1000);
@@ -254,22 +289,15 @@ function startQuestionTimer(){
 // SELECT ANSWER
 function selectAnswer(answer){
 
-    selectedAnswer = answer;
-
-}
-
-// NEXT QUESTION
-function nextQuestion(){
-
-    clearInterval(timer);
-
-    const questionEndTime =
-        new Date();
-
     const timeTaken =
-        (questionEndTime - questionStartTime) / 1000;
 
-    userAnswers.push({
+        (
+            new Date()
+            -
+            questionStartTime
+        ) / 1000;
+
+    userAnswers[currentQuestion] = {
 
         question:
             questions[currentQuestion].question,
@@ -278,37 +306,64 @@ function nextQuestion(){
             questions[currentQuestion].image,
 
         selectedOption:
-            selectedAnswer || "Not Answered",
+            answer,
 
         correctAnswer:
             questions[currentQuestion].answer,
 
         isCorrect:
-
-            selectedAnswer ===
+            answer ===
             questions[currentQuestion].answer,
 
         timeTakenInSeconds:
             Math.floor(timeTaken)
 
-    });
+    };
+
+}
+
+// NEXT QUESTION
+function nextQuestion(){
 
     if(
 
-        selectedAnswer ===
-        questions[currentQuestion].answer
+        userAnswers[currentQuestion]
+        == null
 
     ){
 
-        score++;
+        const timeTaken =
+
+            (
+                new Date()
+                -
+                questionStartTime
+            ) / 1000;
+
+        userAnswers[currentQuestion] = {
+
+            question:
+                questions[currentQuestion].question,
+
+            image:
+                questions[currentQuestion].image,
+
+            selectedOption:
+                "Not Answered",
+
+            correctAnswer:
+                questions[currentQuestion].answer,
+
+            isCorrect:false,
+
+            timeTakenInSeconds:
+                Math.floor(timeTaken)
+
+        };
 
     }
 
     currentQuestion++;
-
-    selectedAnswer = "";
-
-    // LOAD NEXT QUESTION
 
     if(currentQuestion < questions.length){
 
@@ -316,16 +371,22 @@ function nextQuestion(){
 
     }
 
-    // FINISH TEST
-
     else{
 
-        document.getElementById(
-            "timer"
-        ).innerHTML =
-            "Generating Report...";
-
         finishTest();
+
+    }
+
+}
+
+// PREVIOUS QUESTION
+function previousQuestion(){
+
+    if(currentQuestion > 0){
+
+        currentQuestion--;
+
+        loadQuestion();
 
     }
 
@@ -336,16 +397,22 @@ function finishTest(){
 
     clearInterval(timer);
 
+    let score = 0;
+
     let totalTime = 0;
 
     userAnswers.forEach(answer => {
+
+        if(answer.isCorrect){
+
+            score++;
+
+        }
 
         totalTime +=
             answer.timeTakenInSeconds;
 
     });
-
-    // SAVE REPORT DATA
 
     const reportData = {
 
@@ -378,7 +445,7 @@ function finishTest(){
 
     };
 
-    // STORE IN LOCAL STORAGE
+    // SAVE REPORT
 
     localStorage.setItem(
 
@@ -388,7 +455,17 @@ function finishTest(){
 
     );
 
-    // SAVE TO DATABASE FAST
+    // BLOCK RETEST
+
+    localStorage.setItem(
+
+        "testCompleted",
+
+        "true"
+
+    );
+
+    // SAVE TO DATABASE
 
     fetch(
 
@@ -439,13 +516,9 @@ function finishTest(){
 
     );
 
-    // REDIRECT FAST
+    // REDIRECT
 
-    setTimeout(() => {
-
-        window.location.href =
-            "report.html";
-
-    },1000);
+    window.location.href =
+        "report.html";
 
 }
