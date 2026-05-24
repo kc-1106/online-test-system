@@ -89,107 +89,158 @@ th{
 
     <h1>Test Report</h1>
 
-    <div id="reportData"></div>
+    <div id="loadingBox">
+
+    <h1 style="
+        text-align:center;
+        color:#2563eb;
+    ">
+        Assessment Submitted Successfully
+    </h1>
+
+    <p style="
+        margin-top:30px;
+        text-align:center;
+        font-size:22px;
+        line-height:1.8;
+    ">
+
+        ✅ Your assessment has been submitted successfully.
+
+        <br><br>
+
+        📄 Please wait for your assessment report.
+
+        <br><br>
+
+        ⏳ It will take a few seconds to generate.
+
+    </p>
+
+</div>
+
+<div id="reportData"
+     style="display:none;">
+</div>
 
 </div>
 
 <script>
 
-const report =
-    JSON.parse(
-        localStorage.getItem("testReport")
-    );
+setTimeout(() => {
 
-let html = `
+    document.getElementById(
+        "loadingBox"
+    ).style.display = "none";
 
-<div class="info">
+    document.getElementById(
+        "reportData"
+    ).style.display = "block";
 
-<p><strong>Name :</strong>
-${report.name}</p>
+    const report =
+        JSON.parse(
+            localStorage.getItem("testReport")
+        );
 
-<p><strong>Email :</strong>
-${report.email}</p>
+    let html = `
 
-<p><strong>Total Score :</strong>
-${report.score} / ${report.totalQuestions}</p>
+    <h1 style="
+        text-align:center;
+        color:#2563eb;
+        margin-bottom:30px;
+    ">
+        Test Report
+    </h1>
 
-<p><strong>Correct Answers :</strong>
-${report.correctAnswers}</p>
+    <div class="info">
 
-<p><strong>Wrong Answers :</strong>
-${report.wrongAnswers}</p>
+    <p><strong>Name :</strong>
+    ${report.name}</p>
 
-<p><strong>Accuracy :</strong>
-${report.accuracy}%</p>
+    <p><strong>Email :</strong>
+    ${report.email}</p>
 
-<p><strong>Total Time Taken :</strong>
-${report.totalTime} seconds</p>
+    <p><strong>Total Score :</strong>
+    ${report.score} / ${report.totalQuestions}</p>
 
-</div>
+    <p><strong>Correct Answers :</strong>
+    ${report.correctAnswers}</p>
 
-<h2 style="margin-top:40px;">
-Question-wise Analysis
-</h2>
+    <p><strong>Wrong Answers :</strong>
+    ${report.wrongAnswers}</p>
 
-<table>
+    <p><strong>Accuracy :</strong>
+    ${report.accuracy}%</p>
 
-<tr>
+    <p><strong>Total Time Taken :</strong>
+    ${report.totalTime} seconds</p>
 
-<th>Question</th>
-<th>Your Answer</th>
-<th>Correct Answer</th>
-<th>Status</th>
-<th>Time Taken</th>
+    </div>
 
-</tr>
+    <h2 style="margin-top:40px;">
+    Question-wise Analysis
+    </h2>
 
-`;
-
-report.answers.forEach(answer => {
-
-    html += `
+    <table>
 
     <tr>
 
-        <td>${answer.question}</td>
-
-        <td>
-            ${
-                answer.selectedOption
-                || "Not Answered"
-            }
-        </td>
-
-        <td>${answer.correctAnswer}</td>
-
-        <td>
-
-            ${
-                answer.isCorrect
-                ? "✅ Correct"
-                : "❌ Wrong"
-            }
-
-        </td>
-
-        <td>
-            ${Math.floor(
-                answer.timeTakenInSeconds
-            )} sec
-        </td>
+    <th>Question</th>
+    <th>Your Answer</th>
+    <th>Correct Answer</th>
+    <th>Status</th>
+    <th>Time Taken</th>
 
     </tr>
 
     `;
-});
 
-html += `</table>`;
+    report.answers.forEach(answer => {
 
-document.getElementById(
-    "reportData"
-).innerHTML = html;
+        html += `
+
+        <tr>
+
+            <td>${answer.question}</td>
+
+            <td>
+                ${
+                    answer.selectedOption
+                    || "Not Answered"
+                }
+            </td>
+
+            <td>${answer.correctAnswer}</td>
+
+            <td>
+
+                ${
+                    answer.isCorrect
+                    ? "✅ Correct"
+                    : "❌ Wrong"
+                }
+
+            </td>
+
+            <td>
+                ${Math.floor(
+                    answer.timeTakenInSeconds
+                )} sec
+            </td>
+
+        </tr>
+
+        `;
+    });
+
+    html += `</table>`;
+
+    document.getElementById(
+        "reportData"
+    ).innerHTML = html;
+
+}, 3000);
 
 </script>
-
 </body>
 </html>
