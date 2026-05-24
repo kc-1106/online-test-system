@@ -278,55 +278,43 @@ function nextQuestion(){
     }
 
 }
+
 // FINISH TEST
 async function finishTest(){
 
     clearInterval(timer);
 
-    document.getElementById(
-        "testSection"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "scoreText"
-    ).innerHTML =
-
-        score + " / " + questions.length;
-
     const resultData = {
 
-    name:
-        document.getElementById("name").value,
+        name:
+            document.getElementById("name").value,
 
-    age:
-        document.getElementById("age").value,
+        age:
+            document.getElementById("age").value,
 
-    profession:
-        document.getElementById("profession").value,
+        profession:
+            document.getElementById("profession").value,
 
-    experience:
-        document.getElementById("experience").value,
+        experience:
+            document.getElementById("experience").value,
 
-    email:
-        document.getElementById("email").value,
+        email:
+            document.getElementById("email").value,
 
-    college:
-        document.getElementById("college").value,
+        college:
+            document.getElementById("college").value,
 
-    department:
-        document.getElementById("department").value,
+        department:
+            document.getElementById("department").value,
 
-    score: score,
+        score: score,
 
-    totalQuestions:
-        questions.length,
+        totalQuestions:
+            questions.length,
 
-    answers: userAnswers
+        answers: userAnswers
 
-};
-
-    console.log(resultData);
+    };
 
     try{
 
@@ -354,50 +342,51 @@ async function finishTest(){
 
         let totalTime = 0;
 
-userAnswers.forEach(answer => {
+        userAnswers.forEach(answer => {
 
-    totalTime +=
-        answer.timeTakenInSeconds;
+            totalTime +=
+                answer.timeTakenInSeconds;
 
-});
+        });
 
-const reportData = {
+        const reportData = {
 
-    name:
-        document.getElementById("name").value,
+            name:
+                document.getElementById("name").value,
 
-    email:
-        document.getElementById("email").value,
+            email:
+                document.getElementById("email").value,
 
-    score: score,
+            score: score,
 
-    totalQuestions:
-        questions.length,
+            totalQuestions:
+                questions.length,
 
-    correctAnswers: score,
+            correctAnswers: score,
 
-    wrongAnswers:
-        questions.length - score,
+            wrongAnswers:
+                questions.length - score,
 
-    accuracy:
-        (
-            (score / questions.length) * 100
-        ).toFixed(2),
+            accuracy:
+                (
+                    (score / questions.length) * 100
+                ).toFixed(2),
 
-    totalTime:
-        Math.floor(totalTime),
+            totalTime:
+                Math.floor(totalTime),
 
-    answers: userAnswers
+            answers: userAnswers
 
-};
+        };
 
-localStorage.setItem(
-    "testReport",
-    JSON.stringify(reportData)
-);
+        localStorage.setItem(
+            "testReport",
+            JSON.stringify(reportData)
+        );
 
-        window.location.href = "report.html";
-        
+        window.location.href =
+            "report.html";
+
     }catch(error){
 
         console.log(error);
@@ -405,155 +394,5 @@ localStorage.setItem(
         alert("Saving Failed");
 
     }
-    function generateReport(){
 
-    const name =
-        document.getElementById("name").value;
-
-    const email =
-        document.getElementById("email").value;
-
-    let totalCorrect = score;
-
-    let totalWrong =
-        questions.length - score;
-
-    let accuracy =
-        (
-            (score / questions.length) * 100
-        ).toFixed(2);
-
-    let totalTime = 0;
-
-    userAnswers.forEach(answer => {
-
-        totalTime +=
-            answer.timeTakenInSeconds;
-
-    });
-
-    let reportHTML = `
-
-        <div style="
-            margin-top:30px;
-            text-align:left;
-            line-height:2;
-            font-size:18px;
-        ">
-
-            <p>
-                <strong>Name :</strong>
-                ${name}
-            </p>
-
-            <p>
-                <strong>Email :</strong>
-                ${email}
-            </p>
-
-            <p>
-                <strong>Total Score :</strong>
-                ${score} / ${questions.length}
-            </p>
-
-            <p>
-                <strong>Correct Answers :</strong>
-                ${totalCorrect}
-            </p>
-
-            <p>
-                <strong>Wrong Answers :</strong>
-                ${totalWrong}
-            </p>
-
-            <p>
-                <strong>Accuracy :</strong>
-                ${accuracy}%
-            </p>
-
-            <p>
-                <strong>Total Time Taken :</strong>
-                ${Math.floor(totalTime)} seconds
-            </p>
-
-        </div>
-
-        <h2 style="
-            margin-top:40px;
-            margin-bottom:20px;
-        ">
-            Question-wise Analysis
-        </h2>
-
-        <table class="report-table">
-
-            <tr>
-
-                <th>Question</th>
-
-                <th>Your Answer</th>
-
-                <th>Correct Answer</th>
-
-                <th>Status</th>
-
-                <th>Time Taken</th>
-
-            </tr>
-
-    `;
-
-    userAnswers.forEach(answer => {
-
-        reportHTML += `
-
-            <tr>
-
-                <td>
-                    ${answer.question}
-                </td>
-
-                <td>
-                    ${
-                        answer.selectedOption
-                        || "Not Answered"
-                    }
-                </td>
-
-                <td>
-                    ${answer.correctAnswer}
-                </td>
-
-                <td>
-
-                    ${
-                        answer.isCorrect
-                        ? "✅ Correct"
-                        : "❌ Wrong"
-                    }
-
-                </td>
-
-                <td>
-                    ${Math.floor(
-                        answer.timeTakenInSeconds
-                    )} sec
-                </td>
-
-            </tr>
-
-        `;
-    });
-
-    reportHTML += `</table>`;
-
-    document.getElementById(
-        "reportContent"
-    ).innerHTML = reportHTML;
-
-    document.getElementById(
-        "reportSection"
-    ).style.display = "block";
-
-}
 }
