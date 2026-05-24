@@ -101,7 +101,7 @@ function startTest(){
 
     for(let field of fields){
 
-        if(document.getElementById(field).value === ""){
+        if(document.getElementById(field).value.trim() === ""){
 
             alert("Please fill all fields");
 
@@ -139,21 +139,19 @@ function loadQuestion(){
 
     questionTime = 60;
 
-    questionStartTime = new Date();
-
     selectedAnswer = "";
+
+    questionStartTime = new Date();
 
     const q = questions[currentQuestion];
 
     document.getElementById(
         "questionTitle"
-    ).innerHTML =
-        q.question;
+    ).innerHTML = q.question;
 
     document.getElementById(
         "questionImage"
-    ).src =
-        q.image;
+    ).src = q.image;
 
     let optionsHTML = "";
 
@@ -179,8 +177,7 @@ function loadQuestion(){
 
     document.getElementById(
         "optionsContainer"
-    ).innerHTML =
-        optionsHTML;
+    ).innerHTML = optionsHTML;
 
     startQuestionTimer();
 }
@@ -188,7 +185,16 @@ function loadQuestion(){
 // TIMER
 function startQuestionTimer(){
 
+    document.getElementById(
+        "timer"
+    ).innerHTML =
+        "Time Left : "
+        + questionTime
+        + " sec";
+
     timer = setInterval(() => {
+
+        questionTime--;
 
         document.getElementById(
             "timer"
@@ -197,13 +203,13 @@ function startQuestionTimer(){
             + questionTime
             + " sec";
 
-        questionTime--;
-
-        if(questionTime < 0){
+        if(questionTime <= 0){
 
             clearInterval(timer);
 
             nextQuestion();
+
+            return;
         }
 
     },1000);
@@ -241,7 +247,6 @@ function nextQuestion(){
             questions[currentQuestion].answer,
 
         isCorrect:
-
             selectedAnswer ===
             questions[currentQuestion].answer,
 
@@ -273,7 +278,17 @@ function nextQuestion(){
 
     else{
 
-        finishTest();
+        clearInterval(timer);
+
+        document.getElementById(
+            "timer"
+        ).innerHTML = "Submitting...";
+
+        setTimeout(() => {
+
+            finishTest();
+
+        },500);
 
     }
 
@@ -317,6 +332,11 @@ async function finishTest(){
     };
 
     try{
+
+        document.getElementById(
+            "timer"
+        ).innerHTML =
+            "Saving Result...";
 
         const response =
             await fetch(
@@ -387,7 +407,9 @@ async function finishTest(){
         window.location.href =
             "report.html";
 
-    }catch(error){
+    }
+
+    catch(error){
 
         console.log(error);
 
