@@ -74,72 +74,49 @@ const questions = [
 
 let currentQuestion = 0;
 
-let userAnswers =
-    new Array(questions.length).fill(null);
+let userAnswers = new Array(questions.length).fill(null);
 
 let questionStatus =
-    new Array(questions.length)
-    .fill("not-visited");
-
-let questionStartTime;
+    new Array(questions.length).fill("not-visited");
 
 let globalTime = 600;
 
 let globalTimer;
 
-// BLOCK TEST AFTER COMPLETION
+// BLOCK RETEST
 
 if(localStorage.getItem("testCompleted") === "true"){
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
+    document.body.innerHTML = `
 
-            document.body.innerHTML = `
+        <div style="
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:#0f172a;
+            color:white;
+            font-family:Arial;
+        ">
 
-            <div style="
-                height:100vh;
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                background:#0f172a;
-                color:white;
-                font-family:Arial;
-                text-align:center;
-                padding:30px;
-            ">
+            <div style="text-align:center;">
 
-                <div>
+                <h1 style="font-size:45px;">
+                    Test Already Completed
+                </h1>
 
-                    <h1 style="
-                        font-size:45px;
-                        margin-bottom:25px;
-                    ">
-                        Test Already Completed
-                    </h1>
-
-                    <p style="
-                        font-size:22px;
-                        line-height:1.8;
-                    ">
-
-                        You have already submitted
-                        your assessment.
-
-                        <br><br>
-
-                        Retest is not allowed.
-
-                    </p>
-
-                </div>
+                <p style="
+                    margin-top:20px;
+                    font-size:22px;
+                ">
+                    Retest is not allowed.
+                </p>
 
             </div>
 
-            `;
+        </div>
 
-        }
-    );
+    `;
 
 }
 
@@ -148,123 +125,81 @@ if(localStorage.getItem("testCompleted") === "true"){
 function startTest(){
 
     const name =
-        document.getElementById("name")
-        .value.trim();
+        document.getElementById("name").value.trim();
 
     const age =
-        document.getElementById("age")
-        .value.trim();
+        document.getElementById("age").value.trim();
 
     const profession =
-        document.getElementById("profession")
-        .value.trim();
+        document.getElementById("profession").value.trim();
 
     const experience =
-        document.getElementById("experience")
-        .value.trim();
+        document.getElementById("experience").value.trim();
 
     const email =
-        document.getElementById("email")
-        .value.trim();
+        document.getElementById("email").value.trim();
 
     const college =
-        document.getElementById("college")
-        .value.trim();
+        document.getElementById("college").value.trim();
 
     const department =
-        document.getElementById("department")
-        .value.trim();
-
-    // NAME VALIDATION
+        document.getElementById("department").value.trim();
 
     if(name === ""){
 
-        alert("Please enter your name");
+        alert("Enter name");
         return;
 
     }
-
-    if(name.length < 3){
-
-        alert(
-            "Name must contain minimum 3 letters"
-        );
-
-        return;
-
-    }
-
-    // AGE VALIDATION
 
     if(age === ""){
 
-        alert("Please enter your age");
+        alert("Enter age");
         return;
 
     }
-
-    if(age < 15 || age > 80){
-
-        alert(
-            "Age must be between 15 and 80"
-        );
-
-        return;
-
-    }
-
-    // EMAIL VALIDATION
 
     const emailPattern =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
 
-        alert(
-            "Please enter valid email address"
-        );
-
+        alert("Invalid email");
         return;
 
     }
 
-    // OTHER VALIDATIONS
-
     if(profession === ""){
 
-        alert("Please enter profession");
+        alert("Enter profession");
         return;
 
     }
 
     if(experience === ""){
 
-        alert("Please enter experience");
+        alert("Enter experience");
         return;
 
     }
 
     if(college === ""){
 
-        alert("Please enter college name");
+        alert("Enter college");
         return;
 
     }
 
     if(department === ""){
 
-        alert("Please enter department");
+        alert("Enter department");
         return;
 
     }
 
-    // HIDE REGISTRATION
-
     document.getElementById(
         "registrationForm"
     ).style.display = "none";
-
-    // SHOW INSTRUCTION
 
     document.getElementById(
         "instructionPage"
@@ -272,7 +207,7 @@ function startTest(){
 
 }
 
-// BEGIN ACTUAL TEST
+// START ACTUAL TEST
 
 function beginActualTest(){
 
@@ -284,107 +219,19 @@ function beginActualTest(){
         "testSection"
     ).style.display = "block";
 
-    // USER DETAILS TOP PANEL
-
     document.getElementById(
-        "displayName"
+        "displayUserName"
     ).innerHTML =
         document.getElementById("name").value;
 
     document.getElementById(
-        "displayEmail"
+        "displayUserEmail"
     ).innerHTML =
         document.getElementById("email").value;
-
-    createQuestionPalette();
 
     startGlobalTimer();
 
     loadQuestion();
-
-}
-
-// CREATE QUESTION STATUS
-
-function createQuestionPalette(){
-
-    let html = "";
-
-    for(let i=0;i<questions.length;i++){
-
-        html += `
-
-        <div
-            class="question-circle"
-            id="circle-${i}"
-            onclick="jumpToQuestion(${i})"
-        >
-            ${i+1}
-        </div>
-
-        `;
-
-    }
-
-    document.getElementById(
-        "questionPalette"
-    ).innerHTML = html;
-
-    updateQuestionPalette();
-
-}
-
-// UPDATE STATUS COLORS
-
-function updateQuestionPalette(){
-
-    for(let i=0;i<questions.length;i++){
-
-        const circle =
-            document.getElementById(
-                `circle-${i}`
-            );
-
-        circle.className =
-            "question-circle";
-
-        if(i === currentQuestion){
-
-            circle.classList.add(
-                "processing"
-            );
-
-        }
-
-        else if(
-            userAnswers[i] &&
-            userAnswers[i].selectedOption !==
-            "Not Answered"
-        ){
-
-            circle.classList.add(
-                "answered"
-            );
-
-        }
-
-        else if(userAnswers[i]){
-
-            circle.classList.add(
-                "not-answered"
-            );
-
-        }
-
-        else{
-
-            circle.classList.add(
-                "not-visited"
-            );
-
-        }
-
-    }
 
 }
 
@@ -394,26 +241,25 @@ function startGlobalTimer(){
 
     globalTimer = setInterval(() => {
 
-        let minutes =
+        globalTime--;
+
+        const minutes =
             Math.floor(globalTime / 60);
 
-        let seconds =
+        const seconds =
             globalTime % 60;
-
-        if(seconds < 10){
-
-            seconds = "0" + seconds;
-
-        }
 
         document.getElementById(
             "globalTimer"
         ).innerHTML =
-            minutes + ":" + seconds;
 
-        globalTime--;
+            `${minutes}:${
+                seconds < 10
+                ? "0"+seconds
+                : seconds
+            }`;
 
-        if(globalTime < 0){
+        if(globalTime <= 0){
 
             clearInterval(globalTimer);
 
@@ -428,8 +274,6 @@ function startGlobalTimer(){
 // LOAD QUESTION
 
 function loadQuestion(){
-
-    questionStartTime = new Date();
 
     const q = questions[currentQuestion];
 
@@ -457,19 +301,21 @@ function loadQuestion(){
 
         optionsHTML += `
 
-        <label class="option">
+            <label class="option">
 
-            <input
-                type="radio"
-                name="option"
-                value="${option}"
-                ${checked}
-                onchange="selectAnswer('${option}')"
-            >
+                <input
+                    type="radio"
+                    name="option"
+                    value="${option}"
+                    ${checked}
+                    onchange="selectAnswer('${option}')"
+                >
 
-            ${option}
+                <div style="margin-top:10px;">
+                    ${option}
+                </div>
 
-        </label>
+            </label>
 
         `;
 
@@ -477,10 +323,9 @@ function loadQuestion(){
 
     document.getElementById(
         "optionsContainer"
-    ).innerHTML =
-        optionsHTML;
+    ).innerHTML = optionsHTML;
 
-    // BUTTON TEXT
+    updateQuestionStatus();
 
     if(currentQuestion === 0){
 
@@ -514,23 +359,11 @@ function loadQuestion(){
 
     }
 
-    updateQuestionPalette();
-
 }
 
 // SELECT ANSWER
 
 function selectAnswer(answer){
-
-    const timeTaken =
-
-        Math.floor(
-            (
-                new Date()
-                -
-                questionStartTime
-            ) / 1000
-        );
 
     userAnswers[currentQuestion] = {
 
@@ -548,65 +381,73 @@ function selectAnswer(answer){
 
         isCorrect:
             answer ===
-            questions[currentQuestion].answer,
-
-        timeTakenInSeconds:
-            timeTaken
+            questions[currentQuestion].answer
 
     };
 
-    updateQuestionPalette();
+    questionStatus[currentQuestion] =
+        "answered";
+
+    updateQuestionStatus();
+
+}
+
+// UPDATE QUESTION STATUS
+
+function updateQuestionStatus(){
+
+    let html = "";
+
+    for(let i=0;i<questions.length;i++){
+
+        let statusClass = "not-visited";
+
+        if(i === currentQuestion){
+
+            statusClass = "current";
+
+        }
+
+        else if(userAnswers[i]){
+
+            statusClass = "answered";
+
+        }
+
+        html += `
+
+            <div
+                class="status-circle ${statusClass}"
+                onclick="goToQuestion(${i})"
+            >
+
+                ${i+1}
+
+            </div>
+
+        `;
+
+    }
+
+    document.getElementById(
+        "questionStatusContainer"
+    ).innerHTML = html;
+
+}
+
+// GO TO QUESTION
+
+function goToQuestion(index){
+
+    currentQuestion = index;
+
+    loadQuestion();
 
 }
 
 // NEXT QUESTION
 
 function nextQuestion(){
-
-    // SAVE EMPTY ANSWER
-
-    if(
-        userAnswers[currentQuestion]
-        == null
-    ){
-
-        const timeTaken =
-
-            Math.floor(
-                (
-                    new Date()
-                    -
-                    questionStartTime
-                ) / 1000
-            );
-
-        userAnswers[currentQuestion] = {
-
-            question:
-                questions[currentQuestion]
-                .question,
-
-            image:
-                questions[currentQuestion]
-                .image,
-
-            selectedOption:
-                "Not Answered",
-
-            correctAnswer:
-                questions[currentQuestion]
-                .answer,
-
-            isCorrect:false,
-
-            timeTakenInSeconds:
-                timeTaken
-
-        };
-
-    }
-
-    // LAST QUESTION
 
     if(currentQuestion === questions.length - 1){
 
@@ -636,25 +477,13 @@ function previousQuestion(){
 
 }
 
-// JUMP QUESTION
-
-function jumpToQuestion(index){
-
-    currentQuestion = index;
-
-    loadQuestion();
-
-}
-
 // FINISH TEST
 
-async function finishTest(){
+function finishTest(){
 
     clearInterval(globalTimer);
 
     let score = 0;
-
-    let totalTime = 0;
 
     userAnswers.forEach(answer => {
 
@@ -664,53 +493,24 @@ async function finishTest(){
 
         }
 
-        if(answer){
-
-            totalTime +=
-                answer.timeTakenInSeconds;
-
-        }
-
     });
 
     const reportData = {
 
         name:
-            document.getElementById("name")
-            .value,
+            document.getElementById("name").value,
 
         email:
-            document.getElementById("email")
-            .value,
+            document.getElementById("email").value,
 
         score: score,
 
         totalQuestions:
             questions.length,
 
-        correctAnswers:
-            score,
-
-        wrongAnswers:
-            questions.length - score,
-
-        accuracy:
-            (
-                (
-                    score /
-                    questions.length
-                ) * 100
-            ).toFixed(2),
-
-        totalTime:
-            totalTime,
-
-        answers:
-            userAnswers
+        answers: userAnswers
 
     };
-
-    // SAVE REPORT
 
     localStorage.setItem(
         "testReport",
@@ -722,83 +522,70 @@ async function finishTest(){
         "true"
     );
 
-    // SAVE DATABASE
+    fetch(
+        "https://online-test-system-pqd0.onrender.com/save-result",
+        {
 
-    try{
+            method:"POST",
 
-        await fetch(
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
 
-            "https://online-test-system-pqd0.onrender.com/save-result",
+            body:JSON.stringify({
 
-            {
+                name:
+                    document.getElementById("name").value,
 
-                method:"POST",
+                age:
+                    document.getElementById("age").value,
 
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
+                profession:
+                    document.getElementById("profession").value,
 
-                body:JSON.stringify({
+                experience:
+                    document.getElementById("experience").value,
 
-                    name:
-                        document.getElementById("name").value,
+                email:
+                    document.getElementById("email").value,
 
-                    age:
-                        document.getElementById("age").value,
+                college:
+                    document.getElementById("college").value,
 
-                    profession:
-                        document.getElementById("profession").value,
+                department:
+                    document.getElementById("department").value,
 
-                    experience:
-                        document.getElementById("experience").value,
+                score: score,
 
-                    email:
-                        document.getElementById("email").value,
+                totalQuestions:
+                    questions.length,
 
-                    college:
-                        document.getElementById("college").value,
+                answers: userAnswers
 
-                    department:
-                        document.getElementById("department").value,
+            })
 
-                    score: score,
-
-                    totalQuestions:
-                        questions.length,
-
-                    answers:
-                        userAnswers
-
-                })
-
-            }
-
-        );
-
-    }catch(error){
-
-        console.log(error);
-
-    }
-
-    // BLOCK BACK
-
-    history.pushState(
-        null,
-        null,
-        location.href
+        }
     );
 
-    window.onpopstate = function(){
+    document.getElementById(
+        "testSection"
+    ).style.display = "none";
 
-        history.go(1);
+    document.getElementById(
+        "result"
+    ).style.display = "block";
 
-    };
+    document.getElementById(
+        "scoreText"
+    ).innerHTML =
+        score + " / " + questions.length;
 
-    // REDIRECT
+    setTimeout(() => {
 
-    window.location.href =
-        "report.html";
+        window.location.href =
+            "report.html";
+
+    },1000);
 
 }
