@@ -4,7 +4,7 @@ const questions = [
         question: "Question 1",
         image: "images/q1.png",
         options: ["A","B","C","D","E"],
-        answer: "C"
+        answer: "E"
     },
 
     {
@@ -74,104 +74,75 @@ const questions = [
 
 let currentQuestion = 0;
 
-let userAnswers =
-    new Array(questions.length).fill(null);
+let userAnswers = new Array(questions.length).fill("");
 
-let visitedQuestions =
-    new Array(questions.length).fill(false);
+let visitedQuestions = new Array(questions.length).fill(false);
 
-let globalTime = 600;
+let score = 0;
+
+let totalTime = 600;
 
 let globalTimer;
 
-// VALIDATION
+let startTime;
+
+let testSubmitted = false;
+
+// START TEST
+
 function startTest(){
 
     const name =
-        document.getElementById("name")
-        .value.trim();
-
-    const age =
-        document.getElementById("age")
-        .value.trim();
-
-    const profession =
-        document.getElementById("profession")
-        .value.trim();
-
-    const experience =
-        document.getElementById("experience")
-        .value.trim();
+        document.getElementById("name").value.trim();
 
     const email =
-        document.getElementById("email")
-        .value.trim();
+        document.getElementById("email").value.trim();
+
+    const age =
+        document.getElementById("age").value.trim();
+
+    const profession =
+        document.getElementById("profession").value.trim();
+
+    const experience =
+        document.getElementById("experience").value.trim();
 
     const college =
-        document.getElementById("college")
-        .value.trim();
+        document.getElementById("college").value.trim();
 
     const department =
-        document.getElementById("department")
-        .value.trim();
+        document.getElementById("department").value.trim();
+
+    if(
+        !name ||
+        !email ||
+        !age ||
+        !profession ||
+        !experience ||
+        !college ||
+        !department
+    ){
+
+        alert("Please fill all fields");
+
+        return;
+    }
 
     const emailPattern =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(name === ""){
-
-        alert("Enter Name");
-
-        return;
-
-    }
-
-    if(age < 15 || age > 80){
-
-        alert("Enter Valid Age");
-
-        return;
-
-    }
-
     if(!emailPattern.test(email)){
 
-        alert("Invalid Email");
+        alert("Enter valid email");
 
         return;
-
     }
 
-    if(profession === ""){
+    if(age < 15 || age > 100){
 
-        alert("Enter Profession");
-
-        return;
-
-    }
-
-    if(experience === ""){
-
-        alert("Enter Experience");
+        alert("Enter valid age");
 
         return;
-
-    }
-
-    if(college === ""){
-
-        alert("Enter College");
-
-        return;
-
-    }
-
-    if(department === ""){
-
-        alert("Enter Department");
-
-        return;
-
     }
 
     document.getElementById(
@@ -181,20 +152,19 @@ function startTest(){
     document.getElementById(
         "instructionPage"
     ).style.display = "block";
-
 }
 
 // BEGIN TEST
+
 function beginActualTest(){
 
-    if(localStorage.getItem("testCompleted")){
+    if(localStorage.getItem("testSubmitted")){
 
         alert(
-            "Test Already Completed"
+            "You have already completed the test"
         );
 
         return;
-
     }
 
     document.getElementById(
@@ -215,136 +185,112 @@ function beginActualTest(){
     ).innerHTML =
         document.getElementById("email").value;
 
+    startTime = new Date();
+
     startGlobalTimer();
 
     loadQuestion();
-
 }
 
 // GLOBAL TIMER
+
 function startGlobalTimer(){
 
-    updateGlobalTimer();
+    globalTimer = setInterval(()=>{
 
-    globalTimer = setInterval(() => {
+        let minutes =
+            Math.floor(totalTime / 60);
 
-        globalTime--;
+        let seconds =
+            totalTime % 60;
 
-        updateGlobalTimer();
+        if(seconds < 10){
 
-        if(globalTime <= 0){
+            seconds = "0" + seconds;
+        }
+
+        document.getElementById(
+            "globalTimer"
+        ).innerHTML =
+            minutes + ":" + seconds;
+
+        totalTime--;
+
+        if(totalTime < 0){
 
             clearInterval(globalTimer);
 
             finishTest();
-
         }
 
     },1000);
-
-}
-
-function updateGlobalTimer(){
-
-    const minutes =
-        Math.floor(globalTime / 60);
-
-    const seconds =
-        globalTime % 60;
-
-    document.getElementById(
-        "globalTimer"
-    ).innerHTML =
-
-        `${minutes}:${seconds
-            .toString()
-            .padStart(2,'0')}`;
-
 }
 
 // LOAD QUESTION
+
 function loadQuestion(){
 
-    visitedQuestions[currentQuestion] = true;
-
     updateQuestionStatus();
+
+    visitedQuestions[currentQuestion] = true;
 
     const q = questions[currentQuestion];
 
     document.getElementById(
         "questionTitle"
-    ).innerHTML =
-        q.question;
+    ).innerHTML = q.question;
 
     document.getElementById(
         "questionImage"
-    ).src =
-        q.image;
+    ).src = q.image;
 
     let optionsHTML = "";
 
     q.options.forEach(option => {
 
         const checked =
-
-            userAnswers[currentQuestion]
-            &&
-            userAnswers[currentQuestion]
-            .selectedOption === option
-
+            userAnswers[currentQuestion] === option
             ? "checked"
-
             : "";
 
         optionsHTML += `
 
-        <label class="option">
+            <label class="option">
 
-            <input
-                type="radio"
-                name="option"
-                value="${option}"
-                ${checked}
-                onchange="selectAnswer('${option}')"
-            >
+                <input
+                    type="radio"
+                    name="option"
+                    value="${option}"
+                    ${checked}
+                    onchange="selectAnswer('${option}')"
+                >
 
-            ${option}
+                ${option}
 
-        </label>
+            </label>
 
         `;
-
     });
 
     document.getElementById(
         "optionsContainer"
-    ).innerHTML =
-        optionsHTML;
+    ).innerHTML = optionsHTML;
 
-    // BUTTON TEXT
+    const nextBtn =
+        document.getElementById("nextBtn");
 
-    if(currentQuestion ===
-        questions.length - 1){
+    if(currentQuestion === questions.length - 1){
 
-        document.getElementById(
-            "nextBtn"
-        ).innerHTML =
-            "Finish Test";
+        nextBtn.innerHTML = "Finish Test";
 
+    }else{
+
+        nextBtn.innerHTML = "Next Question";
     }
-
-    else{
-
-        document.getElementById(
-            "nextBtn"
-        ).innerHTML =
-            "Next Question";
-
-    }
-
 }
 
-// QUESTION STATUS
+// UPDATE STATUS
+
 function updateQuestionStatus(){
 
     const container =
@@ -354,106 +300,72 @@ function updateQuestionStatus(){
 
     container.innerHTML = "";
 
-    for(let i=0;i<questions.length;i++){
+    for(let i = 0; i < questions.length; i++){
 
-        let className =
-            "not-visited";
+        let statusClass = "";
 
         if(i === currentQuestion){
 
-            className = "current";
-
+            statusClass = "current";
         }
 
-        else if(
+        else if(userAnswers[i] !== ""){
 
-            userAnswers[i]
-            &&
-            userAnswers[i]
-            .selectedOption !==
-            "Not Answered"
-
-        ){
-
-            className = "answered";
-
+            statusClass = "answered";
         }
 
         else if(visitedQuestions[i]){
 
-            className =
-                "not-answered";
+            statusClass = "not-answered";
+        }
 
+        else{
+
+            statusClass = "not-visited";
         }
 
         container.innerHTML += `
 
-        <div class="
-            status-circle
-            ${className}
-        ">
-            ${i+1}
-        </div>
+            <div
+                class="status-circle ${statusClass}"
+                onclick="goToQuestion(${i})"
+            >
+
+                ${i + 1}
+
+            </div>
 
         `;
-
     }
-
 }
 
 // SELECT ANSWER
+
 function selectAnswer(answer){
 
-    userAnswers[currentQuestion] = {
-
-        question:
-            questions[currentQuestion]
-            .question,
-
-        selectedOption:
-            answer,
-
-        correctAnswer:
-            questions[currentQuestion]
-            .answer,
-
-        isCorrect:
-
-            answer ===
-            questions[currentQuestion]
-            .answer
-
-    };
+    userAnswers[currentQuestion] = answer;
 
     updateQuestionStatus();
-
 }
 
 // NEXT QUESTION
+
 function nextQuestion(){
 
-    if(
-
-        currentQuestion <
-        questions.length - 1
-
-    ){
-
-        currentQuestion++;
-
-        loadQuestion();
-
-    }
-
-    else{
+    if(currentQuestion === questions.length - 1){
 
         finishTest();
 
+        return;
     }
 
+    currentQuestion++;
+
+    loadQuestion();
 }
 
 // PREVIOUS QUESTION
+
 function previousQuestion(){
 
     if(currentQuestion > 0){
@@ -461,29 +373,79 @@ function previousQuestion(){
         currentQuestion--;
 
         loadQuestion();
-
     }
+}
 
+// JUMP QUESTION
+
+function goToQuestion(index){
+
+    currentQuestion = index;
+
+    loadQuestion();
 }
 
 // FINISH TEST
+
 async function finishTest(){
+
+    if(testSubmitted){
+
+        return;
+    }
+
+    testSubmitted = true;
 
     clearInterval(globalTimer);
 
-    let score = 0;
+    score = 0;
 
-    userAnswers.forEach(answer => {
+    let wrongAnswers = 0;
 
-        if(answer && answer.isCorrect){
+    let totalSecondsTaken =
+        600 - totalTime;
+
+    let answersReport = [];
+
+    for(let i = 0; i < questions.length; i++){
+
+        const isCorrect =
+            userAnswers[i] ===
+            questions[i].answer;
+
+        if(isCorrect){
 
             score++;
 
+        }else{
+
+            wrongAnswers++;
         }
 
-    });
+        answersReport.push({
 
-    const reportData = {
+            question:
+                questions[i].question,
+
+            selectedOption:
+                userAnswers[i],
+
+            correctAnswer:
+                questions[i].answer,
+
+            status:
+                isCorrect
+                ? "Correct"
+                : "Wrong"
+        });
+    }
+
+    const accuracy =
+        (
+            (score / questions.length) * 100
+        ).toFixed(2);
+
+    const resultData = {
 
         name:
             document.getElementById("name").value,
@@ -491,40 +453,40 @@ async function finishTest(){
         email:
             document.getElementById("email").value,
 
-        totalScore:
-            score,
+        score: score,
 
-        correctAnswers:
-            score,
+        totalQuestions:
+            questions.length,
 
-        wrongAnswers:
-            questions.length - score,
+        correctAnswers: score,
 
-        accuracy:
-            (
-                score /
-                questions.length
-            ) * 100,
+        wrongAnswers: wrongAnswers,
 
-        totalTime:
-            600 - globalTime,
+        accuracy: accuracy,
 
-        answers:
-            userAnswers
+        totalTimeTaken:
+            totalSecondsTaken,
 
+        answers: answersReport
     };
 
     localStorage.setItem(
-        "testReport",
-        JSON.stringify(reportData)
+        "reportData",
+        JSON.stringify(resultData)
     );
 
     localStorage.setItem(
-        "testCompleted",
+        "testSubmitted",
         "true"
     );
 
-    // SAVE DATABASE
+    document.getElementById(
+        "testSection"
+    ).style.display = "none";
+
+    document.getElementById(
+        "result"
+    ).style.display = "block";
 
     try{
 
@@ -537,23 +499,24 @@ async function finishTest(){
                 method:"POST",
 
                 headers:{
+
                     "Content-Type":
                     "application/json"
                 },
 
-                body:JSON.stringify(reportData)
-
+                body:JSON.stringify(resultData)
             }
-
         );
 
     }catch(error){
 
         console.log(error);
-
     }
 
-    window.location.href =
-        "report.html";
+    setTimeout(()=>{
 
+        window.location.href =
+            "report.html";
+
+    },3000);
 }
