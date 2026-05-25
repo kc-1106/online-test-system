@@ -36,7 +36,7 @@
 
             width:100%;
 
-            max-width:1200px;
+            max-width:1300px;
 
             margin:auto;
 
@@ -68,6 +68,8 @@
             margin-bottom:8px;
 
             font-weight:bold;
+
+            font-size:18px;
         }
 
         input{
@@ -97,7 +99,7 @@
 
             width:100%;
 
-            padding:15px;
+            padding:16px;
 
             border:none;
 
@@ -121,6 +123,13 @@
             background:#1d4ed8;
         }
 
+        button:disabled{
+
+            background:#94a3b8;
+
+            cursor:not-allowed;
+        }
+
         #instructionPage,
         #testSection,
         #result{
@@ -132,7 +141,7 @@
 
             background:#f8fafc;
 
-            padding:25px;
+            padding:30px;
 
             border-radius:15px;
 
@@ -173,7 +182,7 @@
 
             color:#0f172a;
 
-            margin-bottom:5px;
+            margin-bottom:8px;
         }
 
         .user-details p{
@@ -185,7 +194,7 @@
 
         .global-timer{
 
-            font-size:28px;
+            font-size:32px;
 
             font-weight:bold;
 
@@ -198,18 +207,18 @@
 
             display:flex;
 
-            gap:12px;
-
             flex-wrap:wrap;
+
+            gap:12px;
 
             margin-bottom:30px;
         }
 
         .status-circle{
 
-            width:42px;
+            width:45px;
 
-            height:42px;
+            height:45px;
 
             border-radius:50%;
 
@@ -224,11 +233,15 @@
             cursor:pointer;
 
             border:2px solid #cbd5e1;
+
+            transition:0.3s;
         }
 
         .not-visited{
 
             background:white;
+
+            color:black;
         }
 
         .current{
@@ -263,7 +276,7 @@
 
             width:100%;
 
-            max-width:800px;
+            max-width:850px;
 
             margin-top:20px;
 
@@ -277,7 +290,7 @@
 
         .options{
 
-            margin-top:30px;
+            margin-top:35px;
 
             display:grid;
 
@@ -291,7 +304,7 @@
 
             background:#f1f5f9;
 
-            padding:20px;
+            padding:22px;
 
             border-radius:15px;
 
@@ -301,7 +314,7 @@
 
             transition:0.3s;
 
-            font-size:22px;
+            font-size:24px;
 
             font-weight:bold;
         }
@@ -340,7 +353,7 @@
 
         .score{
 
-            font-size:50px;
+            font-size:55px;
 
             color:#2563eb;
 
@@ -408,7 +421,7 @@
 
     </div>
 
-    <!-- INSTRUCTIONS -->
+    <!-- INSTRUCTION -->
 
     <div id="instructionPage">
 
@@ -434,6 +447,10 @@
 
                 <li>
                     Each question has only ONE answer.
+                </li>
+
+                <li>
+                    Total test duration is 10 minutes.
                 </li>
 
             </ol>
@@ -467,7 +484,9 @@
             <div class="global-timer">
 
                 Time Left :
-                <span id="globalTimer">10:00</span>
+                <span id="globalTimer">
+                    10:00
+                </span>
 
             </div>
 
@@ -475,8 +494,9 @@
 
         <!-- QUESTION STATUS -->
 
-        <div id="questionStatusContainer"
-             class="question-status-container">
+        <div
+            id="questionStatusContainer"
+            class="question-status-container">
         </div>
 
         <!-- QUESTION -->
@@ -503,13 +523,15 @@
 
         <div class="navigation-buttons">
 
-            <button id="prevBtn"
-                    onclick="previousQuestion()">
+            <button
+                id="prevBtn"
+                onclick="previousQuestion()">
                 Previous
             </button>
 
-            <button id="nextBtn"
-                    onclick="nextQuestion()">
+            <button
+                id="nextBtn"
+                onclick="nextQuestion()">
                 Next Question
             </button>
 
@@ -523,10 +545,13 @@
 
         <div class="score-box">
 
-            <h1>Assessment Completed</h1>
+            <h1>
+                Assessment Completed
+            </h1>
 
-            <div class="score"
-                 id="scoreText">
+            <div
+                class="score"
+                id="scoreText">
             </div>
 
             <div class="message-box">
