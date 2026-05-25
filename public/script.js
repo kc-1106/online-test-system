@@ -77,19 +77,15 @@ let currentQuestion = 0;
 let userAnswers =
     new Array(questions.length).fill(null);
 
-let questionTime = 60;
-
-let timer;
+let questionStatus =
+    new Array(questions.length)
+    .fill("not-visited");
 
 let questionStartTime;
 
 let globalTime = 600;
 
 let globalTimer;
-
-let questionStatus =
-    new Array(questions.length)
-    .fill("not-visited");
 
 // BLOCK TEST AFTER COMPLETION
 
@@ -148,6 +144,7 @@ if(localStorage.getItem("testCompleted") === "true"){
 }
 
 // START TEST
+
 function startTest(){
 
     const name =
@@ -183,7 +180,6 @@ function startTest(){
     if(name === ""){
 
         alert("Please enter your name");
-
         return;
 
     }
@@ -203,7 +199,6 @@ function startTest(){
     if(age === ""){
 
         alert("Please enter your age");
-
         return;
 
     }
@@ -221,90 +216,65 @@ function startTest(){
     // EMAIL VALIDATION
 
     const emailPattern =
-
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
 
         alert(
-            "Please enter a valid email address"
+            "Please enter valid email address"
         );
 
         return;
 
     }
 
-    // PROFESSION VALIDATION
+    // OTHER VALIDATIONS
 
     if(profession === ""){
 
-        alert(
-            "Please enter your profession"
-        );
-
+        alert("Please enter profession");
         return;
 
     }
-
-    // EXPERIENCE VALIDATION
 
     if(experience === ""){
 
-        alert(
-            "Please enter your experience"
-        );
-
+        alert("Please enter experience");
         return;
 
     }
-
-    // COLLEGE VALIDATION
 
     if(college === ""){
 
-        alert(
-            "Please enter your college name"
-        );
-
+        alert("Please enter college name");
         return;
 
     }
-
-    // DEPARTMENT VALIDATION
 
     if(department === ""){
 
-        alert(
-            "Please enter your department"
-        );
-
+        alert("Please enter department");
         return;
 
     }
 
-    // SUCCESS
+    // HIDE REGISTRATION
 
     document.getElementById(
         "registrationForm"
     ).style.display = "none";
+
+    // SHOW INSTRUCTION
 
     document.getElementById(
         "instructionPage"
     ).style.display = "block";
 
 }
-// BEGIN TEST
+
+// BEGIN ACTUAL TEST
+
 function beginActualTest(){
-
-    if(localStorage.getItem("testCompleted")){
-
-        alert(
-            "You have already completed the test."
-        );
-
-        return;
-
-    }
 
     document.getElementById(
         "instructionPage"
@@ -314,16 +284,150 @@ function beginActualTest(){
         "testSection"
     ).style.display = "block";
 
+    // USER DETAILS TOP PANEL
+
+    document.getElementById(
+        "displayName"
+    ).innerHTML =
+        document.getElementById("name").value;
+
+    document.getElementById(
+        "displayEmail"
+    ).innerHTML =
+        document.getElementById("email").value;
+
+    createQuestionPalette();
+
+    startGlobalTimer();
+
     loadQuestion();
 
 }
 
+// CREATE QUESTION STATUS
+
+function createQuestionPalette(){
+
+    let html = "";
+
+    for(let i=0;i<questions.length;i++){
+
+        html += `
+
+        <div
+            class="question-circle"
+            id="circle-${i}"
+            onclick="jumpToQuestion(${i})"
+        >
+            ${i+1}
+        </div>
+
+        `;
+
+    }
+
+    document.getElementById(
+        "questionPalette"
+    ).innerHTML = html;
+
+    updateQuestionPalette();
+
+}
+
+// UPDATE STATUS COLORS
+
+function updateQuestionPalette(){
+
+    for(let i=0;i<questions.length;i++){
+
+        const circle =
+            document.getElementById(
+                `circle-${i}`
+            );
+
+        circle.className =
+            "question-circle";
+
+        if(i === currentQuestion){
+
+            circle.classList.add(
+                "processing"
+            );
+
+        }
+
+        else if(
+            userAnswers[i] &&
+            userAnswers[i].selectedOption !==
+            "Not Answered"
+        ){
+
+            circle.classList.add(
+                "answered"
+            );
+
+        }
+
+        else if(userAnswers[i]){
+
+            circle.classList.add(
+                "not-answered"
+            );
+
+        }
+
+        else{
+
+            circle.classList.add(
+                "not-visited"
+            );
+
+        }
+
+    }
+
+}
+
+// GLOBAL TIMER
+
+function startGlobalTimer(){
+
+    globalTimer = setInterval(() => {
+
+        let minutes =
+            Math.floor(globalTime / 60);
+
+        let seconds =
+            globalTime % 60;
+
+        if(seconds < 10){
+
+            seconds = "0" + seconds;
+
+        }
+
+        document.getElementById(
+            "globalTimer"
+        ).innerHTML =
+            minutes + ":" + seconds;
+
+        globalTime--;
+
+        if(globalTime < 0){
+
+            clearInterval(globalTimer);
+
+            finishTest();
+
+        }
+
+    },1000);
+
+}
+
 // LOAD QUESTION
+
 function loadQuestion(){
-
-    clearInterval(timer);
-
-    questionTime = 60;
 
     questionStartTime = new Date();
 
@@ -349,7 +453,6 @@ function loadQuestion(){
             .selectedOption === option
 
             ? "checked"
-
             : "";
 
         optionsHTML += `
@@ -374,9 +477,10 @@ function loadQuestion(){
 
     document.getElementById(
         "optionsContainer"
-    ).innerHTML = optionsHTML;
+    ).innerHTML =
+        optionsHTML;
 
-    // PREVIOUS BUTTON
+    // BUTTON TEXT
 
     if(currentQuestion === 0){
 
@@ -394,8 +498,6 @@ function loadQuestion(){
 
     }
 
-    // FINISH BUTTON
-
     if(currentQuestion === questions.length - 1){
 
         document.getElementById(
@@ -412,55 +514,23 @@ function loadQuestion(){
 
     }
 
-    startQuestionTimer();
-
-}
-
-// TIMER
-function startQuestionTimer(){
-
-    document.getElementById(
-        "timer"
-    ).innerHTML =
-
-        "Time Left : "
-        + questionTime
-        + " sec";
-
-    timer = setInterval(() => {
-
-        questionTime--;
-
-        document.getElementById(
-            "timer"
-        ).innerHTML =
-
-            "Time Left : "
-            + questionTime
-            + " sec";
-
-        if(questionTime <= 0){
-
-            clearInterval(timer);
-
-            nextQuestion();
-
-        }
-
-    },1000);
+    updateQuestionPalette();
 
 }
 
 // SELECT ANSWER
+
 function selectAnswer(answer){
 
     const timeTaken =
 
-        (
-            new Date()
-            -
-            questionStartTime
-        ) / 1000;
+        Math.floor(
+            (
+                new Date()
+                -
+                questionStartTime
+            ) / 1000
+        );
 
     userAnswers[currentQuestion] = {
 
@@ -481,70 +551,79 @@ function selectAnswer(answer){
             questions[currentQuestion].answer,
 
         timeTakenInSeconds:
-            Math.floor(timeTaken)
+            timeTaken
 
     };
+
+    updateQuestionPalette();
 
 }
 
 // NEXT QUESTION
+
 function nextQuestion(){
 
-    if(
+    // SAVE EMPTY ANSWER
 
+    if(
         userAnswers[currentQuestion]
         == null
-
     ){
 
         const timeTaken =
 
-            (
-                new Date()
-                -
-                questionStartTime
-            ) / 1000;
+            Math.floor(
+                (
+                    new Date()
+                    -
+                    questionStartTime
+                ) / 1000
+            );
 
         userAnswers[currentQuestion] = {
 
             question:
-                questions[currentQuestion].question,
+                questions[currentQuestion]
+                .question,
 
             image:
-                questions[currentQuestion].image,
+                questions[currentQuestion]
+                .image,
 
             selectedOption:
                 "Not Answered",
 
             correctAnswer:
-                questions[currentQuestion].answer,
+                questions[currentQuestion]
+                .answer,
 
             isCorrect:false,
 
             timeTakenInSeconds:
-                Math.floor(timeTaken)
+                timeTaken
 
         };
 
     }
 
-    currentQuestion++;
+    // LAST QUESTION
 
-    if(currentQuestion < questions.length){
-
-        loadQuestion();
-
-    }
-
-    else{
+    if(currentQuestion === questions.length - 1){
 
         finishTest();
 
+        return;
+
     }
+
+    currentQuestion++;
+
+    loadQuestion();
 
 }
 
 // PREVIOUS QUESTION
+
 function previousQuestion(){
 
     if(currentQuestion > 0){
@@ -557,10 +636,21 @@ function previousQuestion(){
 
 }
 
-// FINISH TEST
-function finishTest(){
+// JUMP QUESTION
 
-    clearInterval(timer);
+function jumpToQuestion(index){
+
+    currentQuestion = index;
+
+    loadQuestion();
+
+}
+
+// FINISH TEST
+
+async function finishTest(){
+
+    clearInterval(globalTimer);
 
     let score = 0;
 
@@ -568,120 +658,131 @@ function finishTest(){
 
     userAnswers.forEach(answer => {
 
-        if(answer.isCorrect){
+        if(answer && answer.isCorrect){
 
             score++;
 
         }
 
-        totalTime +=
-            answer.timeTakenInSeconds;
+        if(answer){
+
+            totalTime +=
+                answer.timeTakenInSeconds;
+
+        }
 
     });
 
     const reportData = {
 
         name:
-            document.getElementById("name").value,
+            document.getElementById("name")
+            .value,
 
         email:
-            document.getElementById("email").value,
+            document.getElementById("email")
+            .value,
 
         score: score,
 
         totalQuestions:
             questions.length,
 
-        correctAnswers: score,
+        correctAnswers:
+            score,
 
         wrongAnswers:
             questions.length - score,
 
         accuracy:
-
             (
-                (score / questions.length) * 100
+                (
+                    score /
+                    questions.length
+                ) * 100
             ).toFixed(2),
 
         totalTime:
             totalTime,
 
-        answers: userAnswers
+        answers:
+            userAnswers
 
     };
 
     // SAVE REPORT
 
     localStorage.setItem(
-
         "testReport",
-
         JSON.stringify(reportData)
-
     );
-
-    // BLOCK RETEST
 
     localStorage.setItem(
-
         "testCompleted",
-
         "true"
-
     );
 
-    // SAVE TO DATABASE
+    // SAVE DATABASE
 
-    fetch(
+    try{
 
-        "https://online-test-system-pqd0.onrender.com/save-result",
+        await fetch(
 
-        {
+            "https://online-test-system-pqd0.onrender.com/save-result",
 
-            method:"POST",
+            {
 
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
+                method:"POST",
 
-            body:JSON.stringify({
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
 
-                name:
-                    document.getElementById("name").value,
+                body:JSON.stringify({
 
-                age:
-                    document.getElementById("age").value,
+                    name:
+                        document.getElementById("name").value,
 
-                profession:
-                    document.getElementById("profession").value,
+                    age:
+                        document.getElementById("age").value,
 
-                experience:
-                    document.getElementById("experience").value,
+                    profession:
+                        document.getElementById("profession").value,
 
-                email:
-                    document.getElementById("email").value,
+                    experience:
+                        document.getElementById("experience").value,
 
-                college:
-                    document.getElementById("college").value,
+                    email:
+                        document.getElementById("email").value,
 
-                department:
-                    document.getElementById("department").value,
+                    college:
+                        document.getElementById("college").value,
 
-                score: score,
+                    department:
+                        document.getElementById("department").value,
 
-                totalQuestions:
-                    questions.length,
+                    score: score,
 
-                answers: userAnswers
+                    totalQuestions:
+                        questions.length,
 
-            })
+                    answers:
+                        userAnswers
 
-        }
+                })
 
-    );
+            }
 
-    // BLOCK BACK BUTTON
+        );
+
+    }catch(error){
+
+        console.log(error);
+
+    }
+
+    // BLOCK BACK
 
     history.pushState(
         null,
@@ -689,13 +790,13 @@ function finishTest(){
         location.href
     );
 
-    window.onpopstate = function () {
+    window.onpopstate = function(){
 
         history.go(1);
 
     };
 
-    // REDIRECT TO REPORT
+    // REDIRECT
 
     window.location.href =
         "report.html";

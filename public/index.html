@@ -29,26 +29,22 @@
 
             min-height:100vh;
 
-            display:flex;
-
-            justify-content:center;
-
-            align-items:center;
-
-            padding:30px;
+            padding:20px;
         }
 
         .container{
 
             width:100%;
 
-            max-width:900px;
+            max-width:1200px;
+
+            margin:auto;
 
             background:white;
 
             border-radius:20px;
 
-            padding:40px;
+            padding:30px;
 
             box-shadow:
                 0px 0px 25px rgba(0,0,0,0.4);
@@ -61,13 +57,6 @@
             margin-bottom:25px;
 
             color:#0f172a;
-        }
-
-        h2{
-
-            color:#1e293b;
-
-            margin-bottom:20px;
         }
 
         label{
@@ -85,7 +74,7 @@
 
             width:100%;
 
-            padding:12px;
+            padding:14px;
 
             border-radius:10px;
 
@@ -109,8 +98,6 @@
             width:100%;
 
             padding:15px;
-
-            margin-top:25px;
 
             border:none;
 
@@ -159,6 +146,114 @@
             margin-left:25px;
         }
 
+        /* TOP PANEL */
+
+        .top-panel{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            flex-wrap:wrap;
+
+            gap:20px;
+
+            background:#f8fafc;
+
+            padding:20px;
+
+            border-radius:15px;
+
+            margin-bottom:25px;
+        }
+
+        .user-details h2{
+
+            color:#0f172a;
+
+            margin-bottom:5px;
+        }
+
+        .user-details p{
+
+            color:#475569;
+
+            font-size:16px;
+        }
+
+        .global-timer{
+
+            font-size:28px;
+
+            font-weight:bold;
+
+            color:red;
+        }
+
+        /* QUESTION STATUS */
+
+        .question-status-container{
+
+            display:flex;
+
+            gap:12px;
+
+            flex-wrap:wrap;
+
+            margin-bottom:30px;
+        }
+
+        .status-circle{
+
+            width:42px;
+
+            height:42px;
+
+            border-radius:50%;
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            border:2px solid #cbd5e1;
+        }
+
+        .not-visited{
+
+            background:white;
+        }
+
+        .current{
+
+            background:orange;
+
+            color:white;
+        }
+
+        .answered{
+
+            background:green;
+
+            color:white;
+        }
+
+        .not-answered{
+
+            background:red;
+
+            color:white;
+        }
+
+        /* QUESTION */
+
         .question-box{
 
             text-align:center;
@@ -168,7 +263,7 @@
 
             width:100%;
 
-            max-width:650px;
+            max-width:800px;
 
             margin-top:20px;
 
@@ -178,6 +273,8 @@
                 0px 0px 15px rgba(0,0,0,0.3);
         }
 
+        /* OPTIONS */
+
         .options{
 
             margin-top:30px;
@@ -185,24 +282,28 @@
             display:grid;
 
             grid-template-columns:
-                repeat(auto-fit,minmax(120px,1fr));
+                repeat(auto-fit,minmax(150px,1fr));
 
-            gap:15px;
+            gap:20px;
         }
 
         .option{
 
             background:#f1f5f9;
 
-            padding:15px;
+            padding:20px;
 
-            border-radius:12px;
+            border-radius:15px;
 
             cursor:pointer;
 
             border:2px solid transparent;
 
             transition:0.3s;
+
+            font-size:22px;
+
+            font-weight:bold;
         }
 
         .option:hover{
@@ -212,23 +313,23 @@
             border-color:#2563eb;
         }
 
-        .option input{
+        /* BUTTONS */
 
-            margin-right:8px;
+        .navigation-buttons{
+
+            display:flex;
+
+            gap:20px;
+
+            margin-top:35px;
         }
 
-        #timer{
+        .navigation-buttons button{
 
-            text-align:right;
-
-            color:red;
-
-            font-size:22px;
-
-            font-weight:bold;
-
-            margin-bottom:20px;
+            flex:1;
         }
+
+        /* RESULT */
 
         .score-box{
 
@@ -239,13 +340,30 @@
 
         .score{
 
-            font-size:40px;
+            font-size:50px;
 
             color:#2563eb;
 
             font-weight:bold;
 
             margin-top:20px;
+        }
+
+        .message-box{
+
+            margin-top:30px;
+
+            padding:25px;
+
+            background:#f8fafc;
+
+            border-left:6px solid #2563eb;
+
+            border-radius:15px;
+
+            line-height:2;
+
+            font-size:20px;
         }
 
     </style>
@@ -283,7 +401,8 @@
         <label>Department</label>
         <input type="text" id="department">
 
-        <button onclick="startTest()">
+        <button onclick="startTest()"
+                style="margin-top:25px;">
             Continue
         </button>
 
@@ -298,40 +417,28 @@
         <div class="instruction-box">
 
             <p>
-                This test consists of 10 questions designed
-                to see how well you can visualize the
-                rotation of three dimensional objects.
+                This test consists of 10 questions.
             </p>
 
             <br>
 
-            <p>You are to:</p>
-
             <ol>
 
                 <li>
-                    Study how the object in the top line
-                    of the question is rotated.
+                    Study the object rotation carefully.
                 </li>
 
                 <li>
-                    Picture in your mind what the object
-                    shown in the middle line looks like
-                    when rotated in exactly the same manner.
+                    Select the correct answer.
                 </li>
 
                 <li>
-                    Select the correct answer from
-                    A, B, C, D or E.
+                    Each question has only ONE answer.
                 </li>
 
             </ol>
 
             <br>
-
-            <p>
-                Each question has only ONE correct answer.
-            </p>
 
             <button onclick="beginActualTest()">
                 Start Actual Test
@@ -341,158 +448,108 @@
 
     </div>
 
-  <div id="testSection" style="display:none;">
+    <!-- TEST SECTION -->
 
-    <!-- TOP DASHBOARD -->
+    <div id="testSection">
 
-    <div class="top-layout">
+        <!-- TOP PANEL -->
 
-        <div class="user-info">
+        <div class="top-panel">
 
-            <h3>
-                Name :
-                <span id="displayName"></span>
-            </h3>
+            <div class="user-details">
 
-            <h3>
-                Email :
-                <span id="displayEmail"></span>
-            </h3>
+                <h2 id="displayUserName"></h2>
 
-        </div>
+                <p id="displayUserEmail"></p>
 
-        <div class="timer-box">
+            </div>
 
-            ⏰ Time Left :
-            <span id="globalTimer">
-                10:00
-            </span>
+            <div class="global-timer">
+
+                Time Left :
+                <span id="globalTimer">10:00</span>
+
+            </div>
 
         </div>
 
-    </div>
+        <!-- QUESTION STATUS -->
 
-    <!-- QUESTION STATUS -->
-
-    <div
-        class="status-container"
-        id="questionStatusContainer">
-
-    </div>
-
-    <!-- QUESTION AREA -->
-
-    <div class="question-layout">
-
-        <h2 id="questionTitle"></h2>
-
-        <img
-            id="questionImage"
-            class="question-image"
-        >
-
-        <div
-            class="options"
-            id="optionsContainer">
-
+        <div id="questionStatusContainer"
+             class="question-status-container">
         </div>
 
-    </div>
+        <!-- QUESTION -->
 
-    <!-- BUTTONS -->
+        <div class="question-box">
 
-    <div class="button-layout">
+            <h1 id="questionTitle"></h1>
 
-        <button
-            class="prev-btn"
-            onclick="previousQuestion()">
+            <img
+                id="questionImage"
+                class="question-image"
+            >
 
-            Previous
+            <!-- OPTIONS -->
 
-        </button>
+            <div
+                class="options"
+                id="optionsContainer">
+            </div>
 
-        <button
-            id="nextBtn"
-            class="next-btn"
-            onclick="nextQuestion()">
-
-            Next Question
-
-        </button>
-
-    </div>
-
-</div>
+        </div>
 
         <!-- BUTTONS -->
 
-        <div class="button-layout">
+        <div class="navigation-buttons">
 
-            <button
-                onclick="previousQuestion()"
-                id="prevBtn"
-                class="prev-btn">
-
+            <button id="prevBtn"
+                    onclick="previousQuestion()">
                 Previous
-
             </button>
 
-
-            <button
-                onclick="nextQuestion()"
-                id="nextBtn"
-                class="next-btn">
-
+            <button id="nextBtn"
+                    onclick="nextQuestion()">
                 Next Question
-
             </button>
 
         </div>
 
     </div>
 
-</div>
+    <!-- RESULT -->
 
-<div id="result">
+    <div id="result">
 
-    <div class="score-box">
+        <div class="score-box">
 
-        <h1>Assessment Completed</h1>
+            <h1>Assessment Completed</h1>
 
-        <div
-            class="score"
-            id="scoreText">
-        </div>
+            <div class="score"
+                 id="scoreText">
+            </div>
 
-        <!-- Confirmation Message -->
+            <div class="message-box">
 
-        <div
-            style="
-                margin-top:25px;
-                padding:20px;
-                background:#f8fafc;
-                border-left:6px solid #2563eb;
-                border-radius:12px;
-                font-size:18px;
-                line-height:1.7;
-                color:#1e293b;
-            ">
+                ✅ Your assessment has been submitted successfully.
 
-            ✅ Your assessment has been submitted successfully.
+                <br><br>
 
-            <br><br>
+                📩 Please wait for your assessment report.
 
-            📩 Please wait for the confirmation message
-            from our team regarding your assessment status.
+                <br><br>
+
+                ⏳ It may take a few seconds.
+
+            </div>
 
         </div>
 
-        
     </div>
 
 </div>
 
-</div>
 <script src="script.js"></script>
+
 </body>
 </html>
