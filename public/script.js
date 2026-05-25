@@ -76,49 +76,57 @@ let currentQuestion = 0;
 
 let userAnswers = new Array(questions.length).fill(null);
 
-let questionStatus =
-    new Array(questions.length).fill("not-visited");
+let questionStatus = new Array(questions.length).fill("not-visited");
 
 let globalTime = 600;
 
-let globalTimer;
+let globalTimer = null;
 
 // BLOCK RETEST
 
-if(localStorage.getItem("testCompleted") === "true"){
+window.onload = function(){
 
-    document.body.innerHTML = `
+    if(localStorage.getItem("testCompleted") === "true"){
 
-        <div style="
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            background:#0f172a;
-            color:white;
-            font-family:Arial;
-        ">
+        document.body.innerHTML = `
 
-            <div style="text-align:center;">
+            <div style="
+                height:100vh;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                background:#0f172a;
+                color:white;
+                font-family:Arial;
+            ">
 
-                <h1 style="font-size:45px;">
-                    Test Already Completed
-                </h1>
+                <div style="text-align:center;">
 
-                <p style="
-                    margin-top:20px;
-                    font-size:22px;
-                ">
-                    Retest is not allowed.
-                </p>
+                    <h1 style="
+                        font-size:45px;
+                        margin-bottom:20px;
+                    ">
+                        Test Already Completed
+                    </h1>
+
+                    <p style="
+                        font-size:22px;
+                        line-height:1.8;
+                    ">
+                        You have already submitted your assessment.
+                        <br><br>
+                        Retest is not allowed.
+                    </p>
+
+                </div>
 
             </div>
 
-        </div>
+        `;
 
-    `;
+    }
 
-}
+};
 
 // START TEST
 
@@ -145,57 +153,81 @@ function startTest(){
     const department =
         document.getElementById("department").value.trim();
 
+    // NAME VALIDATION
+
     if(name === ""){
 
-        alert("Enter name");
+        alert("Please enter your name");
         return;
 
     }
+
+    if(name.length < 3){
+
+        alert("Name must contain minimum 3 letters");
+        return;
+
+    }
+
+    // AGE VALIDATION
 
     if(age === ""){
 
-        alert("Enter age");
+        alert("Please enter your age");
         return;
 
     }
+
+    if(age < 15 || age > 80){
+
+        alert("Age must be between 15 and 80");
+        return;
+
+    }
+
+    // EMAIL VALIDATION
 
     const emailPattern =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
 
-        alert("Invalid email");
+        alert("Please enter valid email address");
         return;
 
     }
 
+    // OTHER VALIDATIONS
+
     if(profession === ""){
 
-        alert("Enter profession");
+        alert("Please enter profession");
         return;
 
     }
 
     if(experience === ""){
 
-        alert("Enter experience");
+        alert("Please enter experience");
         return;
 
     }
 
     if(college === ""){
 
-        alert("Enter college");
+        alert("Please enter college name");
         return;
 
     }
 
     if(department === ""){
 
-        alert("Enter department");
+        alert("Please enter department");
         return;
 
     }
+
+    // SHOW INSTRUCTION PAGE
 
     document.getElementById(
         "registrationForm"
@@ -207,7 +239,7 @@ function startTest(){
 
 }
 
-// START ACTUAL TEST
+// BEGIN ACTUAL TEST
 
 function beginActualTest(){
 
@@ -235,7 +267,7 @@ function beginActualTest(){
 
 }
 
-// GLOBAL TIMER
+// START GLOBAL TIMER
 
 function startGlobalTimer(){
 
@@ -255,7 +287,7 @@ function startGlobalTimer(){
 
             `${minutes}:${
                 seconds < 10
-                ? "0"+seconds
+                ? "0" + seconds
                 : seconds
             }`;
 
@@ -277,13 +309,27 @@ function loadQuestion(){
 
     const q = questions[currentQuestion];
 
+    // QUESTION TITLE
+
     document.getElementById(
         "questionTitle"
     ).innerHTML = q.question;
 
+    // QUESTION IMAGE
+
     document.getElementById(
         "questionImage"
     ).src = q.image;
+
+    // CURRENT STATUS
+
+    if(questionStatus[currentQuestion] === "not-visited"){
+
+        questionStatus[currentQuestion] = "current";
+
+    }
+
+    // OPTIONS
 
     let optionsHTML = "";
 
@@ -293,8 +339,7 @@ function loadQuestion(){
 
             userAnswers[currentQuestion]
             &&
-            userAnswers[currentQuestion]
-            .selectedOption === option
+            userAnswers[currentQuestion].selectedOption === option
 
             ? "checked"
             : "";
@@ -311,7 +356,10 @@ function loadQuestion(){
                     onchange="selectAnswer('${option}')"
                 >
 
-                <div style="margin-top:10px;">
+                <div style="
+                    margin-top:10px;
+                    font-size:22px;
+                ">
                     ${option}
                 </div>
 
@@ -325,7 +373,11 @@ function loadQuestion(){
         "optionsContainer"
     ).innerHTML = optionsHTML;
 
+    // UPDATE STATUS PANEL
+
     updateQuestionStatus();
+
+    // PREVIOUS BUTTON
 
     if(currentQuestion === 0){
 
@@ -342,6 +394,8 @@ function loadQuestion(){
         ).disabled = false;
 
     }
+
+    // FINISH BUTTON
 
     if(currentQuestion === questions.length - 1){
 
@@ -370,9 +424,6 @@ function selectAnswer(answer){
         question:
             questions[currentQuestion].question,
 
-        image:
-            questions[currentQuestion].image,
-
         selectedOption:
             answer,
 
@@ -385,8 +436,7 @@ function selectAnswer(answer){
 
     };
 
-    questionStatus[currentQuestion] =
-        "answered";
+    questionStatus[currentQuestion] = "answered";
 
     updateQuestionStatus();
 
@@ -398,7 +448,7 @@ function updateQuestionStatus(){
 
     let html = "";
 
-    for(let i=0;i<questions.length;i++){
+    for(let i = 0; i < questions.length; i++){
 
         let statusClass = "not-visited";
 
@@ -414,6 +464,18 @@ function updateQuestionStatus(){
 
         }
 
+        else if(questionStatus[i] === "not-visited"){
+
+            statusClass = "not-visited";
+
+        }
+
+        else{
+
+            statusClass = "not-answered";
+
+        }
+
         html += `
 
             <div
@@ -421,7 +483,7 @@ function updateQuestionStatus(){
                 onclick="goToQuestion(${i})"
             >
 
-                ${i+1}
+                ${i + 1}
 
             </div>
 
@@ -439,6 +501,16 @@ function updateQuestionStatus(){
 
 function goToQuestion(index){
 
+    if(
+        !userAnswers[currentQuestion]
+        &&
+        questionStatus[currentQuestion] !== "answered"
+    ){
+
+        questionStatus[currentQuestion] = "not-answered";
+
+    }
+
     currentQuestion = index;
 
     loadQuestion();
@@ -449,11 +521,20 @@ function goToQuestion(index){
 
 function nextQuestion(){
 
+    // LAST QUESTION
+
     if(currentQuestion === questions.length - 1){
 
         finishTest();
-
         return;
+
+    }
+
+    // NOT ANSWERED
+
+    if(!userAnswers[currentQuestion]){
+
+        questionStatus[currentQuestion] = "not-answered";
 
     }
 
@@ -508,19 +589,45 @@ function finishTest(){
         totalQuestions:
             questions.length,
 
+        correctAnswers: score,
+
+        wrongAnswers:
+            questions.length - score,
+
         answers: userAnswers
 
     };
+
+    // SAVE LOCAL REPORT
 
     localStorage.setItem(
         "testReport",
         JSON.stringify(reportData)
     );
 
+    // BLOCK RETEST
+
     localStorage.setItem(
         "testCompleted",
         "true"
     );
+
+    // SHOW RESULT PAGE
+
+    document.getElementById(
+        "testSection"
+    ).style.display = "none";
+
+    document.getElementById(
+        "result"
+    ).style.display = "block";
+
+    document.getElementById(
+        "scoreText"
+    ).innerHTML =
+        score + " / " + questions.length;
+
+    // SAVE DATABASE
 
     fetch(
         "https://online-test-system-pqd0.onrender.com/save-result",
@@ -529,8 +636,7 @@ function finishTest(){
             method:"POST",
 
             headers:{
-                "Content-Type":
-                "application/json"
+                "Content-Type":"application/json"
             },
 
             body:JSON.stringify({
@@ -566,25 +672,39 @@ function finishTest(){
             })
 
         }
+
+    )
+    .then(response => response.json())
+    .then(data => {
+
+        console.log("Saved Successfully");
+
+    })
+    .catch(error => {
+
+        console.log("Save Error", error);
+
+    });
+
+    // BLOCK BACK BUTTON
+
+    history.pushState(
+        null,
+        null,
+        location.href
     );
 
-    document.getElementById(
-        "testSection"
-    ).style.display = "none";
+    window.onpopstate = function(){
 
-    document.getElementById(
-        "result"
-    ).style.display = "block";
+        history.go(1);
 
-    document.getElementById(
-        "scoreText"
-    ).innerHTML =
-        score + " / " + questions.length;
+    };
+
+    // REDIRECT REPORT PAGE
 
     setTimeout(() => {
 
-        window.location.href =
-            "report.html";
+        window.location.href = "report.html";
 
     },1000);
 
