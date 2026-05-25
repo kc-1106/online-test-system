@@ -4,7 +4,7 @@ const questions = [
         question: "Question 1",
         image: "images/q1.png",
         options: ["A","B","C","D","E"],
-        answer: "E"
+        answer: "C"
     },
 
     {
@@ -74,76 +74,215 @@ const questions = [
 
 let currentQuestion = 0;
 
-let userAnswers = new Array(questions.length).fill("");
+let userAnswers =
+    new Array(questions.length).fill(null);
 
-let visitedQuestions = new Array(questions.length).fill(false);
+let questionTime = 60;
 
-let score = 0;
+let timer;
 
-let totalTime = 600;
+let questionStartTime;
+
+let globalTime = 600;
 
 let globalTimer;
 
-let startTime;
+let questionStatus =
+    new Array(questions.length)
+    .fill("not-visited");
 
-let testSubmitted = false;
+// BLOCK TEST AFTER COMPLETION
+
+if(localStorage.getItem("testCompleted") === "true"){
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            document.body.innerHTML = `
+
+            <div style="
+                height:100vh;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                background:#0f172a;
+                color:white;
+                font-family:Arial;
+                text-align:center;
+                padding:30px;
+            ">
+
+                <div>
+
+                    <h1 style="
+                        font-size:45px;
+                        margin-bottom:25px;
+                    ">
+                        Test Already Completed
+                    </h1>
+
+                    <p style="
+                        font-size:22px;
+                        line-height:1.8;
+                    ">
+
+                        You have already submitted
+                        your assessment.
+
+                        <br><br>
+
+                        Retest is not allowed.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+    );
+
+}
 
 // START TEST
-
 function startTest(){
 
     const name =
-        document.getElementById("name").value.trim();
-
-    const email =
-        document.getElementById("email").value.trim();
+        document.getElementById("name")
+        .value.trim();
 
     const age =
-        document.getElementById("age").value.trim();
+        document.getElementById("age")
+        .value.trim();
 
     const profession =
-        document.getElementById("profession").value.trim();
+        document.getElementById("profession")
+        .value.trim();
 
     const experience =
-        document.getElementById("experience").value.trim();
+        document.getElementById("experience")
+        .value.trim();
+
+    const email =
+        document.getElementById("email")
+        .value.trim();
 
     const college =
-        document.getElementById("college").value.trim();
+        document.getElementById("college")
+        .value.trim();
 
     const department =
-        document.getElementById("department").value.trim();
+        document.getElementById("department")
+        .value.trim();
 
-    if(
-        !name ||
-        !email ||
-        !age ||
-        !profession ||
-        !experience ||
-        !college ||
-        !department
-    ){
+    // NAME VALIDATION
 
-        alert("Please fill all fields");
+    if(name === ""){
+
+        alert("Please enter your name");
 
         return;
+
     }
 
+    if(name.length < 3){
+
+        alert(
+            "Name must contain minimum 3 letters"
+        );
+
+        return;
+
+    }
+
+    // AGE VALIDATION
+
+    if(age === ""){
+
+        alert("Please enter your age");
+
+        return;
+
+    }
+
+    if(age < 15 || age > 80){
+
+        alert(
+            "Age must be between 15 and 80"
+        );
+
+        return;
+
+    }
+
+    // EMAIL VALIDATION
+
     const emailPattern =
+
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
 
-        alert("Enter valid email");
+        alert(
+            "Please enter a valid email address"
+        );
 
         return;
+
     }
 
-    if(age < 15 || age > 100){
+    // PROFESSION VALIDATION
 
-        alert("Enter valid age");
+    if(profession === ""){
+
+        alert(
+            "Please enter your profession"
+        );
 
         return;
+
     }
+
+    // EXPERIENCE VALIDATION
+
+    if(experience === ""){
+
+        alert(
+            "Please enter your experience"
+        );
+
+        return;
+
+    }
+
+    // COLLEGE VALIDATION
+
+    if(college === ""){
+
+        alert(
+            "Please enter your college name"
+        );
+
+        return;
+
+    }
+
+    // DEPARTMENT VALIDATION
+
+    if(department === ""){
+
+        alert(
+            "Please enter your department"
+        );
+
+        return;
+
+    }
+
+    // SUCCESS
 
     document.getElementById(
         "registrationForm"
@@ -152,19 +291,19 @@ function startTest(){
     document.getElementById(
         "instructionPage"
     ).style.display = "block";
+
 }
-
 // BEGIN TEST
-
 function beginActualTest(){
 
-    if(localStorage.getItem("testSubmitted")){
+    if(localStorage.getItem("testCompleted")){
 
         alert(
-            "You have already completed the test"
+            "You have already completed the test."
         );
 
         return;
+
     }
 
     document.getElementById(
@@ -175,64 +314,18 @@ function beginActualTest(){
         "testSection"
     ).style.display = "block";
 
-    document.getElementById(
-        "displayName"
-    ).innerHTML =
-        document.getElementById("name").value;
-
-    document.getElementById(
-        "displayEmail"
-    ).innerHTML =
-        document.getElementById("email").value;
-
-    startTime = new Date();
-
-    startGlobalTimer();
-
     loadQuestion();
-}
 
-// GLOBAL TIMER
-
-function startGlobalTimer(){
-
-    globalTimer = setInterval(()=>{
-
-        let minutes =
-            Math.floor(totalTime / 60);
-
-        let seconds =
-            totalTime % 60;
-
-        if(seconds < 10){
-
-            seconds = "0" + seconds;
-        }
-
-        document.getElementById(
-            "globalTimer"
-        ).innerHTML =
-            minutes + ":" + seconds;
-
-        totalTime--;
-
-        if(totalTime < 0){
-
-            clearInterval(globalTimer);
-
-            finishTest();
-        }
-
-    },1000);
 }
 
 // LOAD QUESTION
-
 function loadQuestion(){
 
-    updateQuestionStatus();
+    clearInterval(timer);
 
-    visitedQuestions[currentQuestion] = true;
+    questionTime = 60;
+
+    questionStartTime = new Date();
 
     const q = questions[currentQuestion];
 
@@ -249,123 +342,209 @@ function loadQuestion(){
     q.options.forEach(option => {
 
         const checked =
-            userAnswers[currentQuestion] === option
+
+            userAnswers[currentQuestion]
+            &&
+            userAnswers[currentQuestion]
+            .selectedOption === option
+
             ? "checked"
+
             : "";
 
         optionsHTML += `
 
-            <label class="option">
+        <label class="option">
 
-                <input
-                    type="radio"
-                    name="option"
-                    value="${option}"
-                    ${checked}
-                    onchange="selectAnswer('${option}')"
-                >
+            <input
+                type="radio"
+                name="option"
+                value="${option}"
+                ${checked}
+                onchange="selectAnswer('${option}')"
+            >
 
-                ${option}
+            ${option}
 
-            </label>
+        </label>
 
         `;
+
     });
 
     document.getElementById(
         "optionsContainer"
     ).innerHTML = optionsHTML;
 
-    const nextBtn =
-        document.getElementById("nextBtn");
+    // PREVIOUS BUTTON
+
+    if(currentQuestion === 0){
+
+        document.getElementById(
+            "prevBtn"
+        ).disabled = true;
+
+    }
+
+    else{
+
+        document.getElementById(
+            "prevBtn"
+        ).disabled = false;
+
+    }
+
+    // FINISH BUTTON
 
     if(currentQuestion === questions.length - 1){
 
-        nextBtn.innerHTML = "Finish Test";
+        document.getElementById(
+            "nextBtn"
+        ).innerHTML = "Finish Test";
 
-    }else{
-
-        nextBtn.innerHTML = "Next Question";
     }
+
+    else{
+
+        document.getElementById(
+            "nextBtn"
+        ).innerHTML = "Next Question";
+
+    }
+
+    startQuestionTimer();
+
 }
 
-// UPDATE STATUS
+// TIMER
+function startQuestionTimer(){
 
-function updateQuestionStatus(){
+    document.getElementById(
+        "timer"
+    ).innerHTML =
 
-    const container =
+        "Time Left : "
+        + questionTime
+        + " sec";
+
+    timer = setInterval(() => {
+
+        questionTime--;
+
         document.getElementById(
-            "questionStatusContainer"
-        );
+            "timer"
+        ).innerHTML =
 
-    container.innerHTML = "";
+            "Time Left : "
+            + questionTime
+            + " sec";
 
-    for(let i = 0; i < questions.length; i++){
+        if(questionTime <= 0){
 
-        let statusClass = "";
+            clearInterval(timer);
 
-        if(i === currentQuestion){
+            nextQuestion();
 
-            statusClass = "current";
         }
 
-        else if(userAnswers[i] !== ""){
+    },1000);
 
-            statusClass = "answered";
-        }
-
-        else if(visitedQuestions[i]){
-
-            statusClass = "not-answered";
-        }
-
-        else{
-
-            statusClass = "not-visited";
-        }
-
-        container.innerHTML += `
-
-            <div
-                class="status-circle ${statusClass}"
-                onclick="goToQuestion(${i})"
-            >
-
-                ${i + 1}
-
-            </div>
-
-        `;
-    }
 }
 
 // SELECT ANSWER
-
 function selectAnswer(answer){
 
-    userAnswers[currentQuestion] = answer;
+    const timeTaken =
 
-    updateQuestionStatus();
+        (
+            new Date()
+            -
+            questionStartTime
+        ) / 1000;
+
+    userAnswers[currentQuestion] = {
+
+        question:
+            questions[currentQuestion].question,
+
+        image:
+            questions[currentQuestion].image,
+
+        selectedOption:
+            answer,
+
+        correctAnswer:
+            questions[currentQuestion].answer,
+
+        isCorrect:
+            answer ===
+            questions[currentQuestion].answer,
+
+        timeTakenInSeconds:
+            Math.floor(timeTaken)
+
+    };
+
 }
 
 // NEXT QUESTION
-
 function nextQuestion(){
 
-    if(currentQuestion === questions.length - 1){
+    if(
 
-        finishTest();
+        userAnswers[currentQuestion]
+        == null
 
-        return;
+    ){
+
+        const timeTaken =
+
+            (
+                new Date()
+                -
+                questionStartTime
+            ) / 1000;
+
+        userAnswers[currentQuestion] = {
+
+            question:
+                questions[currentQuestion].question,
+
+            image:
+                questions[currentQuestion].image,
+
+            selectedOption:
+                "Not Answered",
+
+            correctAnswer:
+                questions[currentQuestion].answer,
+
+            isCorrect:false,
+
+            timeTakenInSeconds:
+                Math.floor(timeTaken)
+
+        };
+
     }
 
     currentQuestion++;
 
-    loadQuestion();
+    if(currentQuestion < questions.length){
+
+        loadQuestion();
+
+    }
+
+    else{
+
+        finishTest();
+
+    }
+
 }
 
 // PREVIOUS QUESTION
-
 function previousQuestion(){
 
     if(currentQuestion > 0){
@@ -373,79 +552,34 @@ function previousQuestion(){
         currentQuestion--;
 
         loadQuestion();
+
     }
-}
 
-// JUMP QUESTION
-
-function goToQuestion(index){
-
-    currentQuestion = index;
-
-    loadQuestion();
 }
 
 // FINISH TEST
+function finishTest(){
 
-async function finishTest(){
+    clearInterval(timer);
 
-    if(testSubmitted){
+    let score = 0;
 
-        return;
-    }
+    let totalTime = 0;
 
-    testSubmitted = true;
+    userAnswers.forEach(answer => {
 
-    clearInterval(globalTimer);
-
-    score = 0;
-
-    let wrongAnswers = 0;
-
-    let totalSecondsTaken =
-        600 - totalTime;
-
-    let answersReport = [];
-
-    for(let i = 0; i < questions.length; i++){
-
-        const isCorrect =
-            userAnswers[i] ===
-            questions[i].answer;
-
-        if(isCorrect){
+        if(answer.isCorrect){
 
             score++;
 
-        }else{
-
-            wrongAnswers++;
         }
 
-        answersReport.push({
+        totalTime +=
+            answer.timeTakenInSeconds;
 
-            question:
-                questions[i].question,
+    });
 
-            selectedOption:
-                userAnswers[i],
-
-            correctAnswer:
-                questions[i].answer,
-
-            status:
-                isCorrect
-                ? "Correct"
-                : "Wrong"
-        });
-    }
-
-    const accuracy =
-        (
-            (score / questions.length) * 100
-        ).toFixed(2);
-
-    const resultData = {
+    const reportData = {
 
         name:
             document.getElementById("name").value,
@@ -460,63 +594,110 @@ async function finishTest(){
 
         correctAnswers: score,
 
-        wrongAnswers: wrongAnswers,
+        wrongAnswers:
+            questions.length - score,
 
-        accuracy: accuracy,
+        accuracy:
 
-        totalTimeTaken:
-            totalSecondsTaken,
+            (
+                (score / questions.length) * 100
+            ).toFixed(2),
 
-        answers: answersReport
+        totalTime:
+            totalTime,
+
+        answers: userAnswers
+
     };
 
-    localStorage.setItem(
-        "reportData",
-        JSON.stringify(resultData)
-    );
+    // SAVE REPORT
 
     localStorage.setItem(
-        "testSubmitted",
+
+        "testReport",
+
+        JSON.stringify(reportData)
+
+    );
+
+    // BLOCK RETEST
+
+    localStorage.setItem(
+
+        "testCompleted",
+
         "true"
+
     );
 
-    document.getElementById(
-        "testSection"
-    ).style.display = "none";
+    // SAVE TO DATABASE
 
-    document.getElementById(
-        "result"
-    ).style.display = "block";
+    fetch(
 
-    try{
+        "https://online-test-system-pqd0.onrender.com/save-result",
 
-        await fetch(
+        {
 
-            "https://online-test-system-pqd0.onrender.com/save-result",
+            method:"POST",
 
-            {
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
 
-                method:"POST",
+            body:JSON.stringify({
 
-                headers:{
+                name:
+                    document.getElementById("name").value,
 
-                    "Content-Type":
-                    "application/json"
-                },
+                age:
+                    document.getElementById("age").value,
 
-                body:JSON.stringify(resultData)
-            }
-        );
+                profession:
+                    document.getElementById("profession").value,
 
-    }catch(error){
+                experience:
+                    document.getElementById("experience").value,
 
-        console.log(error);
-    }
+                email:
+                    document.getElementById("email").value,
 
-    setTimeout(()=>{
+                college:
+                    document.getElementById("college").value,
 
-        window.location.href =
-            "report.html";
+                department:
+                    document.getElementById("department").value,
 
-    },3000);
+                score: score,
+
+                totalQuestions:
+                    questions.length,
+
+                answers: userAnswers
+
+            })
+
+        }
+
+    );
+
+    // BLOCK BACK BUTTON
+
+    history.pushState(
+        null,
+        null,
+        location.href
+    );
+
+    window.onpopstate = function () {
+
+        history.go(1);
+
+    };
+
+    // REDIRECT TO REPORT
+
+    window.location.href =
+        "report.html";
+
 }
