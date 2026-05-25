@@ -341,32 +341,32 @@
 
     </div>
 
-  
-
-    <!-- TEST SECTION -->
-       <div id="testSection" style="display:none;">
+  <div id="testSection" style="display:none;">
 
     <!-- TOP DASHBOARD -->
 
     <div class="top-layout">
 
-        <div class="user-details">
+        <div class="user-info">
 
-            <h2 id="displayName">User Name</h2>
+            <h3>
+                Name :
+                <span id="displayName"></span>
+            </h3>
 
-            <p id="displayEmail">user@gmail.com</p>
+            <h3>
+                Email :
+                <span id="displayEmail"></span>
+            </h3>
 
         </div>
 
-        <div class="global-timer">
+        <div class="timer-box">
 
-            <h2>
-                Time Left
-            </h2>
-
-            <div id="globalTimer">
+            ⏰ Time Left :
+            <span id="globalTimer">
                 10:00
-            </div>
+            </span>
 
         </div>
 
@@ -375,31 +375,54 @@
     <!-- QUESTION STATUS -->
 
     <div
-        id="questionStatusContainer"
-        class="status-container">
-    </div>
+        class="status-container"
+        id="questionStatusContainer">
 
+    </div>
 
     <!-- QUESTION AREA -->
 
     <div class="question-layout">
 
-        <div class="question-box">
+        <h2 id="questionTitle"></h2>
 
-            <h2 id="questionTitle"></h2>
+        <img
+            id="questionImage"
+            class="question-image"
+        >
 
-            <img
-                id="questionImage"
-                class="question-image"
-            >
-
-            <div
-                class="options"
-                id="optionsContainer">
-            </div>
+        <div
+            class="options"
+            id="optionsContainer">
 
         </div>
 
+    </div>
+
+    <!-- BUTTONS -->
+
+    <div class="button-layout">
+
+        <button
+            class="prev-btn"
+            onclick="previousQuestion()">
+
+            Previous
+
+        </button>
+
+        <button
+            id="nextBtn"
+            class="next-btn"
+            onclick="nextQuestion()">
+
+            Next Question
+
+        </button>
+
+    </div>
+
+</div>
 
         <!-- BUTTONS -->
 

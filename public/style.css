@@ -198,3 +198,136 @@ button:hover{
     width:70%;
 
 }
+
+.top-layout{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#0f172a;
+
+    color:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    margin-bottom:20px;
+
+}
+
+.timer-box{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    color:#facc15;
+
+}
+
+.status-container{
+
+    display:flex;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:25px;
+
+    justify-content:center;
+
+}
+
+.status-circle{
+
+    width:45px;
+
+    height:45px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:bold;
+
+    color:black;
+
+}
+
+.answered{
+
+    background:#22c55e;
+
+    color:white;
+
+}
+
+.current{
+
+    background:#f97316;
+
+    color:white;
+
+}
+
+.not-visited{
+
+    background:white;
+
+    border:2px solid #cbd5e1;
+
+}
+
+.not-answered{
+
+    background:#ef4444;
+
+    color:white;
+
+}
+
+.question-layout{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:
+        0px 0px 15px rgba(0,0,0,0.2);
+
+}
+
+.button-layout{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:25px;
+
+    gap:20px;
+
+}
+
+.prev-btn{
+
+    background:#64748b;
+
+}
+
+.next-btn{
+
+    background:#2563eb;
+
+}
