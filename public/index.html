@@ -341,11 +341,48 @@
 
     </div>
 
-    <!-- TEST -->
+  
 
-    <div id="testSection">
+    <!-- TEST SECTION -->
+       <div id="testSection" style="display:none;">
 
-        <div id="timer"></div>
+    <!-- TOP DASHBOARD -->
+
+    <div class="top-layout">
+
+        <div class="user-details">
+
+            <h2 id="displayName">User Name</h2>
+
+            <p id="displayEmail">user@gmail.com</p>
+
+        </div>
+
+        <div class="global-timer">
+
+            <h2>
+                Time Left
+            </h2>
+
+            <div id="globalTimer">
+                10:00
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- QUESTION STATUS -->
+
+    <div
+        id="questionStatusContainer"
+        class="status-container">
+    </div>
+
+
+    <!-- QUESTION AREA -->
+
+    <div class="question-layout">
 
         <div class="question-box">
 
@@ -359,42 +396,39 @@
             <div
                 class="options"
                 id="optionsContainer">
-
             </div>
 
         </div>
-        <div style="
-    display:flex;
-    gap:15px;
-    margin-top:25px;
-">
 
-    <button
-        onclick="previousQuestion()"
-        id="prevBtn"
-        style="
-            background:#64748b;
-            width:30%;
-        "
-    >
-        Previous
-    </button>
 
-    <button
-        onclick="nextQuestion()"
-        id="nextBtn"
-        style="
-            width:70%;
-        "
-    >
-        Next Question
-    </button>
+        <!-- BUTTONS -->
 
-</div>
-        
+        <div class="button-layout">
+
+            <button
+                onclick="previousQuestion()"
+                id="prevBtn"
+                class="prev-btn">
+
+                Previous
+
+            </button>
+
+
+            <button
+                onclick="nextQuestion()"
+                id="nextBtn"
+                class="next-btn">
+
+                Next Question
+
+            </button>
+
+        </div>
 
     </div>
 
+</div>
 
 <div id="result">
 

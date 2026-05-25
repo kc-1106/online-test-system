@@ -77,69 +77,14 @@ let currentQuestion = 0;
 let userAnswers =
     new Array(questions.length).fill(null);
 
-let questionTime = 60;
+let visitedQuestions =
+    new Array(questions.length).fill(false);
 
-let timer;
+let globalTime = 600;
 
-let questionStartTime;
+let globalTimer;
 
-// BLOCK TEST AFTER COMPLETION
-
-if(localStorage.getItem("testCompleted") === "true"){
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
-
-            document.body.innerHTML = `
-
-            <div style="
-                height:100vh;
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                background:#0f172a;
-                color:white;
-                font-family:Arial;
-                text-align:center;
-                padding:30px;
-            ">
-
-                <div>
-
-                    <h1 style="
-                        font-size:45px;
-                        margin-bottom:25px;
-                    ">
-                        Test Already Completed
-                    </h1>
-
-                    <p style="
-                        font-size:22px;
-                        line-height:1.8;
-                    ">
-
-                        You have already submitted
-                        your assessment.
-
-                        <br><br>
-
-                        Retest is not allowed.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-            `;
-
-        }
-    );
-
-}
-
-// START TEST
+// VALIDATION
 function startTest(){
 
     const name =
@@ -170,31 +115,12 @@ function startTest(){
         document.getElementById("department")
         .value.trim();
 
-    // NAME VALIDATION
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(name === ""){
 
-        alert("Please enter your name");
-
-        return;
-
-    }
-
-    if(name.length < 3){
-
-        alert(
-            "Name must contain minimum 3 letters"
-        );
-
-        return;
-
-    }
-
-    // AGE VALIDATION
-
-    if(age === ""){
-
-        alert("Please enter your age");
+        alert("Enter Name");
 
         return;
 
@@ -202,79 +128,51 @@ function startTest(){
 
     if(age < 15 || age > 80){
 
-        alert(
-            "Age must be between 15 and 80"
-        );
+        alert("Enter Valid Age");
 
         return;
 
     }
-
-    // EMAIL VALIDATION
-
-    const emailPattern =
-
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
 
-        alert(
-            "Please enter a valid email address"
-        );
+        alert("Invalid Email");
 
         return;
 
     }
-
-    // PROFESSION VALIDATION
 
     if(profession === ""){
 
-        alert(
-            "Please enter your profession"
-        );
+        alert("Enter Profession");
 
         return;
 
     }
-
-    // EXPERIENCE VALIDATION
 
     if(experience === ""){
 
-        alert(
-            "Please enter your experience"
-        );
+        alert("Enter Experience");
 
         return;
 
     }
-
-    // COLLEGE VALIDATION
 
     if(college === ""){
 
-        alert(
-            "Please enter your college name"
-        );
+        alert("Enter College");
 
         return;
 
     }
-
-    // DEPARTMENT VALIDATION
 
     if(department === ""){
 
-        alert(
-            "Please enter your department"
-        );
+        alert("Enter Department");
 
         return;
 
     }
-
-    // SUCCESS
 
     document.getElementById(
         "registrationForm"
@@ -285,13 +183,14 @@ function startTest(){
     ).style.display = "block";
 
 }
+
 // BEGIN TEST
 function beginActualTest(){
 
     if(localStorage.getItem("testCompleted")){
 
         alert(
-            "You have already completed the test."
+            "Test Already Completed"
         );
 
         return;
@@ -306,28 +205,81 @@ function beginActualTest(){
         "testSection"
     ).style.display = "block";
 
+    document.getElementById(
+        "displayName"
+    ).innerHTML =
+        document.getElementById("name").value;
+
+    document.getElementById(
+        "displayEmail"
+    ).innerHTML =
+        document.getElementById("email").value;
+
+    startGlobalTimer();
+
     loadQuestion();
+
+}
+
+// GLOBAL TIMER
+function startGlobalTimer(){
+
+    updateGlobalTimer();
+
+    globalTimer = setInterval(() => {
+
+        globalTime--;
+
+        updateGlobalTimer();
+
+        if(globalTime <= 0){
+
+            clearInterval(globalTimer);
+
+            finishTest();
+
+        }
+
+    },1000);
+
+}
+
+function updateGlobalTimer(){
+
+    const minutes =
+        Math.floor(globalTime / 60);
+
+    const seconds =
+        globalTime % 60;
+
+    document.getElementById(
+        "globalTimer"
+    ).innerHTML =
+
+        `${minutes}:${seconds
+            .toString()
+            .padStart(2,'0')}`;
 
 }
 
 // LOAD QUESTION
 function loadQuestion(){
 
-    clearInterval(timer);
+    visitedQuestions[currentQuestion] = true;
 
-    questionTime = 60;
-
-    questionStartTime = new Date();
+    updateQuestionStatus();
 
     const q = questions[currentQuestion];
 
     document.getElementById(
         "questionTitle"
-    ).innerHTML = q.question;
+    ).innerHTML =
+        q.question;
 
     document.getElementById(
         "questionImage"
-    ).src = q.image;
+    ).src =
+        q.image;
 
     let optionsHTML = "";
 
@@ -366,33 +318,18 @@ function loadQuestion(){
 
     document.getElementById(
         "optionsContainer"
-    ).innerHTML = optionsHTML;
+    ).innerHTML =
+        optionsHTML;
 
-    // PREVIOUS BUTTON
+    // BUTTON TEXT
 
-    if(currentQuestion === 0){
-
-        document.getElementById(
-            "prevBtn"
-        ).disabled = true;
-
-    }
-
-    else{
-
-        document.getElementById(
-            "prevBtn"
-        ).disabled = false;
-
-    }
-
-    // FINISH BUTTON
-
-    if(currentQuestion === questions.length - 1){
+    if(currentQuestion ===
+        questions.length - 1){
 
         document.getElementById(
             "nextBtn"
-        ).innerHTML = "Finish Test";
+        ).innerHTML =
+            "Finish Test";
 
     }
 
@@ -400,82 +337,95 @@ function loadQuestion(){
 
         document.getElementById(
             "nextBtn"
-        ).innerHTML = "Next Question";
+        ).innerHTML =
+            "Next Question";
 
     }
-
-    startQuestionTimer();
 
 }
 
-// TIMER
-function startQuestionTimer(){
+// QUESTION STATUS
+function updateQuestionStatus(){
 
-    document.getElementById(
-        "timer"
-    ).innerHTML =
-
-        "Time Left : "
-        + questionTime
-        + " sec";
-
-    timer = setInterval(() => {
-
-        questionTime--;
-
+    const container =
         document.getElementById(
-            "timer"
-        ).innerHTML =
+            "questionStatusContainer"
+        );
 
-            "Time Left : "
-            + questionTime
-            + " sec";
+    container.innerHTML = "";
 
-        if(questionTime <= 0){
+    for(let i=0;i<questions.length;i++){
 
-            clearInterval(timer);
+        let className =
+            "not-visited";
 
-            nextQuestion();
+        if(i === currentQuestion){
+
+            className = "current";
 
         }
 
-    },1000);
+        else if(
+
+            userAnswers[i]
+            &&
+            userAnswers[i]
+            .selectedOption !==
+            "Not Answered"
+
+        ){
+
+            className = "answered";
+
+        }
+
+        else if(visitedQuestions[i]){
+
+            className =
+                "not-answered";
+
+        }
+
+        container.innerHTML += `
+
+        <div class="
+            status-circle
+            ${className}
+        ">
+            ${i+1}
+        </div>
+
+        `;
+
+    }
 
 }
 
 // SELECT ANSWER
 function selectAnswer(answer){
 
-    const timeTaken =
-
-        (
-            new Date()
-            -
-            questionStartTime
-        ) / 1000;
-
     userAnswers[currentQuestion] = {
 
         question:
-            questions[currentQuestion].question,
-
-        image:
-            questions[currentQuestion].image,
+            questions[currentQuestion]
+            .question,
 
         selectedOption:
             answer,
 
         correctAnswer:
-            questions[currentQuestion].answer,
+            questions[currentQuestion]
+            .answer,
 
         isCorrect:
-            answer ===
-            questions[currentQuestion].answer,
 
-        timeTakenInSeconds:
-            Math.floor(timeTaken)
+            answer ===
+            questions[currentQuestion]
+            .answer
 
     };
+
+    updateQuestionStatus();
 
 }
 
@@ -484,45 +434,12 @@ function nextQuestion(){
 
     if(
 
-        userAnswers[currentQuestion]
-        == null
+        currentQuestion <
+        questions.length - 1
 
     ){
 
-        const timeTaken =
-
-            (
-                new Date()
-                -
-                questionStartTime
-            ) / 1000;
-
-        userAnswers[currentQuestion] = {
-
-            question:
-                questions[currentQuestion].question,
-
-            image:
-                questions[currentQuestion].image,
-
-            selectedOption:
-                "Not Answered",
-
-            correctAnswer:
-                questions[currentQuestion].answer,
-
-            isCorrect:false,
-
-            timeTakenInSeconds:
-                Math.floor(timeTaken)
-
-        };
-
-    }
-
-    currentQuestion++;
-
-    if(currentQuestion < questions.length){
+        currentQuestion++;
 
         loadQuestion();
 
@@ -550,24 +467,19 @@ function previousQuestion(){
 }
 
 // FINISH TEST
-function finishTest(){
+async function finishTest(){
 
-    clearInterval(timer);
+    clearInterval(globalTimer);
 
     let score = 0;
 
-    let totalTime = 0;
-
     userAnswers.forEach(answer => {
 
-        if(answer.isCorrect){
+        if(answer && answer.isCorrect){
 
             score++;
 
         }
-
-        totalTime +=
-            answer.timeTakenInSeconds;
 
     });
 
@@ -579,115 +491,67 @@ function finishTest(){
         email:
             document.getElementById("email").value,
 
-        score: score,
+        totalScore:
+            score,
 
-        totalQuestions:
-            questions.length,
-
-        correctAnswers: score,
+        correctAnswers:
+            score,
 
         wrongAnswers:
             questions.length - score,
 
         accuracy:
-
             (
-                (score / questions.length) * 100
-            ).toFixed(2),
+                score /
+                questions.length
+            ) * 100,
 
         totalTime:
-            totalTime,
+            600 - globalTime,
 
-        answers: userAnswers
+        answers:
+            userAnswers
 
     };
 
-    // SAVE REPORT
-
     localStorage.setItem(
-
         "testReport",
-
         JSON.stringify(reportData)
-
     );
-
-    // BLOCK RETEST
 
     localStorage.setItem(
-
         "testCompleted",
-
         "true"
-
     );
 
-    // SAVE TO DATABASE
+    // SAVE DATABASE
 
-    fetch(
+    try{
 
-        "https://online-test-system-pqd0.onrender.com/save-result",
+        await fetch(
 
-        {
+            "https://online-test-system-pqd0.onrender.com/save-result",
 
-            method:"POST",
+            {
 
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
+                method:"POST",
 
-            body:JSON.stringify({
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
 
-                name:
-                    document.getElementById("name").value,
+                body:JSON.stringify(reportData)
 
-                age:
-                    document.getElementById("age").value,
+            }
 
-                profession:
-                    document.getElementById("profession").value,
+        );
 
-                experience:
-                    document.getElementById("experience").value,
+    }catch(error){
 
-                email:
-                    document.getElementById("email").value,
+        console.log(error);
 
-                college:
-                    document.getElementById("college").value,
-
-                department:
-                    document.getElementById("department").value,
-
-                score: score,
-
-                totalQuestions:
-                    questions.length,
-
-                answers: userAnswers
-
-            })
-
-        }
-
-    );
-
-    // BLOCK BACK BUTTON
-
-    history.pushState(
-        null,
-        null,
-        location.href
-    );
-
-    window.onpopstate = function () {
-
-        history.go(1);
-
-    };
-
-    // REDIRECT TO REPORT
+    }
 
     window.location.href =
         "report.html";
