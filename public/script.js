@@ -72,25 +72,37 @@ const questions = [
 
 ];
 
+// =========================
+// VARIABLES
+// =========================
+
 let currentQuestion = 0;
 
 let userAnswers =
     new Array(questions.length).fill(null);
 
 let questionStatus =
-    new Array(questions.length).fill("not-visited");
+    new Array(questions.length)
+    .fill("not-visited");
+
+// TIMER FOR EACH QUESTION
+
+let questionTimers =
+    new Array(questions.length).fill(60);
+
+let localTimer;
+
+let localTime = 60;
+
+// GLOBAL TIMER
 
 let globalTime = 600;
 
 let globalTimer;
 
-let localTime = 60;
-
-let localTimer;
-
-let questionTimers =
-    new Array(questions.length).fill(60);
+// =========================
 // BLOCK RETEST
+// =========================
 
 if(localStorage.getItem("testCompleted") === "true"){
 
@@ -127,7 +139,9 @@ if(localStorage.getItem("testCompleted") === "true"){
 
 }
 
+// =========================
 // START TEST
+// =========================
 
 function startTest(){
 
@@ -214,7 +228,9 @@ function startTest(){
 
 }
 
+// =========================
 // BEGIN TEST
+// =========================
 
 function beginActualTest(){
 
@@ -242,7 +258,9 @@ function beginActualTest(){
 
 }
 
+// =========================
 // GLOBAL TIMER
+// =========================
 
 function startGlobalTimer(){
 
@@ -278,7 +296,9 @@ function startGlobalTimer(){
 
 }
 
+// =========================
 // LOCAL TIMER
+// =========================
 
 function startLocalTimer(){
 
@@ -297,7 +317,7 @@ function startLocalTimer(){
 
         localTime--;
 
-        // SAVE CURRENT TIME
+        // SAVE CURRENT TIMER
 
         questionTimers[currentQuestion] =
             localTime;
@@ -312,8 +332,14 @@ function startLocalTimer(){
 
             clearInterval(localTimer);
 
-            questionStatus[currentQuestion] =
-                "not-answered";
+            if(!userAnswers[currentQuestion]){
+
+                questionStatus[currentQuestion] =
+                    "not-answered";
+
+            }
+
+            updateQuestionStatus();
 
             nextQuestion();
 
@@ -322,11 +348,12 @@ function startLocalTimer(){
     },1000);
 
 }
+
+// =========================
 // LOAD QUESTION
+// =========================
 
 function loadQuestion(){
-
-    startLocalTimer();
 
     const q = questions[currentQuestion];
 
@@ -378,23 +405,22 @@ function loadQuestion(){
         "optionsContainer"
     ).innerHTML = optionsHTML;
 
+    // START TIMER
+
+    startLocalTimer();
+
+    // UPDATE STATUS
+
     updateQuestionStatus();
 
-    if(currentQuestion === 0){
+    // PREVIOUS BUTTON
 
-        document.getElementById(
-            "prevBtn"
-        ).disabled = true;
+    document.getElementById(
+        "prevBtn"
+    ).disabled =
+        currentQuestion === 0;
 
-    }
-
-    else{
-
-        document.getElementById(
-            "prevBtn"
-        ).disabled = false;
-
-    }
+    // FINISH BUTTON
 
     if(currentQuestion === questions.length - 1){
 
@@ -414,7 +440,9 @@ function loadQuestion(){
 
 }
 
+// =========================
 // SELECT ANSWER
+// =========================
 
 function selectAnswer(answer){
 
@@ -445,7 +473,9 @@ function selectAnswer(answer){
 
 }
 
+// =========================
 // UPDATE QUESTION STATUS
+// =========================
 
 function updateQuestionStatus(){
 
@@ -512,12 +542,15 @@ function updateQuestionStatus(){
 
 }
 
+// =========================
 // GO TO QUESTION
+// =========================
+
 function goToQuestion(index){
 
     clearInterval(localTimer);
 
-    // SAVE CURRENT TIMER
+    // SAVE TIMER
 
     questionTimers[currentQuestion] =
         localTime;
@@ -537,17 +570,20 @@ function goToQuestion(index){
 
 }
 
+// =========================
 // NEXT QUESTION
+// =========================
+
 function nextQuestion(){
 
     clearInterval(localTimer);
 
-    // SAVE CURRENT TIMER
+    // SAVE TIMER
 
     questionTimers[currentQuestion] =
         localTime;
 
-    // NOT ANSWERED
+    // MARK RED
 
     if(!userAnswers[currentQuestion]){
 
@@ -556,7 +592,7 @@ function nextQuestion(){
 
     }
 
-    // LAST QUESTION
+    // FINISH
 
     if(currentQuestion === questions.length - 1){
 
@@ -572,18 +608,20 @@ function nextQuestion(){
 
 }
 
+// =========================
 // PREVIOUS QUESTION
+// =========================
 
 function previousQuestion(){
 
     clearInterval(localTimer);
 
-    // SAVE CURRENT TIMER
+    // SAVE TIMER
 
     questionTimers[currentQuestion] =
         localTime;
 
-    // NOT ANSWERED
+    // MARK RED
 
     if(!userAnswers[currentQuestion]){
 
@@ -601,7 +639,10 @@ function previousQuestion(){
     }
 
 }
+
+// =========================
 // FINISH TEST
+// =========================
 
 function finishTest(){
 
@@ -646,52 +687,6 @@ function finishTest(){
     localStorage.setItem(
         "testCompleted",
         "true"
-    );
-
-    fetch(
-        "https://online-test-system-pqd0.onrender.com/save-result",
-        {
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify({
-
-                name:
-                    document.getElementById("name").value,
-
-                age:
-                    document.getElementById("age").value,
-
-                profession:
-                    document.getElementById("profession").value,
-
-                experience:
-                    document.getElementById("experience").value,
-
-                email:
-                    document.getElementById("email").value,
-
-                college:
-                    document.getElementById("college").value,
-
-                department:
-                    document.getElementById("department").value,
-
-                score: score,
-
-                totalQuestions:
-                    questions.length,
-
-                answers: userAnswers
-
-            })
-
-        }
     );
 
     document.getElementById(
