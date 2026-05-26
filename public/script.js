@@ -88,6 +88,8 @@ let localTime = 60;
 
 let localTimer;
 
+let questionTimers =
+    new Array(questions.length).fill(60);
 // BLOCK RETEST
 
 if(localStorage.getItem("testCompleted") === "true"){
@@ -282,7 +284,10 @@ function startLocalTimer(){
 
     clearInterval(localTimer);
 
-    localTime = 60;
+    // LOAD SAVED TIME
+
+    localTime =
+        questionTimers[currentQuestion];
 
     document.getElementById(
         "timer"
@@ -292,13 +297,23 @@ function startLocalTimer(){
 
         localTime--;
 
+        // SAVE CURRENT TIME
+
+        questionTimers[currentQuestion] =
+            localTime;
+
         document.getElementById(
             "timer"
         ).innerHTML = localTime;
 
+        // AUTO NEXT
+
         if(localTime <= 0){
 
             clearInterval(localTimer);
+
+            questionStatus[currentQuestion] =
+                "not-answered";
 
             nextQuestion();
 
@@ -307,7 +322,6 @@ function startLocalTimer(){
     },1000);
 
 }
-
 // LOAD QUESTION
 
 function loadQuestion(){
@@ -499,8 +513,16 @@ function updateQuestionStatus(){
 }
 
 // GO TO QUESTION
-
 function goToQuestion(index){
+
+    clearInterval(localTimer);
+
+    // SAVE CURRENT TIMER
+
+    questionTimers[currentQuestion] =
+        localTime;
+
+    // MARK RED
 
     if(!userAnswers[currentQuestion]){
 
@@ -516,10 +538,16 @@ function goToQuestion(index){
 }
 
 // NEXT QUESTION
-
 function nextQuestion(){
 
     clearInterval(localTimer);
+
+    // SAVE CURRENT TIMER
+
+    questionTimers[currentQuestion] =
+        localTime;
+
+    // NOT ANSWERED
 
     if(!userAnswers[currentQuestion]){
 
@@ -527,6 +555,8 @@ function nextQuestion(){
             "not-answered";
 
     }
+
+    // LAST QUESTION
 
     if(currentQuestion === questions.length - 1){
 
@@ -548,6 +578,13 @@ function previousQuestion(){
 
     clearInterval(localTimer);
 
+    // SAVE CURRENT TIMER
+
+    questionTimers[currentQuestion] =
+        localTime;
+
+    // NOT ANSWERED
+
     if(!userAnswers[currentQuestion]){
 
         questionStatus[currentQuestion] =
@@ -564,7 +601,6 @@ function previousQuestion(){
     }
 
 }
-
 // FINISH TEST
 
 function finishTest(){
