@@ -72,9 +72,9 @@ const questions = [
 
 ];
 
-// ======================================
+// ====================================
 // VARIABLES
-// ======================================
+// ====================================
 
 let currentQuestion = 0;
 
@@ -88,9 +88,6 @@ let questionStatus =
 let questionTimers =
     new Array(questions.length).fill(60);
 
-let questionStartTimes =
-    new Array(questions.length).fill(null);
-
 let localTimer;
 
 let localTime = 60;
@@ -99,9 +96,9 @@ let globalTime = 600;
 
 let globalTimer;
 
-// ======================================
+// ====================================
 // BLOCK RETEST
-// ======================================
+// ====================================
 
 if(localStorage.getItem("testCompleted") === "true"){
 
@@ -138,9 +135,9 @@ if(localStorage.getItem("testCompleted") === "true"){
 
 }
 
-// ======================================
+// ====================================
 // START TEST
-// ======================================
+// ====================================
 
 function startTest(){
 
@@ -167,14 +164,7 @@ function startTest(){
 
     if(name === ""){
 
-        alert("Please enter your name");
-        return;
-
-    }
-
-    if(name.length < 3){
-
-        alert("Name must contain minimum 3 letters");
+        alert("Please enter name");
         return;
 
     }
@@ -182,13 +172,6 @@ function startTest(){
     if(age === ""){
 
         alert("Please enter age");
-        return;
-
-    }
-
-    if(age < 15 || age > 80){
-
-        alert("Age must be between 15 and 80");
         return;
 
     }
@@ -241,9 +224,9 @@ function startTest(){
 
 }
 
-// ======================================
-// BEGIN ACTUAL TEST
-// ======================================
+// ====================================
+// BEGIN TEST
+// ====================================
 
 function beginActualTest(){
 
@@ -271,9 +254,9 @@ function beginActualTest(){
 
 }
 
-// ======================================
+// ====================================
 // GLOBAL TIMER
-// ======================================
+// ====================================
 
 function startGlobalTimer(){
 
@@ -309,9 +292,9 @@ function startGlobalTimer(){
 
 }
 
-// ======================================
+// ====================================
 // LOCAL TIMER
-// ======================================
+// ====================================
 
 function startLocalTimer(){
 
@@ -353,9 +336,9 @@ function startLocalTimer(){
 
 }
 
-// ======================================
+// ====================================
 // LOAD QUESTION
-// ======================================
+// ====================================
 
 function loadQuestion(){
 
@@ -376,10 +359,8 @@ function loadQuestion(){
 
         questionStatus[currentQuestion] =
             "current";
-    }
 
-    questionStartTimes[currentQuestion] =
-        new Date();
+    }
 
     let optionsHTML = "";
 
@@ -448,14 +429,13 @@ function loadQuestion(){
 
 }
 
-// ======================================
+// ====================================
 // SELECT ANSWER
-// ======================================
+// ====================================
 
 function selectAnswer(answer){
 
-    const thinkingTime =
-
+    const timeTaken =
         60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
@@ -477,7 +457,7 @@ function selectAnswer(answer){
             questions[currentQuestion].answer,
 
         timeTakenInSeconds:
-            thinkingTime,
+            timeTaken,
 
         skipReason:"none"
 
@@ -490,14 +470,13 @@ function selectAnswer(answer){
 
 }
 
-// ======================================
+// ====================================
 // SAVE SKIPPED
-// ======================================
+// ====================================
 
 function saveSkippedAnswer(reason){
 
-    const thinkingTime =
-
+    const timeTaken =
         60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
@@ -517,7 +496,7 @@ function saveSkippedAnswer(reason){
         isCorrect:false,
 
         timeTakenInSeconds:
-            thinkingTime,
+            timeTaken,
 
         skipReason:reason
 
@@ -528,9 +507,9 @@ function saveSkippedAnswer(reason){
 
 }
 
-// ======================================
+// ====================================
 // UPDATE QUESTION STATUS
-// ======================================
+// ====================================
 
 function updateQuestionStatus(){
 
@@ -583,7 +562,6 @@ function updateQuestionStatus(){
             </div>
 
         `;
-
     }
 
     document.getElementById(
@@ -592,9 +570,9 @@ function updateQuestionStatus(){
 
 }
 
-// ======================================
+// ====================================
 // GO TO QUESTION
-// ======================================
+// ====================================
 
 function goToQuestion(index){
 
@@ -616,9 +594,9 @@ function goToQuestion(index){
 
 }
 
-// ======================================
+// ====================================
 // NEXT QUESTION
-// ======================================
+// ====================================
 
 function nextQuestion(){
 
@@ -651,9 +629,9 @@ function nextQuestion(){
 
 }
 
-// ======================================
+// ====================================
 // PREVIOUS QUESTION
-// ======================================
+// ====================================
 
 function previousQuestion(){
 
@@ -679,9 +657,9 @@ function previousQuestion(){
 
 }
 
-// ======================================
+// ====================================
 // FINISH TEST
-// ======================================
+// ====================================
 
 function finishTest(){
 
@@ -714,23 +692,6 @@ function finishTest(){
         if(answer == null){
 
             skippedWithTimeRemaining++;
-
-            questionAnalysis.push({
-
-                questionNumber:index + 1,
-
-                status:"Not Visited",
-
-                selectedOption:"None",
-
-                correctAnswer:
-                    questions[index].answer,
-
-                isCorrect:false,
-
-                thinkingTime:0
-
-            });
 
             return;
 
@@ -811,14 +772,6 @@ function finishTest(){
 
             questionNumber:index + 1,
 
-            status:
-                answer.selectedOption ===
-                "Not Answered"
-
-                ? "Skipped"
-
-                : "Answered",
-
             selectedOption:
                 answer.selectedOption,
 
@@ -832,7 +785,7 @@ function finishTest(){
                 answer.timeTakenInSeconds,
 
             skipReason:
-                answer.skipReason || "none"
+                answer.skipReason
 
         });
 
@@ -849,10 +802,6 @@ function finishTest(){
         totalThinkingTime / questions.length
 
     ).toFixed(2);
-
-    const attemptedAllQuestions =
-
-        attemptedQuestions === questions.length;
 
     let behavior = "";
 
@@ -882,9 +831,6 @@ function finishTest(){
         name:
             document.getElementById("name").value,
 
-        email:
-            document.getElementById("email").value,
-
         age:
             document.getElementById("age").value,
 
@@ -893,6 +839,9 @@ function finishTest(){
 
         experience:
             document.getElementById("experience").value,
+
+        email:
+            document.getElementById("email").value,
 
         college:
             document.getElementById("college").value,
@@ -923,9 +872,6 @@ function finishTest(){
         attemptedQuestions:
             attemptedQuestions,
 
-        attemptedAllQuestions:
-            attemptedAllQuestions,
-
         totalThinkingTime:
             totalThinkingTime,
 
@@ -951,35 +897,30 @@ function finishTest(){
 
     };
 
-    localStorage.setItem(
+    // SAVE LOCAL
 
+    localStorage.setItem(
         "testReport",
-
         JSON.stringify(reportData)
-
     );
 
     localStorage.setItem(
-
         "testCompleted",
-
         "true"
-
     );
+
+    // SAVE DATABASE
 
     fetch(
 
-        "https://online-test-system-pqd0.onrender.com/save-result",
+        "https://YOUR-BACKEND-URL.onrender.com/save-result",
 
         {
 
             method:"POST",
 
             headers:{
-
-                "Content-Type":
-                "application/json"
-
+                "Content-Type":"application/json"
             },
 
             body:JSON.stringify(reportData)
@@ -987,20 +928,19 @@ function finishTest(){
         }
 
     )
-
     .then(response => response.json())
-
     .then(data => {
 
-        console.log(data);
+        console.log("Saved :",data);
 
     })
-
     .catch(error => {
 
-        console.log(error);
+        console.log("Save Error :",error);
 
     });
+
+    // SHOW RESULT
 
     document.getElementById(
         "testSection"
@@ -1015,6 +955,8 @@ function finishTest(){
     ).innerHTML =
 
         score + " / " + questions.length;
+
+    // REDIRECT
 
     setTimeout(() => {
 
