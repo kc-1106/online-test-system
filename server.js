@@ -136,6 +136,15 @@ app.post("/save-result", async (req,res) => {
 
 });
 
+// ==========================================
+// ROOT ROUTE
+// ==========================================
+
+app.get("/", (req,res) => {
+
+    res.send("Server Running Successfully");
+
+});
 
 // ==========================================
 // GET RESULTS
