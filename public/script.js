@@ -1,968 +1,293 @@
 const questions = [
-
-    {
-        question: "Question 1",
-        image: "images/q1.png",
-        options: ["A","B","C","D","E"],
-        answer: "C"
-    },
-
-    {
-        question: "Question 2",
-        image: "images/q2.png",
-        options: ["A","B","C","D","E"],
-        answer: "E"
-    },
-
-    {
-        question: "Question 3",
-        image: "images/q3.png",
-        options: ["A","B","C","D","E"],
-        answer: "E"
-    },
-
-    {
-        question: "Question 4",
-        image: "images/q4.png",
-        options: ["A","B","C","D","E"],
-        answer: "E"
-    },
-
-    {
-        question: "Question 5",
-        image: "images/q5.png",
-        options: ["A","B","C","D","E"],
-        answer: "D"
-    },
-
-    {
-        question: "Question 6",
-        image: "images/q6.png",
-        options: ["A","B","C","D","E"],
-        answer: "E"
-    },
-
-    {
-        question: "Question 7",
-        image: "images/q7.png",
-        options: ["A","B","C","D","E"],
-        answer: "E"
-    },
-
-    {
-        question: "Question 8",
-        image: "images/q8.png",
-        options: ["A","B","C","D","E"],
-        answer: "B"
-    },
-
-    {
-        question: "Question 9",
-        image: "images/q9.png",
-        options: ["A","B","C","D","E"],
-        answer: "D"
-    },
-
-    {
-        question: "Question 10",
-        image: "images/q10.png",
-        options: ["A","B","C","D","E"],
-        answer: "C"
-    }
-
+    { question: "Question 1", image: "images/q1.png", options: ["A","B","C","D","E"], answer: "C" },
+    { question: "Question 2", image: "images/q2.png", options: ["A","B","C","D","E"], answer: "E" },
+    { question: "Question 3", image: "images/q3.png", options: ["A","B","C","D","E"], answer: "E" },
+    { question: "Question 4", image: "images/q4.png", options: ["A","B","C","D","E"], answer: "E" },
+    { question: "Question 5", image: "images/q5.png", options: ["A","B","C","D","E"], answer: "D" },
+    { question: "Question 6", image: "images/q6.png", options: ["A","B","C","D","E"], answer: "E" },
+    { question: "Question 7", image: "images/q7.png", options: ["A","B","C","D","E"], answer: "E" },
+    { question: "Question 8", image: "images/q8.png", options: ["A","B","C","D","E"], answer: "B" },
+    { question: "Question 9", image: "images/q9.png", options: ["A","B","C","D","E"], answer: "D" },
+    { question: "Question 10", image: "images/q10.png", options: ["A","B","C","D","E"], answer: "C" }
 ];
 
-// ====================================
-// VARIABLES
-// ====================================
-
+// ================= VARIABLES =================
 let currentQuestion = 0;
+let userAnswers = Array(questions.length).fill(null);
+let questionStatus = Array(questions.length).fill("not-visited");
 
-let userAnswers =
-    new Array(questions.length).fill(null);
-
-let questionStatus =
-    new Array(questions.length)
-    .fill("not-visited");
-
-let questionTimers =
-    new Array(questions.length).fill(60);
+let questionTimers = Array(questions.length).fill(60);
 
 let localTimer;
-
 let localTime = 60;
-
 let globalTime = 600;
-
 let globalTimer;
 
-// ====================================
-// BLOCK RETEST
-// ====================================
-
-if(localStorage.getItem("testCompleted") === "true"){
-
-    document.body.innerHTML = `
-
-        <div style="
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            background:#0f172a;
-            color:white;
-            font-family:Arial;
-        ">
-
-            <div style="text-align:center;">
-
-                <h1 style="font-size:45px;">
-                    Test Already Completed
-                </h1>
-
-                <p style="
-                    margin-top:20px;
-                    font-size:22px;
-                ">
-                    Retest is not allowed.
-                </p>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-// ====================================
-// START TEST
-// ====================================
-
+// ================= START TEST =================
 function startTest(){
 
-    const name =
-        document.getElementById("name").value.trim();
+    const fields = ["name","age","profession","experience","email","college","department"];
 
-    const age =
-        document.getElementById("age").value.trim();
-
-    const profession =
-        document.getElementById("profession").value.trim();
-
-    const experience =
-        document.getElementById("experience").value.trim();
-
-    const email =
-        document.getElementById("email").value.trim();
-
-    const college =
-        document.getElementById("college").value.trim();
-
-    const department =
-        document.getElementById("department").value.trim();
-
-    if(name === ""){
-
-        alert("Please enter name");
-        return;
-
+    for(let f of fields){
+        const val = document.getElementById(f).value.trim();
+        if(val === ""){
+            alert("Please fill all fields");
+            return;
+        }
     }
 
-    if(age === ""){
-
-        alert("Please enter age");
-        return;
-
-    }
-
-    const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const email = document.getElementById("email").value.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
-
-        alert("Please enter valid email");
+        alert("Enter valid email");
         return;
-
     }
 
-    if(profession === ""){
-
-        alert("Please enter profession");
-        return;
-
-    }
-
-    if(experience === ""){
-
-        alert("Please enter experience");
-        return;
-
-    }
-
-    if(college === ""){
-
-        alert("Please enter college");
-        return;
-
-    }
-
-    if(department === ""){
-
-        alert("Please enter department");
-        return;
-
-    }
-
-    document.getElementById(
-        "registrationForm"
-    ).style.display = "none";
-
-    document.getElementById(
-        "instructionPage"
-    ).style.display = "block";
-
+    document.getElementById("registrationForm").style.display = "none";
+    document.getElementById("instructionPage").style.display = "block";
 }
 
-// ====================================
-// BEGIN TEST
-// ====================================
-
+// ================= BEGIN TEST =================
 function beginActualTest(){
 
-    document.getElementById(
-        "instructionPage"
-    ).style.display = "none";
+    document.getElementById("instructionPage").style.display = "none";
+    document.getElementById("testSection").style.display = "block";
 
-    document.getElementById(
-        "testSection"
-    ).style.display = "block";
-
-    document.getElementById(
-        "displayUserName"
-    ).innerHTML =
+    document.getElementById("displayUserName").innerText =
         document.getElementById("name").value;
 
-    document.getElementById(
-        "displayUserEmail"
-    ).innerHTML =
+    document.getElementById("displayUserEmail").innerText =
         document.getElementById("email").value;
 
     startGlobalTimer();
-
     loadQuestion();
-
 }
 
-// ====================================
-// GLOBAL TIMER
-// ====================================
-
+// ================= GLOBAL TIMER =================
 function startGlobalTimer(){
 
     globalTimer = setInterval(() => {
 
         globalTime--;
 
-        const minutes =
-            Math.floor(globalTime / 60);
+        let m = Math.floor(globalTime / 60);
+        let s = globalTime % 60;
 
-        const seconds =
-            globalTime % 60;
-
-        document.getElementById(
-            "globalTimer"
-        ).innerHTML =
-
-            `${minutes}:${
-                seconds < 10
-                ? "0"+seconds
-                : seconds
-            }`;
+        document.getElementById("globalTimer").innerText =
+            `${m}:${s < 10 ? "0"+s : s}`;
 
         if(globalTime <= 0){
-
             clearInterval(globalTimer);
-
             finishTest();
-
         }
 
     },1000);
-
 }
 
-// ====================================
-// LOCAL TIMER
-// ====================================
-
+// ================= LOCAL TIMER =================
 function startLocalTimer(){
 
     clearInterval(localTimer);
 
-    localTime =
-        questionTimers[currentQuestion];
+    localTime = questionTimers[currentQuestion];
 
-    document.getElementById(
-        "timer"
-    ).innerHTML = localTime;
+    document.getElementById("timer").innerText = localTime;
 
     localTimer = setInterval(() => {
 
         localTime--;
+        questionTimers[currentQuestion] = localTime;
 
-        questionTimers[currentQuestion] =
-            localTime;
-
-        document.getElementById(
-            "timer"
-        ).innerHTML = localTime;
+        document.getElementById("timer").innerText = localTime;
 
         if(localTime <= 0){
-
             clearInterval(localTimer);
-
             if(!userAnswers[currentQuestion]){
-
                 saveSkippedAnswer("timeout");
-
             }
-
             nextQuestion();
-
         }
 
     },1000);
-
 }
 
-// ====================================
-// LOAD QUESTION
-// ====================================
-
+// ================= LOAD QUESTION =================
 function loadQuestion(){
 
     const q = questions[currentQuestion];
 
-    document.getElementById(
-        "questionTitle"
-    ).innerHTML = q.question;
+    document.getElementById("questionTitle").innerText = q.question;
+    document.getElementById("questionImage").src = q.image;
 
-    document.getElementById(
-        "questionImage"
-    ).src = q.image;
-
-    if(
-        questionStatus[currentQuestion] ===
-        "not-visited"
-    ){
-
-        questionStatus[currentQuestion] =
-            "current";
-
+    if(questionStatus[currentQuestion] === "not-visited"){
+        questionStatus[currentQuestion] = "current";
     }
 
-    let optionsHTML = "";
+    let html = "";
 
-    q.options.forEach(option => {
+    q.options.forEach(opt => {
 
         const checked =
+            userAnswers[currentQuestion]?.selectedOption === opt
+            ? "checked" : "";
 
-            userAnswers[currentQuestion]
-            &&
-            userAnswers[currentQuestion]
-            .selectedOption === option
-
-            ? "checked"
-            : "";
-
-        optionsHTML += `
-
+        html += `
             <label class="option">
-
-                <input
-                    type="radio"
+                <input type="radio"
                     name="option"
-                    value="${option}"
+                    value="${opt}"
                     ${checked}
-                    onchange="selectAnswer('${option}')"
-                >
-
-                <div style="margin-top:10px;">
-                    ${option}
-                </div>
-
+                    onchange="selectAnswer('${opt}')">
+                <div style="margin-top:10px">${opt}</div>
             </label>
-
         `;
-
     });
 
-    document.getElementById(
-        "optionsContainer"
-    ).innerHTML = optionsHTML;
+    document.getElementById("optionsContainer").innerHTML = html;
 
     updateQuestionStatus();
-
     startLocalTimer();
 
-    document.getElementById(
-        "prevBtn"
-    ).disabled =
-        currentQuestion === 0;
+    document.getElementById("prevBtn").disabled = currentQuestion === 0;
 
-    if(currentQuestion === questions.length - 1){
-
-        document.getElementById(
-            "nextBtn"
-        ).innerHTML = "Finish Test";
-
-    }
-
-    else{
-
-        document.getElementById(
-            "nextBtn"
-        ).innerHTML = "Next Question";
-
-    }
-
+    document.getElementById("nextBtn").innerText =
+        currentQuestion === questions.length - 1
+        ? "Finish Test"
+        : "Next Question";
 }
 
-// ====================================
-// SELECT ANSWER
-// ====================================
+// ================= SELECT ANSWER =================
+function selectAnswer(ans){
 
-function selectAnswer(answer){
-
-    const timeTaken =
-        60 - questionTimers[currentQuestion];
+    const timeTaken = 60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
-
-        question:
-            questions[currentQuestion].question,
-
-        image:
-            questions[currentQuestion].image,
-
-        selectedOption:
-            answer,
-
-        correctAnswer:
-            questions[currentQuestion].answer,
-
-        isCorrect:
-            answer ===
-            questions[currentQuestion].answer,
-
-        timeTakenInSeconds:
-            timeTaken,
-
-        skipReason:"none"
-
+        question: questions[currentQuestion].question,
+        image: questions[currentQuestion].image,
+        selectedOption: ans,
+        correctAnswer: questions[currentQuestion].answer,
+        isCorrect: ans === questions[currentQuestion].answer,
+        timeTakenInSeconds: timeTaken,
+        skipReason: "none"
     };
 
-    questionStatus[currentQuestion] =
-        "answered";
-
+    questionStatus[currentQuestion] = "answered";
     updateQuestionStatus();
-
 }
 
-// ====================================
-// SAVE SKIPPED
-// ====================================
-
+// ================= SKIP =================
 function saveSkippedAnswer(reason){
 
-    const timeTaken =
-        60 - questionTimers[currentQuestion];
-
     userAnswers[currentQuestion] = {
-
-        question:
-            questions[currentQuestion].question,
-
-        image:
-            questions[currentQuestion].image,
-
-        selectedOption:
-            "Not Answered",
-
-        correctAnswer:
-            questions[currentQuestion].answer,
-
-        isCorrect:false,
-
-        timeTakenInSeconds:
-            timeTaken,
-
-        skipReason:reason
-
+        question: questions[currentQuestion].question,
+        image: questions[currentQuestion].image,
+        selectedOption: "Not Answered",
+        correctAnswer: questions[currentQuestion].answer,
+        isCorrect: false,
+        timeTakenInSeconds: 60 - questionTimers[currentQuestion],
+        skipReason: reason
     };
 
-    questionStatus[currentQuestion] =
-        "not-answered";
-
+    questionStatus[currentQuestion] = "not-answered";
 }
 
-// ====================================
-// UPDATE QUESTION STATUS
-// ====================================
-
+// ================= STATUS UI (FIXED) =================
 function updateQuestionStatus(){
 
     let html = "";
 
     for(let i=0;i<questions.length;i++){
 
-        let statusClass = "";
+        let cls = "not-visited";
 
-        if(i === currentQuestion){
-
-            statusClass = "current";
-
-        }
-
-        else if(
-            userAnswers[i] &&
-            userAnswers[i].selectedOption !==
-            "Not Answered"
-        ){
-
-            statusClass = "answered";
-
-        }
-
-        else if(
-            questionStatus[i] ===
-            "not-answered"
-        ){
-
-            statusClass = "not-answered";
-
-        }
-
-        else{
-
-            statusClass = "not-visited";
-
-        }
+        if(i === currentQuestion) cls = "current";
+        else if(userAnswers[i]?.selectedOption && userAnswers[i].selectedOption !== "Not Answered") cls = "answered";
+        else if(questionStatus[i] === "not-answered") cls = "not-answered";
 
         html += `
-
-            <div
-                class="status-circle ${statusClass}"
-                onclick="goToQuestion(${i})"
-            >
-
+            <div class="status-circle ${cls}" onclick="goToQuestion(${i})">
                 ${i+1}
-
             </div>
-
         `;
     }
 
-    document.getElementById(
-        "questionStatusContainer"
-    ).innerHTML = html;
-
+    document.getElementById("questionStatusContainer").innerHTML = html;
 }
 
-// ====================================
-// GO TO QUESTION
-// ====================================
-
-function goToQuestion(index){
-
+// ================= NAVIGATION =================
+function goToQuestion(i){
     clearInterval(localTimer);
-
-    questionTimers[currentQuestion] =
-        localTime;
-
-    if(!userAnswers[currentQuestion]){
-
-        questionStatus[currentQuestion] =
-            "not-answered";
-
-    }
-
-    currentQuestion = index;
-
+    currentQuestion = i;
     loadQuestion();
-
 }
-
-// ====================================
-// NEXT QUESTION
-// ====================================
 
 function nextQuestion(){
-
     clearInterval(localTimer);
 
-    questionTimers[currentQuestion] =
-        localTime;
-
     if(!userAnswers[currentQuestion]){
-
-        saveSkippedAnswer(
-            localTime <= 0
-            ? "timeout"
-            : "manual-skip"
-        );
-
+        saveSkippedAnswer(localTime <= 0 ? "timeout" : "manual-skip");
     }
 
     if(currentQuestion === questions.length - 1){
-
         finishTest();
-
         return;
-
     }
 
     currentQuestion++;
-
     loadQuestion();
-
 }
 
-// ====================================
-// PREVIOUS QUESTION
-// ====================================
-
 function previousQuestion(){
-
     clearInterval(localTimer);
 
-    questionTimers[currentQuestion] =
-        localTime;
-
     if(!userAnswers[currentQuestion]){
-
-        questionStatus[currentQuestion] =
-            "not-answered";
-
+        questionStatus[currentQuestion] = "not-answered";
     }
 
     if(currentQuestion > 0){
-
         currentQuestion--;
-
         loadQuestion();
-
     }
-
 }
 
-// ====================================
-// FINISH TEST
-// ====================================
-
+// ================= FINISH TEST =================
 function finishTest(){
 
     clearInterval(globalTimer);
-
     clearInterval(localTimer);
 
     let score = 0;
 
-    let correctAnswers = 0;
-
-    let wrongAnswers = 0;
-
-    let skippedByTimeout = 0;
-
-    let skippedWithTimeRemaining = 0;
-
-    let attemptedQuestions = 0;
-
-    let totalThinkingTime = 0;
-
-    let fastAnsweredQuestions = 0;
-
-    let slowAnsweredQuestions = 0;
-
-    let questionAnalysis = [];
-
-    userAnswers.forEach((answer,index) => {
-
-        if(answer == null){
-
-            skippedWithTimeRemaining++;
-
-            return;
-
-        }
-
-        totalThinkingTime +=
-            answer.timeTakenInSeconds;
-
-        if(
-            answer.selectedOption !==
-            "Not Answered"
-        ){
-
-            attemptedQuestions++;
-
-        }
-
-        if(answer.isCorrect){
-
-            score++;
-
-            correctAnswers++;
-
-        }
-
-        else{
-
-            if(
-                answer.selectedOption !==
-                "Not Answered"
-            ){
-
-                wrongAnswers++;
-
-            }
-
-        }
-
-        if(
-            answer.selectedOption ===
-            "Not Answered"
-        ){
-
-            if(
-                answer.skipReason ===
-                "timeout"
-            ){
-
-                skippedByTimeout++;
-
-            }
-
-            else{
-
-                skippedWithTimeRemaining++;
-
-            }
-
-        }
-
-        if(
-            answer.timeTakenInSeconds <= 15
-        ){
-
-            fastAnsweredQuestions++;
-
-        }
-
-        if(
-            answer.timeTakenInSeconds >= 40
-        ){
-
-            slowAnsweredQuestions++;
-
-        }
-
-        questionAnalysis.push({
-
-            questionNumber:index + 1,
-
-            selectedOption:
-                answer.selectedOption,
-
-            correctAnswer:
-                answer.correctAnswer,
-
-            isCorrect:
-                answer.isCorrect,
-
-            thinkingTime:
-                answer.timeTakenInSeconds,
-
-            skipReason:
-                answer.skipReason
-
-        });
-
+    userAnswers.forEach(a => {
+        if(a?.isCorrect) score++;
     });
-
-    const accuracy = (
-
-        (correctAnswers / questions.length) * 100
-
-    ).toFixed(2);
-
-    const averageThinkingTime = (
-
-        totalThinkingTime / questions.length
-
-    ).toFixed(2);
-
-    let behavior = "";
-
-    if(fastAnsweredQuestions >= 7){
-
-        behavior =
-            "Fast Decision Maker";
-
-    }
-
-    else if(slowAnsweredQuestions >= 7){
-
-        behavior =
-            "Slow Analytical Thinker";
-
-    }
-
-    else{
-
-        behavior =
-            "Balanced Thinker";
-
-    }
 
     const reportData = {
-
-        name:
-            document.getElementById("name").value,
-
-        age:
-            document.getElementById("age").value,
-
-        profession:
-            document.getElementById("profession").value,
-
-        experience:
-            document.getElementById("experience").value,
-
-        email:
-            document.getElementById("email").value,
-
-        college:
-            document.getElementById("college").value,
-
-        department:
-            document.getElementById("department").value,
-
-        score:score,
-
-        totalQuestions:
-            questions.length,
-
-        correctAnswers:
-            correctAnswers,
-
-        wrongAnswers:
-            wrongAnswers,
-
-        accuracy:
-            accuracy,
-
-        skippedByTimeout:
-            skippedByTimeout,
-
-        skippedWithTimeRemaining:
-            skippedWithTimeRemaining,
-
-        attemptedQuestions:
-            attemptedQuestions,
-
-        totalThinkingTime:
-            totalThinkingTime,
-
-        averageThinkingTime:
-            averageThinkingTime,
-
-        fastAnsweredQuestions:
-            fastAnsweredQuestions,
-
-        slowAnsweredQuestions:
-            slowAnsweredQuestions,
-
-        behaviorAnalysis:
-            behavior,
-
-        questionAnalysis:
-            questionAnalysis,
-
-        answers:userAnswers,
-
-        submittedAt:
-            new Date()
-
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        score,
+        totalQuestions: questions.length,
+        answers: userAnswers,
+        submittedAt: new Date()
     };
 
-    // SAVE LOCAL
-
-    localStorage.setItem(
-        "testReport",
-        JSON.stringify(reportData)
-    );
-
-    localStorage.setItem(
-        "testCompleted",
-        "true"
-    );
-
-    // SAVE DATABASE
-
-    fetch(
-
-        "https://online-test-system-pqd0.onrender.com/save-result",
-
-        {
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify(reportData)
-
-        }
-
-    )
-    .then(response => response.json())
-    .then(data => {
-
-        console.log("Saved :",data);
-
+    fetch("https://online-test-system-pqd0.onrender.com/save-result", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reportData)
     })
-    .catch(error => {
+    .then(r => r.json())
+    .then(d => console.log("Saved:", d))
+    .catch(e => console.log("Error:", e));
 
-        console.log("Save Error :",error);
+    document.getElementById("testSection").style.display = "none";
+    document.getElementById("result").style.display = "block";
 
-    });
-
-    // SHOW RESULT
-
-    document.getElementById(
-        "testSection"
-    ).style.display = "none";
-
-    document.getElementById(
-        "result"
-    ).style.display = "block";
-
-    document.getElementById(
-        "scoreText"
-    ).innerHTML =
-
-        score + " / " + questions.length;
-
-    // REDIRECT
+    document.getElementById("scoreText").innerText =
+        `${score} / ${questions.length}`;
 
     setTimeout(() => {
-
-        window.location.href =
-            "report.html";
-
-    },3000);
-
+        window.location.href = "report.html";
+    }, 3000);
 }
