@@ -25,8 +25,10 @@ app.get("/", (req, res) => {
 // ===============================
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
-
+.catch(err => {
+    console.log("MongoDB Connection Failed ❌");
+    console.log(err);
+});
 // ===============================
 // SCHEMA
 // ===============================
@@ -61,16 +63,20 @@ const Result = mongoose.model("Result", ResultSchema);
 // ===============================
 // SAVE RESULT
 // ===============================
-app.post("/save-result", async (req, res) => {
+app.post("/save-result", async (req,res) => {
     try {
+        console.log("DATA RECEIVED:", req.body);
+
         const newResult = new Result(req.body);
         await newResult.save();
 
-        res.json({ success: true, message: "Result Saved" });
+        console.log("SAVED SUCCESSFULLY");
+
+        res.json({ success:true });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false });
+        console.log("ERROR:", error);
+        res.status(500).json({ success:false });
     }
 });
 
