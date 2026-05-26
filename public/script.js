@@ -72,9 +72,9 @@ const questions = [
 
 ];
 
-// =========================
+// ======================================
 // VARIABLES
-// =========================
+// ======================================
 
 let currentQuestion = 0;
 
@@ -85,24 +85,23 @@ let questionStatus =
     new Array(questions.length)
     .fill("not-visited");
 
-// TIMER FOR EACH QUESTION
-
 let questionTimers =
     new Array(questions.length).fill(60);
+
+let questionStartTimes =
+    new Array(questions.length).fill(null);
 
 let localTimer;
 
 let localTime = 60;
 
-// GLOBAL TIMER
-
 let globalTime = 600;
 
 let globalTimer;
 
-// =========================
+// ======================================
 // BLOCK RETEST
-// =========================
+// ======================================
 
 if(localStorage.getItem("testCompleted") === "true"){
 
@@ -139,9 +138,9 @@ if(localStorage.getItem("testCompleted") === "true"){
 
 }
 
-// =========================
+// ======================================
 // START TEST
-// =========================
+// ======================================
 
 function startTest(){
 
@@ -168,7 +167,14 @@ function startTest(){
 
     if(name === ""){
 
-        alert("Please enter name");
+        alert("Please enter your name");
+        return;
+
+    }
+
+    if(name.length < 3){
+
+        alert("Name must contain minimum 3 letters");
         return;
 
     }
@@ -176,6 +182,13 @@ function startTest(){
     if(age === ""){
 
         alert("Please enter age");
+        return;
+
+    }
+
+    if(age < 15 || age > 80){
+
+        alert("Age must be between 15 and 80");
         return;
 
     }
@@ -228,9 +241,9 @@ function startTest(){
 
 }
 
-// =========================
-// BEGIN TEST
-// =========================
+// ======================================
+// BEGIN ACTUAL TEST
+// ======================================
 
 function beginActualTest(){
 
@@ -258,9 +271,9 @@ function beginActualTest(){
 
 }
 
-// =========================
+// ======================================
 // GLOBAL TIMER
-// =========================
+// ======================================
 
 function startGlobalTimer(){
 
@@ -296,15 +309,13 @@ function startGlobalTimer(){
 
 }
 
-// =========================
+// ======================================
 // LOCAL TIMER
-// =========================
+// ======================================
 
 function startLocalTimer(){
 
     clearInterval(localTimer);
-
-    // LOAD SAVED TIME
 
     localTime =
         questionTimers[currentQuestion];
@@ -317,8 +328,6 @@ function startLocalTimer(){
 
         localTime--;
 
-        // SAVE CURRENT TIMER
-
         questionTimers[currentQuestion] =
             localTime;
 
@@ -326,20 +335,15 @@ function startLocalTimer(){
             "timer"
         ).innerHTML = localTime;
 
-        // AUTO NEXT
-
         if(localTime <= 0){
 
             clearInterval(localTimer);
 
             if(!userAnswers[currentQuestion]){
 
-                questionStatus[currentQuestion] =
-                    "not-answered";
+                saveSkippedAnswer("timeout");
 
             }
-
-            updateQuestionStatus();
 
             nextQuestion();
 
@@ -349,9 +353,9 @@ function startLocalTimer(){
 
 }
 
-// =========================
+// ======================================
 // LOAD QUESTION
-// =========================
+// ======================================
 
 function loadQuestion(){
 
@@ -364,6 +368,18 @@ function loadQuestion(){
     document.getElementById(
         "questionImage"
     ).src = q.image;
+
+    if(
+        questionStatus[currentQuestion] ===
+        "not-visited"
+    ){
+
+        questionStatus[currentQuestion] =
+            "current";
+    }
+
+    questionStartTimes[currentQuestion] =
+        new Date();
 
     let optionsHTML = "";
 
@@ -405,22 +421,14 @@ function loadQuestion(){
         "optionsContainer"
     ).innerHTML = optionsHTML;
 
-    // START TIMER
-
-    startLocalTimer();
-
-    // UPDATE STATUS
-
     updateQuestionStatus();
 
-    // PREVIOUS BUTTON
+    startLocalTimer();
 
     document.getElementById(
         "prevBtn"
     ).disabled =
         currentQuestion === 0;
-
-    // FINISH BUTTON
 
     if(currentQuestion === questions.length - 1){
 
@@ -440,11 +448,15 @@ function loadQuestion(){
 
 }
 
-// =========================
+// ======================================
 // SELECT ANSWER
-// =========================
+// ======================================
 
 function selectAnswer(answer){
+
+    const thinkingTime =
+
+        60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
 
@@ -462,7 +474,12 @@ function selectAnswer(answer){
 
         isCorrect:
             answer ===
-            questions[currentQuestion].answer
+            questions[currentQuestion].answer,
+
+        timeTakenInSeconds:
+            thinkingTime,
+
+        skipReason:"none"
 
     };
 
@@ -473,19 +490,55 @@ function selectAnswer(answer){
 
 }
 
-// =========================
+// ======================================
+// SAVE SKIPPED
+// ======================================
+
+function saveSkippedAnswer(reason){
+
+    const thinkingTime =
+
+        60 - questionTimers[currentQuestion];
+
+    userAnswers[currentQuestion] = {
+
+        question:
+            questions[currentQuestion].question,
+
+        image:
+            questions[currentQuestion].image,
+
+        selectedOption:
+            "Not Answered",
+
+        correctAnswer:
+            questions[currentQuestion].answer,
+
+        isCorrect:false,
+
+        timeTakenInSeconds:
+            thinkingTime,
+
+        skipReason:reason
+
+    };
+
+    questionStatus[currentQuestion] =
+        "not-answered";
+
+}
+
+// ======================================
 // UPDATE QUESTION STATUS
-// =========================
+// ======================================
 
 function updateQuestionStatus(){
 
     let html = "";
 
-    for(let i = 0; i < questions.length; i++){
+    for(let i=0;i<questions.length;i++){
 
         let statusClass = "";
-
-        // CURRENT
 
         if(i === currentQuestion){
 
@@ -493,28 +546,24 @@ function updateQuestionStatus(){
 
         }
 
-        // ANSWERED
-
         else if(
             userAnswers[i] &&
-            userAnswers[i].selectedOption
+            userAnswers[i].selectedOption !==
+            "Not Answered"
         ){
 
             statusClass = "answered";
 
         }
 
-        // NOT ANSWERED
-
         else if(
-            questionStatus[i] === "not-answered"
+            questionStatus[i] ===
+            "not-answered"
         ){
 
             statusClass = "not-answered";
 
         }
-
-        // NOT VISITED
 
         else{
 
@@ -529,11 +578,12 @@ function updateQuestionStatus(){
                 onclick="goToQuestion(${i})"
             >
 
-                ${i + 1}
+                ${i+1}
 
             </div>
 
         `;
+
     }
 
     document.getElementById(
@@ -542,20 +592,16 @@ function updateQuestionStatus(){
 
 }
 
-// =========================
+// ======================================
 // GO TO QUESTION
-// =========================
+// ======================================
 
 function goToQuestion(index){
 
     clearInterval(localTimer);
 
-    // SAVE TIMER
-
     questionTimers[currentQuestion] =
         localTime;
-
-    // MARK RED
 
     if(!userAnswers[currentQuestion]){
 
@@ -570,29 +616,26 @@ function goToQuestion(index){
 
 }
 
-// =========================
+// ======================================
 // NEXT QUESTION
-// =========================
+// ======================================
 
 function nextQuestion(){
 
     clearInterval(localTimer);
 
-    // SAVE TIMER
-
     questionTimers[currentQuestion] =
         localTime;
 
-    // MARK RED
-
     if(!userAnswers[currentQuestion]){
 
-        questionStatus[currentQuestion] =
-            "not-answered";
+        saveSkippedAnswer(
+            localTime <= 0
+            ? "timeout"
+            : "manual-skip"
+        );
 
     }
-
-    // FINISH
 
     if(currentQuestion === questions.length - 1){
 
@@ -608,20 +651,16 @@ function nextQuestion(){
 
 }
 
-// =========================
+// ======================================
 // PREVIOUS QUESTION
-// =========================
+// ======================================
 
 function previousQuestion(){
 
     clearInterval(localTimer);
 
-    // SAVE TIMER
-
     questionTimers[currentQuestion] =
         localTime;
-
-    // MARK RED
 
     if(!userAnswers[currentQuestion]){
 
@@ -640,19 +679,15 @@ function previousQuestion(){
 
 }
 
-// =========================
+// ======================================
 // FINISH TEST
-// =========================
-
-
-
-}// FINISH TEST
+// ======================================
 
 function finishTest(){
 
     clearInterval(globalTimer);
 
-    clearInterval(questionTimer);
+    clearInterval(localTimer);
 
     let score = 0;
 
@@ -675,8 +710,6 @@ function finishTest(){
     let questionAnalysis = [];
 
     userAnswers.forEach((answer,index) => {
-
-        // QUESTION NEVER VISITED
 
         if(answer == null){
 
@@ -703,25 +736,17 @@ function finishTest(){
 
         }
 
-        // TOTAL TIME
-
         totalThinkingTime +=
             answer.timeTakenInSeconds;
 
-        // ATTEMPTED
-
         if(
-
             answer.selectedOption !==
             "Not Answered"
-
         ){
 
             attemptedQuestions++;
 
         }
-
-        // CORRECT / WRONG
 
         if(answer.isCorrect){
 
@@ -734,10 +759,8 @@ function finishTest(){
         else{
 
             if(
-
                 answer.selectedOption !==
                 "Not Answered"
-
             ){
 
                 wrongAnswers++;
@@ -746,16 +769,15 @@ function finishTest(){
 
         }
 
-        // SKIPPED TYPES
-
         if(
-
             answer.selectedOption ===
             "Not Answered"
-
         ){
 
-            if(answer.skipReason === "timeout"){
+            if(
+                answer.skipReason ===
+                "timeout"
+            ){
 
                 skippedByTimeout++;
 
@@ -769,12 +791,8 @@ function finishTest(){
 
         }
 
-        // FAST / SLOW ANALYSIS
-
         if(
-
             answer.timeTakenInSeconds <= 15
-
         ){
 
             fastAnsweredQuestions++;
@@ -782,16 +800,12 @@ function finishTest(){
         }
 
         if(
-
             answer.timeTakenInSeconds >= 40
-
         ){
 
             slowAnsweredQuestions++;
 
         }
-
-        // QUESTION ANALYSIS
 
         questionAnalysis.push({
 
@@ -824,15 +838,11 @@ function finishTest(){
 
     });
 
-    // ACCURACY
-
     const accuracy = (
 
         (correctAnswers / questions.length) * 100
 
     ).toFixed(2);
-
-    // AVERAGE THINKING TIME
 
     const averageThinkingTime = (
 
@@ -840,13 +850,9 @@ function finishTest(){
 
     ).toFixed(2);
 
-    // ATTEMPTED ALL QUESTIONS
-
     const attemptedAllQuestions =
 
         attemptedQuestions === questions.length;
-
-    // BEHAVIOR ANALYSIS
 
     let behavior = "";
 
@@ -871,11 +877,7 @@ function finishTest(){
 
     }
 
-    // FINAL REPORT OBJECT
-
     const reportData = {
-
-        // USER DETAILS
 
         name:
             document.getElementById("name").value,
@@ -898,8 +900,6 @@ function finishTest(){
         department:
             document.getElementById("department").value,
 
-        // SCORE DATA
-
         score:score,
 
         totalQuestions:
@@ -914,23 +914,17 @@ function finishTest(){
         accuracy:
             accuracy,
 
-        // SKIP ANALYSIS
-
         skippedByTimeout:
             skippedByTimeout,
 
         skippedWithTimeRemaining:
             skippedWithTimeRemaining,
 
-        // ATTEMPT ANALYSIS
-
         attemptedQuestions:
             attemptedQuestions,
 
         attemptedAllQuestions:
             attemptedAllQuestions,
-
-        // TIME ANALYSIS
 
         totalThinkingTime:
             totalThinkingTime,
@@ -944,17 +938,11 @@ function finishTest(){
         slowAnsweredQuestions:
             slowAnsweredQuestions,
 
-        // USER BEHAVIOR
-
         behaviorAnalysis:
             behavior,
 
-        // QUESTION DETAILS
-
         questionAnalysis:
             questionAnalysis,
-
-        // RAW ANSWERS
 
         answers:userAnswers,
 
@@ -962,8 +950,6 @@ function finishTest(){
             new Date()
 
     };
-
-    // SAVE LOCAL STORAGE
 
     localStorage.setItem(
 
@@ -973,8 +959,6 @@ function finishTest(){
 
     );
 
-    // BLOCK RETEST
-
     localStorage.setItem(
 
         "testCompleted",
@@ -982,8 +966,6 @@ function finishTest(){
         "true"
 
     );
-
-    // SAVE TO DATABASE
 
     fetch(
 
@@ -1020,8 +1002,6 @@ function finishTest(){
 
     });
 
-    // SHOW RESULT PAGE
-
     document.getElementById(
         "testSection"
     ).style.display = "none";
@@ -1035,8 +1015,6 @@ function finishTest(){
     ).innerHTML =
 
         score + " / " + questions.length;
-
-    // REDIRECT TO REPORT PAGE
 
     setTimeout(() => {
 
