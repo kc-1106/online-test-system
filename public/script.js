@@ -644,25 +644,238 @@ function previousQuestion(){
 // FINISH TEST
 // =========================
 
+
+
+}// FINISH TEST
+
 function finishTest(){
 
     clearInterval(globalTimer);
 
-    clearInterval(localTimer);
+    clearInterval(questionTimer);
 
     let score = 0;
 
-    userAnswers.forEach(answer => {
+    let correctAnswers = 0;
 
-        if(answer && answer.isCorrect){
+    let wrongAnswers = 0;
 
-            score++;
+    let skippedByTimeout = 0;
+
+    let skippedWithTimeRemaining = 0;
+
+    let attemptedQuestions = 0;
+
+    let totalThinkingTime = 0;
+
+    let fastAnsweredQuestions = 0;
+
+    let slowAnsweredQuestions = 0;
+
+    let questionAnalysis = [];
+
+    userAnswers.forEach((answer,index) => {
+
+        // QUESTION NEVER VISITED
+
+        if(answer == null){
+
+            skippedWithTimeRemaining++;
+
+            questionAnalysis.push({
+
+                questionNumber:index + 1,
+
+                status:"Not Visited",
+
+                selectedOption:"None",
+
+                correctAnswer:
+                    questions[index].answer,
+
+                isCorrect:false,
+
+                thinkingTime:0
+
+            });
+
+            return;
 
         }
 
+        // TOTAL TIME
+
+        totalThinkingTime +=
+            answer.timeTakenInSeconds;
+
+        // ATTEMPTED
+
+        if(
+
+            answer.selectedOption !==
+            "Not Answered"
+
+        ){
+
+            attemptedQuestions++;
+
+        }
+
+        // CORRECT / WRONG
+
+        if(answer.isCorrect){
+
+            score++;
+
+            correctAnswers++;
+
+        }
+
+        else{
+
+            if(
+
+                answer.selectedOption !==
+                "Not Answered"
+
+            ){
+
+                wrongAnswers++;
+
+            }
+
+        }
+
+        // SKIPPED TYPES
+
+        if(
+
+            answer.selectedOption ===
+            "Not Answered"
+
+        ){
+
+            if(answer.skipReason === "timeout"){
+
+                skippedByTimeout++;
+
+            }
+
+            else{
+
+                skippedWithTimeRemaining++;
+
+            }
+
+        }
+
+        // FAST / SLOW ANALYSIS
+
+        if(
+
+            answer.timeTakenInSeconds <= 15
+
+        ){
+
+            fastAnsweredQuestions++;
+
+        }
+
+        if(
+
+            answer.timeTakenInSeconds >= 40
+
+        ){
+
+            slowAnsweredQuestions++;
+
+        }
+
+        // QUESTION ANALYSIS
+
+        questionAnalysis.push({
+
+            questionNumber:index + 1,
+
+            status:
+                answer.selectedOption ===
+                "Not Answered"
+
+                ? "Skipped"
+
+                : "Answered",
+
+            selectedOption:
+                answer.selectedOption,
+
+            correctAnswer:
+                answer.correctAnswer,
+
+            isCorrect:
+                answer.isCorrect,
+
+            thinkingTime:
+                answer.timeTakenInSeconds,
+
+            skipReason:
+                answer.skipReason || "none"
+
+        });
+
     });
 
+    // ACCURACY
+
+    const accuracy = (
+
+        (correctAnswers / questions.length) * 100
+
+    ).toFixed(2);
+
+    // AVERAGE THINKING TIME
+
+    const averageThinkingTime = (
+
+        totalThinkingTime / questions.length
+
+    ).toFixed(2);
+
+    // ATTEMPTED ALL QUESTIONS
+
+    const attemptedAllQuestions =
+
+        attemptedQuestions === questions.length;
+
+    // BEHAVIOR ANALYSIS
+
+    let behavior = "";
+
+    if(fastAnsweredQuestions >= 7){
+
+        behavior =
+            "Fast Decision Maker";
+
+    }
+
+    else if(slowAnsweredQuestions >= 7){
+
+        behavior =
+            "Slow Analytical Thinker";
+
+    }
+
+    else{
+
+        behavior =
+            "Balanced Thinker";
+
+    }
+
+    // FINAL REPORT OBJECT
+
     const reportData = {
+
+        // USER DETAILS
 
         name:
             document.getElementById("name").value,
@@ -670,24 +883,144 @@ function finishTest(){
         email:
             document.getElementById("email").value,
 
-        score: score,
+        age:
+            document.getElementById("age").value,
+
+        profession:
+            document.getElementById("profession").value,
+
+        experience:
+            document.getElementById("experience").value,
+
+        college:
+            document.getElementById("college").value,
+
+        department:
+            document.getElementById("department").value,
+
+        // SCORE DATA
+
+        score:score,
 
         totalQuestions:
             questions.length,
 
-        answers: userAnswers
+        correctAnswers:
+            correctAnswers,
+
+        wrongAnswers:
+            wrongAnswers,
+
+        accuracy:
+            accuracy,
+
+        // SKIP ANALYSIS
+
+        skippedByTimeout:
+            skippedByTimeout,
+
+        skippedWithTimeRemaining:
+            skippedWithTimeRemaining,
+
+        // ATTEMPT ANALYSIS
+
+        attemptedQuestions:
+            attemptedQuestions,
+
+        attemptedAllQuestions:
+            attemptedAllQuestions,
+
+        // TIME ANALYSIS
+
+        totalThinkingTime:
+            totalThinkingTime,
+
+        averageThinkingTime:
+            averageThinkingTime,
+
+        fastAnsweredQuestions:
+            fastAnsweredQuestions,
+
+        slowAnsweredQuestions:
+            slowAnsweredQuestions,
+
+        // USER BEHAVIOR
+
+        behaviorAnalysis:
+            behavior,
+
+        // QUESTION DETAILS
+
+        questionAnalysis:
+            questionAnalysis,
+
+        // RAW ANSWERS
+
+        answers:userAnswers,
+
+        submittedAt:
+            new Date()
 
     };
 
-    localStorage.setItem(
-        "testReport",
-        JSON.stringify(reportData)
-    );
+    // SAVE LOCAL STORAGE
 
     localStorage.setItem(
-        "testCompleted",
-        "true"
+
+        "testReport",
+
+        JSON.stringify(reportData)
+
     );
+
+    // BLOCK RETEST
+
+    localStorage.setItem(
+
+        "testCompleted",
+
+        "true"
+
+    );
+
+    // SAVE TO DATABASE
+
+    fetch(
+
+        "https://online-test-system-pqd0.onrender.com/save-result",
+
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":
+                "application/json"
+
+            },
+
+            body:JSON.stringify(reportData)
+
+        }
+
+    )
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        console.log(data);
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+
+    });
+
+    // SHOW RESULT PAGE
 
     document.getElementById(
         "testSection"
@@ -700,13 +1033,16 @@ function finishTest(){
     document.getElementById(
         "scoreText"
     ).innerHTML =
+
         score + " / " + questions.length;
+
+    // REDIRECT TO REPORT PAGE
 
     setTimeout(() => {
 
         window.location.href =
             "report.html";
 
-    },2000);
+    },3000);
 
 }
