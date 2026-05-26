@@ -318,5 +318,24 @@ button{
 
     display:inline-block;
 }
+.not-visited{
+    background:white;
+    color:black;
+}
+
+.current{
+    background:orange;
+    color:white;
+}
+
+.answered{
+    background:green;
+    color:white;
+}
+
+.not-answered{
+    background:red;
+    color:white;
+}
 }
 

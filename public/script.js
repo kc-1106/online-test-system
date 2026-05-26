@@ -444,13 +444,15 @@ function loadQuestion(){
 /* ===========================
    SELECT ANSWER
 =========================== */
-
 function selectAnswer(answer){
 
     userAnswers[currentQuestion] = {
 
         question:
             questions[currentQuestion].question,
+
+        image:
+            questions[currentQuestion].image,
 
         selectedOption:
             answer,
@@ -464,6 +466,11 @@ function selectAnswer(answer){
 
     };
 
+    // MARK ANSWERED
+
+    questionStatus[currentQuestion] =
+        "answered";
+
     updateQuestionStatus();
 
 }
@@ -472,14 +479,17 @@ function selectAnswer(answer){
    UPDATE QUESTION STATUS
 =========================== */
 
+// UPDATE QUESTION STATUS
+
 function updateQuestionStatus(){
 
     let html = "";
 
-    for(let i=0;i<questions.length;i++){
+    for(let i = 0; i < questions.length; i++){
 
-        let statusClass =
-            "not-visited";
+        let statusClass = "";
+
+        // CURRENT QUESTION
 
         if(i === currentQuestion){
 
@@ -487,9 +497,30 @@ function updateQuestionStatus(){
 
         }
 
-        else if(userAnswers[i]){
+        // ANSWERED
+
+        else if(
+            userAnswers[i] &&
+            userAnswers[i].selectedOption !== "Not Answered"
+        ){
 
             statusClass = "answered";
+
+        }
+
+        // VISITED BUT NOT ANSWERED
+
+        else if(questionStatus[i] === "visited"){
+
+            statusClass = "not-answered";
+
+        }
+
+        // NOT VISITED
+
+        else{
+
+            statusClass = "not-visited";
 
         }
 
@@ -500,12 +531,11 @@ function updateQuestionStatus(){
                 onclick="goToQuestion(${i})"
             >
 
-                ${i+1}
+                ${i + 1}
 
             </div>
 
         `;
-
     }
 
     document.getElementById(
