@@ -31,7 +31,10 @@ mongoose.connect(
 });
 
 // SCHEMA
+
 const ResultSchema = new mongoose.Schema({
+
+    // USER DETAILS
 
     name:String,
 
@@ -47,6 +50,8 @@ const ResultSchema = new mongoose.Schema({
 
     department:String,
 
+    // SCORE DETAILS
+
     score:Number,
 
     totalQuestions:Number,
@@ -57,13 +62,19 @@ const ResultSchema = new mongoose.Schema({
 
     accuracy:String,
 
+    // SKIP ANALYSIS
+
     skippedByTimeout:Number,
 
     skippedWithTimeRemaining:Number,
 
+    // ATTEMPT DETAILS
+
     attemptedQuestions:Number,
 
     attemptedAllQuestions:Boolean,
+
+    // TIME ANALYSIS
 
     totalThinkingTime:Number,
 
@@ -73,12 +84,67 @@ const ResultSchema = new mongoose.Schema({
 
     slowAnsweredQuestions:Number,
 
+    // BEHAVIOR ANALYSIS
+
     behaviorAnalysis:String,
 
-    questionAnalysis:Array,
+    // QUESTION ANALYSIS
 
-    answers:Array,
+    questionAnalysis:[
 
-    submittedAt:Date
+        {
+
+            questionNumber:Number,
+
+            status:String,
+
+            selectedOption:String,
+
+            correctAnswer:String,
+
+            isCorrect:Boolean,
+
+            thinkingTime:Number,
+
+            skipReason:String
+
+        }
+
+    ],
+
+    // RAW ANSWERS
+
+    answers:[
+
+        {
+
+            question:String,
+
+            image:String,
+
+            selectedOption:String,
+
+            correctAnswer:String,
+
+            isCorrect:Boolean,
+
+            timeTakenInSeconds:Number,
+
+            skipReason:String
+
+        }
+
+    ],
+
+    // SUBMISSION TIME
+
+    submittedAt:{
+
+        type:Date,
+
+        default:Date.now
+
+    }
 
 });
+
