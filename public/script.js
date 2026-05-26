@@ -72,26 +72,23 @@ const questions = [
 
 ];
 
-/* ===========================
-   VARIABLES
-=========================== */
-
 let currentQuestion = 0;
 
 let userAnswers =
     new Array(questions.length).fill(null);
 
+let questionStatus =
+    new Array(questions.length).fill("not-visited");
+
 let globalTime = 600;
 
 let globalTimer;
 
-let questionTime = 60;
+let localTime = 60;
 
-let questionTimer;
+let localTimer;
 
-/* ===========================
-   BLOCK RETEST
-=========================== */
+// BLOCK RETEST
 
 if(localStorage.getItem("testCompleted") === "true"){
 
@@ -109,15 +106,13 @@ if(localStorage.getItem("testCompleted") === "true"){
 
             <div style="text-align:center;">
 
-                <h1 style="
-                    font-size:45px;
-                    margin-bottom:20px;
-                ">
+                <h1 style="font-size:45px;">
                     Test Already Completed
                 </h1>
 
                 <p style="
-                    font-size:24px;
+                    margin-top:20px;
+                    font-size:22px;
                 ">
                     Retest is not allowed.
                 </p>
@@ -130,50 +125,41 @@ if(localStorage.getItem("testCompleted") === "true"){
 
 }
 
-/* ===========================
-   START TEST
-=========================== */
+// START TEST
 
 function startTest(){
 
     const name =
-        document.getElementById("name")
-        .value.trim();
+        document.getElementById("name").value.trim();
 
     const age =
-        document.getElementById("age")
-        .value.trim();
+        document.getElementById("age").value.trim();
 
     const profession =
-        document.getElementById("profession")
-        .value.trim();
+        document.getElementById("profession").value.trim();
 
     const experience =
-        document.getElementById("experience")
-        .value.trim();
+        document.getElementById("experience").value.trim();
 
     const email =
-        document.getElementById("email")
-        .value.trim();
+        document.getElementById("email").value.trim();
 
     const college =
-        document.getElementById("college")
-        .value.trim();
+        document.getElementById("college").value.trim();
 
     const department =
-        document.getElementById("department")
-        .value.trim();
+        document.getElementById("department").value.trim();
 
     if(name === ""){
 
-        alert("Enter Name");
+        alert("Please enter name");
         return;
 
     }
 
     if(age === ""){
 
-        alert("Enter Age");
+        alert("Please enter age");
         return;
 
     }
@@ -183,35 +169,35 @@ function startTest(){
 
     if(!emailPattern.test(email)){
 
-        alert("Invalid Email");
+        alert("Please enter valid email");
         return;
 
     }
 
     if(profession === ""){
 
-        alert("Enter Profession");
+        alert("Please enter profession");
         return;
 
     }
 
     if(experience === ""){
 
-        alert("Enter Experience");
+        alert("Please enter experience");
         return;
 
     }
 
     if(college === ""){
 
-        alert("Enter College");
+        alert("Please enter college");
         return;
 
     }
 
     if(department === ""){
 
-        alert("Enter Department");
+        alert("Please enter department");
         return;
 
     }
@@ -226,9 +212,7 @@ function startTest(){
 
 }
 
-/* ===========================
-   BEGIN ACTUAL TEST
-=========================== */
+// BEGIN TEST
 
 function beginActualTest(){
 
@@ -243,13 +227,11 @@ function beginActualTest(){
     document.getElementById(
         "displayUserName"
     ).innerHTML =
-
         document.getElementById("name").value;
 
     document.getElementById(
         "displayUserEmail"
     ).innerHTML =
-
         document.getElementById("email").value;
 
     startGlobalTimer();
@@ -258,13 +240,9 @@ function beginActualTest(){
 
 }
 
-/* ===========================
-   GLOBAL TIMER
-=========================== */
+// GLOBAL TIMER
 
 function startGlobalTimer(){
-
-    clearInterval(globalTimer);
 
     globalTimer = setInterval(() => {
 
@@ -298,37 +276,29 @@ function startGlobalTimer(){
 
 }
 
-/* ===========================
-   LOCAL QUESTION TIMER
-=========================== */
+// LOCAL TIMER
 
-function startQuestionTimer(){
+function startLocalTimer(){
 
-    clearInterval(questionTimer);
+    clearInterval(localTimer);
 
-    questionTime = 60;
+    localTime = 60;
 
     document.getElementById(
         "timer"
-    ).innerHTML =
+    ).innerHTML = localTime;
 
-        "Question Time Left : 60 sec";
+    localTimer = setInterval(() => {
 
-    questionTimer = setInterval(() => {
-
-        questionTime--;
+        localTime--;
 
         document.getElementById(
             "timer"
-        ).innerHTML =
+        ).innerHTML = localTime;
 
-            "Question Time Left : "
-            + questionTime
-            + " sec";
+        if(localTime <= 0){
 
-        if(questionTime <= 0){
-
-            clearInterval(questionTimer);
+            clearInterval(localTimer);
 
             nextQuestion();
 
@@ -338,25 +308,21 @@ function startQuestionTimer(){
 
 }
 
-/* ===========================
-   LOAD QUESTION
-=========================== */
+// LOAD QUESTION
 
 function loadQuestion(){
 
-    startQuestionTimer();
+    startLocalTimer();
 
     const q = questions[currentQuestion];
 
     document.getElementById(
         "questionTitle"
-    ).innerHTML =
-        q.question;
+    ).innerHTML = q.question;
 
     document.getElementById(
         "questionImage"
-    ).src =
-        q.image;
+    ).src = q.image;
 
     let optionsHTML = "";
 
@@ -384,9 +350,7 @@ function loadQuestion(){
                     onchange="selectAnswer('${option}')"
                 >
 
-                <div style="
-                    margin-top:10px;
-                ">
+                <div style="margin-top:10px;">
                     ${option}
                 </div>
 
@@ -398,12 +362,9 @@ function loadQuestion(){
 
     document.getElementById(
         "optionsContainer"
-    ).innerHTML =
-        optionsHTML;
+    ).innerHTML = optionsHTML;
 
     updateQuestionStatus();
-
-    /* PREVIOUS BUTTON */
 
     if(currentQuestion === 0){
 
@@ -420,8 +381,6 @@ function loadQuestion(){
         ).disabled = false;
 
     }
-
-    /* FINISH BUTTON */
 
     if(currentQuestion === questions.length - 1){
 
@@ -441,9 +400,8 @@ function loadQuestion(){
 
 }
 
-/* ===========================
-   SELECT ANSWER
-=========================== */
+// SELECT ANSWER
+
 function selectAnswer(answer){
 
     userAnswers[currentQuestion] = {
@@ -466,18 +424,12 @@ function selectAnswer(answer){
 
     };
 
-    // MARK ANSWERED
-
     questionStatus[currentQuestion] =
         "answered";
 
     updateQuestionStatus();
 
 }
-
-/* ===========================
-   UPDATE QUESTION STATUS
-=========================== */
 
 // UPDATE QUESTION STATUS
 
@@ -489,7 +441,7 @@ function updateQuestionStatus(){
 
         let statusClass = "";
 
-        // CURRENT QUESTION
+        // CURRENT
 
         if(i === currentQuestion){
 
@@ -501,16 +453,18 @@ function updateQuestionStatus(){
 
         else if(
             userAnswers[i] &&
-            userAnswers[i].selectedOption !== "Not Answered"
+            userAnswers[i].selectedOption
         ){
 
             statusClass = "answered";
 
         }
 
-        // VISITED BUT NOT ANSWERED
+        // NOT ANSWERED
 
-        else if(questionStatus[i] === "visited"){
+        else if(
+            questionStatus[i] === "not-answered"
+        ){
 
             statusClass = "not-answered";
 
@@ -544,11 +498,16 @@ function updateQuestionStatus(){
 
 }
 
-/* ===========================
-   GO TO QUESTION
-=========================== */
+// GO TO QUESTION
 
 function goToQuestion(index){
+
+    if(!userAnswers[currentQuestion]){
+
+        questionStatus[currentQuestion] =
+            "not-answered";
+
+    }
 
     currentQuestion = index;
 
@@ -556,13 +515,18 @@ function goToQuestion(index){
 
 }
 
-/* ===========================
-   NEXT QUESTION
-=========================== */
+// NEXT QUESTION
 
 function nextQuestion(){
 
-    clearInterval(questionTimer);
+    clearInterval(localTimer);
+
+    if(!userAnswers[currentQuestion]){
+
+        questionStatus[currentQuestion] =
+            "not-answered";
+
+    }
 
     if(currentQuestion === questions.length - 1){
 
@@ -578,13 +542,18 @@ function nextQuestion(){
 
 }
 
-/* ===========================
-   PREVIOUS QUESTION
-=========================== */
+// PREVIOUS QUESTION
 
 function previousQuestion(){
 
-    clearInterval(questionTimer);
+    clearInterval(localTimer);
+
+    if(!userAnswers[currentQuestion]){
+
+        questionStatus[currentQuestion] =
+            "not-answered";
+
+    }
 
     if(currentQuestion > 0){
 
@@ -596,15 +565,13 @@ function previousQuestion(){
 
 }
 
-/* ===========================
-   FINISH TEST
-=========================== */
+// FINISH TEST
 
 function finishTest(){
 
     clearInterval(globalTimer);
 
-    clearInterval(questionTimer);
+    clearInterval(localTimer);
 
     let score = 0;
 
@@ -647,7 +614,6 @@ function finishTest(){
 
     fetch(
         "https://online-test-system-pqd0.onrender.com/save-result",
-
         {
 
             method:"POST",
@@ -690,7 +656,6 @@ function finishTest(){
             })
 
         }
-
     );
 
     document.getElementById(
@@ -704,7 +669,6 @@ function finishTest(){
     document.getElementById(
         "scoreText"
     ).innerHTML =
-
         score + " / " + questions.length;
 
     setTimeout(() => {
