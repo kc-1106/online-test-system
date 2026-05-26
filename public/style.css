@@ -298,5 +298,25 @@ button{
 
         font-size:18px;
     }
+    /* LOCAL QUESTION TIMER */
+
+.local-timer{
+
+    margin-top:15px;
+
+    background:#fee2e2;
+
+    color:red;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    display:inline-block;
+}
 }
 
