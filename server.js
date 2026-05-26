@@ -29,7 +29,116 @@ mongoose.connect(
     console.log(err);
 
 });
+app.post("/save-result", async (req, res) => {
 
+    try{
+
+        const result = new Result({
+
+            // USER DETAILS
+
+            name:req.body.name,
+
+            age:req.body.age,
+
+            profession:req.body.profession,
+
+            experience:req.body.experience,
+
+            email:req.body.email,
+
+            college:req.body.college,
+
+            department:req.body.department,
+
+            // SCORE DETAILS
+
+            score:req.body.score,
+
+            totalQuestions:req.body.totalQuestions,
+
+            correctAnswers:req.body.correctAnswers,
+
+            wrongAnswers:req.body.wrongAnswers,
+
+            accuracy:req.body.accuracy,
+
+            // SKIP ANALYSIS
+
+            skippedByTimeout:
+                req.body.skippedByTimeout,
+
+            skippedWithTimeRemaining:
+                req.body.skippedWithTimeRemaining,
+
+            // ATTEMPT ANALYSIS
+
+            attemptedQuestions:
+                req.body.attemptedQuestions,
+
+            attemptedAllQuestions:
+                req.body.attemptedAllQuestions,
+
+            // TIME ANALYSIS
+
+            totalThinkingTime:
+                req.body.totalThinkingTime,
+
+            averageThinkingTime:
+                req.body.averageThinkingTime,
+
+            fastAnsweredQuestions:
+                req.body.fastAnsweredQuestions,
+
+            slowAnsweredQuestions:
+                req.body.slowAnsweredQuestions,
+
+            // BEHAVIOR
+
+            behaviorAnalysis:
+                req.body.behaviorAnalysis,
+
+            // QUESTION ANALYSIS
+
+            questionAnalysis:
+                req.body.questionAnalysis,
+
+            // ANSWERS
+
+            answers:req.body.answers,
+
+            submittedAt:
+                req.body.submittedAt
+
+        });
+
+        await result.save();
+
+        res.json({
+
+            success:true,
+
+            message:"Result saved successfully"
+
+        });
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        res.status(500).json({
+
+            success:false,
+
+            message:"Error saving result"
+
+        });
+
+    }
+
+});
 // SCHEMA
 const ResultSchema = new mongoose.Schema({
 
@@ -51,76 +160,34 @@ const ResultSchema = new mongoose.Schema({
 
     totalQuestions:Number,
 
-    answers:[
+    correctAnswers:Number,
 
-        {
+    wrongAnswers:Number,
 
-            question:String,
+    accuracy:String,
 
-            image:String,
+    skippedByTimeout:Number,
 
-            selectedOption:String,
+    skippedWithTimeRemaining:Number,
 
-            correctAnswer:String,
+    attemptedQuestions:Number,
 
-            isCorrect:Boolean,
+    attemptedAllQuestions:Boolean,
 
-            timeTakenInSeconds:Number
+    totalThinkingTime:Number,
 
-        }
+    averageThinkingTime:String,
 
-    ]
+    fastAnsweredQuestions:Number,
 
-});
+    slowAnsweredQuestions:Number,
 
-const Result =
-    mongoose.model(
-        "Result",
-        ResultSchema
-    );
+    behaviorAnalysis:String,
 
-// SAVE API
-app.post("/save-result", async(req,res)=>{
+    questionAnalysis:Array,
 
-    try{
+    answers:Array,
 
-        console.log(req.body);
-
-        const newResult =
-            new Result(req.body);
-
-        await newResult.save();
-
-        console.log("DATA SAVED");
-
-        res.json({
-
-            success:true,
-
-            message:"Result Saved"
-
-        });
-
-    }catch(error){
-
-        console.log(error);
-
-        res.status(500).json({
-
-            success:false,
-
-            error:error.message
-
-        });
-
-    }
-
-});
-
-app.listen(3000, ()=>{
-
-    console.log(
-        "Server Running On Port 3000"
-    );
+    submittedAt:Date
 
 });
