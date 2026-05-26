@@ -913,7 +913,7 @@ function finishTest(){
 
     fetch(
 
-        "https://online-test-system-pqd0.onrender.com/save-resultonrender",
+        "https://online-test-system-pqd0.onrender.com/save-result",
 
         {
 
