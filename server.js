@@ -62,16 +62,16 @@ app.get("/results", async (req,res) => {
 
     catch(error){
 
-        console.log(error);
+    console.log("RESULT ERROR:", error);
 
-        res.status(500).json({
+    res.status(500).json({
 
-            success:false
+        success:false,
+        error:error.message
 
-        });
+    });
 
-    }
-
+}
 });
 
 // 5. Port Listening Configuration (Fallback for local testing)
