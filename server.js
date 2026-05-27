@@ -6,7 +6,10 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: "*"
+}));
+
 app.use(express.json());
 
 // =============================
@@ -15,7 +18,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
 
-    res.send("Server Running Successfully");
+    res.send("Backend Server Running");
 
 });
 
@@ -23,7 +26,12 @@ app.get("/", (req, res) => {
 // MONGODB CONNECTION
 // =============================
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+
+})
 
 .then(() => {
 
@@ -44,7 +52,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 const ResultSchema = new mongoose.Schema({}, {
 
-    strict:false
+    strict: false
 
 });
 
@@ -57,33 +65,37 @@ const Result = mongoose.model(
 // SAVE RESULT
 // =============================
 
-app.post("/save-result", async (req,res) => {
+app.post("/save-result", async (req, res) => {
 
-    try{
+    try {
 
+        console.log("Incoming Data:");
         console.log(req.body);
 
         const newResult = new Result(req.body);
 
         await newResult.save();
 
-        res.json({
+        console.log("Saved To MongoDB");
 
-            success:true,
-            message:"Saved Successfully"
+        res.status(200).json({
+
+            success: true,
+            message: "Saved Successfully"
 
         });
 
     }
 
-    catch(error){
+    catch (error) {
 
+        console.log("SAVE ERROR:");
         console.log(error);
 
         res.status(500).json({
 
-            success:false,
-            error:error.message
+            success: false,
+            error: error.message
 
         });
 
@@ -95,24 +107,24 @@ app.post("/save-result", async (req,res) => {
 // GET RESULTS
 // =============================
 
-app.get("/results", async (req,res) => {
+app.get("/results", async (req, res) => {
 
-    try{
+    try {
 
         const results = await Result.find();
 
-        res.json(results);
+        res.status(200).json(results);
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
         res.status(500).json({
 
-            success:false,
-            error:error.message
+            success: false,
+            error: error.message
 
         });
 
