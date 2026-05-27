@@ -29,6 +29,9 @@ app.get("/", (req, res) => {
 // ===============================
 // MONGODB CONNECTION
 // ===============================
+// Add this temporary log line to see what Vercel is reading:
+console.log("CURRENT ACTIVE URI IS:", process.env.MONGO_URI);
+
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch(err => {
