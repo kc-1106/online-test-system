@@ -252,24 +252,111 @@ function previousQuestion(){
 }
 
 // ================= FINISH TEST =================
+// ================= FINISH TEST =================
 function finishTest(){
 
     clearInterval(globalTimer);
     clearInterval(localTimer);
 
     let score = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let skippedByTimeout = 0;
+    let skippedWithTimeRemaining = 0;
+    let totalThinkingTime = 0;
+    let fastAnsweredQuestions = 0;
+    let slowAnsweredQuestions = 0;
 
-    userAnswers.forEach(a => {
-        if(a?.isCorrect) score++;
+    const questionAnalysis = [];
+
+    userAnswers.forEach((a, index) => {
+        if (!a) {
+            // Edge case logic for unvisited/unanswered questions at full termination
+            const timeSpent = 60 - questionTimers[index];
+            totalThinkingTime += timeSpent;
+            skippedWithTimeRemaining++;
+            
+            questionAnalysis.push({
+                questionIndex: index + 1,
+                status: "skipped",
+                timeSpent: timeSpent,
+                isCorrect: false
+            });
+            return;
+        }
+
+        totalThinkingTime += a.timeTakenInSeconds;
+
+        if (a.selectedOption === "Not Answered") {
+            if (a.skipReason === "timeout") {
+                skippedByTimeout++;
+            } else {
+                skippedWithTimeRemaining++;
+            }
+            wrongAnswers++; // Skipped items act as incorrect allocations
+        } else {
+            if (a.isCorrect) {
+                score++;
+                correctAnswers++;
+            } else {
+                wrongAnswers++;
+            }
+
+            // Metric tracking benchmark rules
+            if (a.timeTakenInSeconds <= 15) {
+                fastAnsweredQuestions++;
+            } else if (a.timeTakenInSeconds >= 45) {
+                slowAnsweredQuestions++;
+            }
+        }
+
+        questionAnalysis.push({
+            questionIndex: index + 1,
+            selected: a.selectedOption,
+            correct: a.correctAnswer,
+            isCorrect: a.isCorrect,
+            timeSpent: a.timeTakenInSeconds,
+            skipReason: a.skipReason
+        });
     });
 
+    const attemptedQuestions = correctAnswers + wrongAnswers - (skippedByTimeout + skippedWithTimeRemaining);
+    const accuracy = attemptedQuestions > 0 ? ((correctAnswers / attemptedQuestions) * 100).toFixed(2) + "%" : "0%";
+    const averageThinkingTime = (totalThinkingTime / questions.length).toFixed(2) + "s";
+
+    // Simple behavioral classification builder
+    let behaviorAnalysis = "Balanced pace profile.";
+    if (fastAnsweredQuestions > questions.length / 2) {
+        behaviorAnalysis = "Rapid responder archetype. Risk of impulsive errors.";
+    } else if (slowAnsweredQuestions > questions.length / 2) {
+        behaviorAnalysis = "Deliberate analyzer archetype. Risk of pacing constraints.";
+    }
+
+    // Safely collect matching demographic parameters
     const reportData = {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        score,
+        name: document.getElementById("name").value.trim(),
+        age: document.getElementById("age").value.trim(),
+        profession: document.getElementById("profession").value.trim(),
+        experience: document.getElementById("experience").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        college: document.getElementById("college").value.trim(),
+        department: document.getElementById("department").value.trim(),
+        score: score,
         totalQuestions: questions.length,
+        correctAnswers: correctAnswers,
+        wrongAnswers: wrongAnswers,
+        accuracy: accuracy,
+        skippedByTimeout: skippedByTimeout,
+        skippedWithTimeRemaining: skippedWithTimeRemaining,
+        attemptedQuestions: attemptedQuestions,
+        totalThinkingTime: totalThinkingTime,
+        averageThinkingTime: averageThinkingTime,
+        fastAnsweredQuestions: fastAnsweredQuestions,
+        slowAnsweredQuestions: slowAnsweredQuestions,
+        behaviorAnalysis: behaviorAnalysis,
+        questionAnalysis: questionAnalysis,
         answers: userAnswers,
-        submittedAt: new Date()
+        submittedAt: new Date().toLocaleString()
     };
 
     fetch("https://online-test-system-pqd0.onrender.com/save-result", {
@@ -278,16 +365,15 @@ function finishTest(){
         body: JSON.stringify(reportData)
     })
     .then(r => r.json())
-    .then(d => console.log("Saved:", d))
-    .catch(e => console.log("Error:", e));
+    .then(d => console.log("Saved successfully:", d))
+    .catch(e => console.error("Database delivery failure:", e));
 
     document.getElementById("testSection").style.display = "none";
     document.getElementById("result").style.display = "block";
 
-    document.getElementById("scoreText").innerText =
-        `${score} / ${questions.length}`;
+    document.getElementById("scoreText").innerText = `${score} / ${questions.length}`;
 
     setTimeout(() => {
         window.location.href = "report.html";
-    }, 3000);
+    }, 2000);
 }

@@ -7,7 +7,13 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors());
+// Update your CORS middleware area to look like this:
+app.use(cors({
+    origin: "*", // Allows any frontend client domain to deliver payloads safely
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
+
 app.use(bodyParser.json());
 
 // ===============================
@@ -63,20 +69,34 @@ const Result = mongoose.model("Result", ResultSchema);
 // ===============================
 // SAVE RESULT
 // ===============================
-app.post("/save-result", async (req,res) => {
+app.post("/save-result", async (req, res) => {
     try {
         console.log("DATA RECEIVED:", req.body);
 
+        if (!req.body || !req.body.email) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid data received"
+            });
+        }
+
         const newResult = new Result(req.body);
-        await newResult.save();
+        const saved = await newResult.save();
 
-        console.log("SAVED SUCCESSFULLY");
+        console.log("SAVED:", saved);
 
-        res.json({ success:true });
+        res.status(200).json({
+            success: true,
+            message: "Result saved successfully"
+        });
 
     } catch (error) {
-        console.log("ERROR:", error);
-        res.status(500).json({ success:false });
+        console.log("ERROR SAVING:", error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 });
 
