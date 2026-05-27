@@ -50,23 +50,28 @@ const resultSchema = new mongoose.Schema({
 
 const Result = mongoose.models.Result || mongoose.model('Result', resultSchema);
 
-// 4. API Endpoint to Accept and Save Data
-app.post('/save-result', async (req, res) => {
-    try {
-        // Ensure database connection wakes up
-        await connectDB(); 
+app.get("/results", async (req,res) => {
 
-        console.log("Received data payload:", req.body);
-        
-        // Save the form submission data directly to MongoDB
-        const newResult = new Result(req.body);
-        await newResult.save();
-        
-        res.status(200).json({ success: true, message: "Saved successfully! Data is now in MongoDB." });
-    } catch (err) {
-        console.error("Route handling error:", err);
-        res.status(500).json({ success: false, error: err.message });
+    try{
+
+        const results = await Result.find();
+
+        res.json(results);
+
     }
+
+    catch(error){
+
+        console.log(error);
+
+        res.status(500).json({
+
+            success:false
+
+        });
+
+    }
+
 });
 
 // 5. Port Listening Configuration (Fallback for local testing)
