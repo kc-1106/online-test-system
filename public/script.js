@@ -324,7 +324,7 @@ function finishTest(){
     };
 
     // ✅ FIXED: Relative route path ensures target hits Vercel production seamlessly
-    fetch("/save-result", {
+    fetch("https://online-test-system-pqd0.onrender.com/save-result", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reportData)
