@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
@@ -17,29 +18,38 @@ app.use(cors({
 app.use(express.json());
 
 // ======================================
-// ROOT ROUTE
+// STATIC FRONTEND FILES
+// ======================================
+
+app.use(express.static(path.join(__dirname, "public")));
+
+// ======================================
+// HOME ROUTE
 // ======================================
 
 app.get("/", (req, res) => {
-    res.send("Server Running Successfully");
+
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+
 });
 
 // ======================================
 // MONGODB CONNECTION
 // ======================================
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 
 .then(() => {
+
     console.log("MongoDB Connected Successfully");
+
 })
 
 .catch((err) => {
+
     console.log("MongoDB Connection Failed");
     console.log(err);
+
 });
 
 // ======================================
@@ -47,44 +57,45 @@ mongoose.connect(process.env.MONGO_URI, {
 // ======================================
 
 const ResultSchema = new mongoose.Schema({}, {
-    strict: false
+
+    strict:false
+
 });
 
 const Result = mongoose.model("Result", ResultSchema);
 
 // ======================================
-// SAVE RESULT API
+// SAVE RESULT
 // ======================================
 
-app.post("/save-result", async (req, res) => {
+app.post("/save-result", async (req,res) => {
 
-    try {
+    try{
 
-        console.log("Incoming Data:");
         console.log(req.body);
 
         const newResult = new Result(req.body);
 
-        const savedResult = await newResult.save();
+        await newResult.save();
 
-        console.log("Saved Successfully");
+        res.json({
 
-        res.status(200).json({
-            success: true,
-            message: "Saved Successfully",
-            data: savedResult
+            success:true,
+            message:"Saved Successfully"
+
         });
 
     }
 
-    catch (error) {
+    catch(error){
 
-        console.log("SAVE ERROR:");
         console.log(error);
 
         res.status(500).json({
-            success: false,
-            error: error.message
+
+            success:false,
+            error:error.message
+
         });
 
     }
@@ -92,27 +103,28 @@ app.post("/save-result", async (req, res) => {
 });
 
 // ======================================
-// GET RESULTS API
+// GET RESULTS
 // ======================================
 
-app.get("/results", async (req, res) => {
+app.get("/results", async (req,res) => {
 
-    try {
+    try{
 
         const results = await Result.find();
 
-        res.status(200).json(results);
+        res.json(results);
 
     }
 
-    catch (error) {
+    catch(error){
 
-        console.log("FETCH ERROR:");
         console.log(error);
 
         res.status(500).json({
-            success: false,
-            error: error.message
+
+            success:false,
+            error:error.message
+
         });
 
     }
