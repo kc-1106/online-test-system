@@ -1,121 +1,59 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const path = require("path");
-require("dotenv").config();
-
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
 const app = express();
 
-// Update your CORS middleware area to look like this:
-app.use(cors({
-    origin: "*", // Allows any frontend client domain to deliver payloads safely
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"]
-}));
+// 1. Middleware configurations
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(bodyParser.json());
-
-// ===============================
-// SERVE FRONTEND FILES
-// ===============================
-app.use(express.static(path.join(__dirname, "public")));
-
-// Home page
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// ===============================
-// MONGODB CONNECTION
-// ===============================
-// Add this temporary log line to see what Vercel is reading:
-console.log("CURRENT ACTIVE URI IS:", process.env.MONGO_URI);
-
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => {
-    console.log("MongoDB Connection Failed ❌");
-    console.log(err);
-});
-// ===============================
-// SCHEMA
-// ===============================
-const ResultSchema = new mongoose.Schema({
-    name: String,
-    age: String,
-    profession: String,
-    experience: String,
-    email: String,
-    college: String,
-    department: String,
-    score: Number,
-    totalQuestions: Number,
-    correctAnswers: Number,
-    wrongAnswers: Number,
-    accuracy: String,
-    skippedByTimeout: Number,
-    skippedWithTimeRemaining: Number,
-    attemptedQuestions: Number,
-    totalThinkingTime: Number,
-    averageThinkingTime: String,
-    fastAnsweredQuestions: Number,
-    slowAnsweredQuestions: Number,
-    behaviorAnalysis: String,
-    questionAnalysis: Array,
-    answers: Array,
-    submittedAt: String
-});
-
-const Result = mongoose.model("Result", ResultSchema);
-
-// ===============================
-// SAVE RESULT
-// ===============================
-app.post("/save-result", async (req, res) => {
+// 2. Your MongoDB Connection Function (Crucial for Vercel)
+const connectDB = async () => {
+    if (mongoose.connection.readyState >= 1) {
+        return; // If already connected, reuse the active connection
+    }
     try {
-        console.log("DATA RECEIVED:", req.body);
-
-        if (!req.body || !req.body.email) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid data received"
-            });
-        }
-
-        const newResult = new Result(req.body);
-        const saved = await newResult.save();
-
-        console.log("SAVED:", saved);
-
-        res.status(200).json({
-            success: true,
-            message: "Result saved successfully"
-        });
-
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log("MongoDB Connected Successfully! ✅");
     } catch (error) {
-        console.log("ERROR SAVING:", error);
+        console.error("MongoDB Connection Failed ❌:", error.message);
+    }
+};
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+// 3. Your Schema and Model Definition (Keep your exact fields here)
+const resultSchema = new mongoose.Schema({
+    // Keep whatever fields you originally created here, for example:
+    name: String,
+    score: Number,
+    answers: Array
+}, { timestamps: true });
+
+const Result = mongoose.models.Result || mongoose.model('Result', resultSchema);
+
+// 4. Your API endpoint to accept submission data
+app.post('/save-result', async (req, res) => {
+    try {
+        // Ensure database connection wakes up before handling data
+        await connectDB(); 
+
+        console.log("Received data payload:", req.body);
+        
+        // Save the form submission directly to MongoDB
+        const newResult = new Result(req.body);
+        await newResult.save();
+        
+        res.status(200).json({ success: true, message: "Saved successfully" });
+    } catch (err) {
+        console.error("Route handling error:", err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// ===============================
-// GET RESULTS
-// ===============================
-app.get("/results", async (req, res) => {
-    const results = await Result.find();
-    res.json(results);
-});
-
-// ===============================
-// START SERVER
-// ===============================
+// 5. Port Listening Configuration (Needed for local development fallback)
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-    console.log(`Server Running On Port ${PORT}`);
+    console.log(`Legacy server listening on port ${PORT}...`);
 });
+
+module.exports = app;
