@@ -25,7 +25,6 @@ let globalTimer;
 
 // ================= START TEST =================
 function startTest(){
-
     const fields = ["name","age","profession","experience","email","college","department"];
 
     for(let f of fields){
@@ -50,15 +49,11 @@ function startTest(){
 
 // ================= BEGIN TEST =================
 function beginActualTest(){
-
     document.getElementById("instructionPage").style.display = "none";
     document.getElementById("testSection").style.display = "block";
 
-    document.getElementById("displayUserName").innerText =
-        document.getElementById("name").value;
-
-    document.getElementById("displayUserEmail").innerText =
-        document.getElementById("email").value;
+    document.getElementById("displayUserName").innerText = document.getElementById("name").value;
+    document.getElementById("displayUserEmail").innerText = document.getElementById("email").value;
 
     startGlobalTimer();
     loadQuestion();
@@ -66,39 +61,30 @@ function beginActualTest(){
 
 // ================= GLOBAL TIMER =================
 function startGlobalTimer(){
-
     globalTimer = setInterval(() => {
-
         globalTime--;
 
         let m = Math.floor(globalTime / 60);
         let s = globalTime % 60;
 
-        document.getElementById("globalTimer").innerText =
-            `${m}:${s < 10 ? "0"+s : s}`;
+        document.getElementById("globalTimer").innerText = `${m}:${s < 10 ? "0"+s : s}`;
 
         if(globalTime <= 0){
             clearInterval(globalTimer);
             finishTest();
         }
-
-    },1000);
+    }, 1000);
 }
 
 // ================= LOCAL TIMER =================
 function startLocalTimer(){
-
     clearInterval(localTimer);
-
     localTime = questionTimers[currentQuestion];
-
     document.getElementById("timer").innerText = localTime;
 
     localTimer = setInterval(() => {
-
         localTime--;
         questionTimers[currentQuestion] = localTime;
-
         document.getElementById("timer").innerText = localTime;
 
         if(localTime <= 0){
@@ -108,13 +94,11 @@ function startLocalTimer(){
             }
             nextQuestion();
         }
-
-    },1000);
+    }, 1000);
 }
 
 // ================= LOAD QUESTION =================
 function loadQuestion(){
-
     const q = questions[currentQuestion];
 
     document.getElementById("questionTitle").innerText = q.question;
@@ -125,19 +109,15 @@ function loadQuestion(){
     }
 
     let html = "";
-
     q.options.forEach(opt => {
-
-        const checked =
-            userAnswers[currentQuestion]?.selectedOption === opt
-            ? "checked" : "";
+        const checked = userAnswers[currentQuestion]?.selectedOption === opt ? "checked" : "";
 
         html += `
             <label class="option">
-                <input type="radio"
-                    name="option"
-                    value="${opt}"
-                    ${checked}
+                <input type="radio" 
+                    name="option" 
+                    value="${opt}" 
+                    ${checked} 
                     onchange="selectAnswer('${opt}')">
                 <div style="margin-top:10px">${opt}</div>
             </label>
@@ -145,21 +125,15 @@ function loadQuestion(){
     });
 
     document.getElementById("optionsContainer").innerHTML = html;
-
     updateQuestionStatus();
     startLocalTimer();
 
     document.getElementById("prevBtn").disabled = currentQuestion === 0;
-
-    document.getElementById("nextBtn").innerText =
-        currentQuestion === questions.length - 1
-        ? "Finish Test"
-        : "Next Question";
+    document.getElementById("nextBtn").innerText = currentQuestion === questions.length - 1 ? "Finish Test" : "Next Question";
 }
 
 // ================= SELECT ANSWER =================
 function selectAnswer(ans){
-
     const timeTaken = 60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
@@ -178,7 +152,6 @@ function selectAnswer(ans){
 
 // ================= SKIP =================
 function saveSkippedAnswer(reason){
-
     userAnswers[currentQuestion] = {
         question: questions[currentQuestion].question,
         image: questions[currentQuestion].image,
@@ -192,13 +165,10 @@ function saveSkippedAnswer(reason){
     questionStatus[currentQuestion] = "not-answered";
 }
 
-// ================= STATUS UI (FIXED) =================
+// ================= STATUS UI =================
 function updateQuestionStatus(){
-
     let html = "";
-
-    for(let i=0;i<questions.length;i++){
-
+    for(let i=0; i<questions.length; i++){
         let cls = "not-visited";
 
         if(i === currentQuestion) cls = "current";
@@ -211,7 +181,6 @@ function updateQuestionStatus(){
             </div>
         `;
     }
-
     document.getElementById("questionStatusContainer").innerHTML = html;
 }
 
@@ -238,6 +207,7 @@ function nextQuestion(){
     loadQuestion();
 }
 
+// Make sure your HTML previous button calls this exactly
 function previousQuestion(){
     clearInterval(localTimer);
 
@@ -252,9 +222,7 @@ function previousQuestion(){
 }
 
 // ================= FINISH TEST =================
-// ================= FINISH TEST =================
 function finishTest(){
-
     clearInterval(globalTimer);
     clearInterval(localTimer);
 
@@ -271,7 +239,6 @@ function finishTest(){
 
     userAnswers.forEach((a, index) => {
         if (!a) {
-            // Edge case logic for unvisited/unanswered questions at full termination
             const timeSpent = 60 - questionTimers[index];
             totalThinkingTime += timeSpent;
             skippedWithTimeRemaining++;
@@ -293,7 +260,7 @@ function finishTest(){
             } else {
                 skippedWithTimeRemaining++;
             }
-            wrongAnswers++; // Skipped items act as incorrect allocations
+            wrongAnswers++; 
         } else {
             if (a.isCorrect) {
                 score++;
@@ -302,7 +269,6 @@ function finishTest(){
                 wrongAnswers++;
             }
 
-            // Metric tracking benchmark rules
             if (a.timeTakenInSeconds <= 15) {
                 fastAnsweredQuestions++;
             } else if (a.timeTakenInSeconds >= 45) {
@@ -324,7 +290,6 @@ function finishTest(){
     const accuracy = attemptedQuestions > 0 ? ((correctAnswers / attemptedQuestions) * 100).toFixed(2) + "%" : "0%";
     const averageThinkingTime = (totalThinkingTime / questions.length).toFixed(2) + "s";
 
-    // Simple behavioral classification builder
     let behaviorAnalysis = "Balanced pace profile.";
     if (fastAnsweredQuestions > questions.length / 2) {
         behaviorAnalysis = "Rapid responder archetype. Risk of impulsive errors.";
@@ -332,7 +297,6 @@ function finishTest(){
         behaviorAnalysis = "Deliberate analyzer archetype. Risk of pacing constraints.";
     }
 
-    // Safely collect matching demographic parameters
     const reportData = {
         name: document.getElementById("name").value.trim(),
         age: document.getElementById("age").value.trim(),
@@ -359,21 +323,27 @@ function finishTest(){
         submittedAt: new Date().toLocaleString()
     };
 
-    fetch("https://online-test-system-pqd0.onrender.com/save-result", {
+    // ✅ FIXED: Relative route path ensures target hits Vercel production seamlessly
+    fetch("/save-result", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reportData)
     })
     .then(r => r.json())
-    .then(d => console.log("Saved successfully:", d))
-    .catch(e => console.error("Database delivery failure:", e));
+    .then(d => {
+        console.log("Saved successfully:", d);
+        setTimeout(() => {
+            window.location.href = "report.html";
+        }, 2000);
+    })
+    .catch(e => {
+        console.error("Database delivery failure:", e);
+        setTimeout(() => {
+            window.location.href = "report.html";
+        }, 2000);
+    });
 
     document.getElementById("testSection").style.display = "none";
     document.getElementById("result").style.display = "block";
-
     document.getElementById("scoreText").innerText = `${score} / ${questions.length}`;
-
-    setTimeout(() => {
-        window.location.href = "report.html";
-    }, 2000);
 }
