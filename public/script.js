@@ -325,23 +325,30 @@ function finishTest(){
 
     // ✅ FIXED: Relative route path ensures target hits Vercel production seamlessly
     fetch("https://online-test-system-pqd0.onrender.com/save-result", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reportData)
-    })
-    .then(r => r.json())
-    .then(d => {
-        console.log("Saved successfully:", d);
-        setTimeout(() => {
-            window.location.href = "report.html";
-        }, 2000);
-    })
-    .catch(e => {
-        console.error("Database delivery failure:", e);
-        setTimeout(() => {
-            window.location.href = "report.html";
-        }, 2000);
-    });
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(reportData)
+})
+.then(response => response.json())
+.then(data => {
+
+    console.log("Saved Successfully:", data);
+
+    setTimeout(() => {
+        window.location.href = "report.html";
+    }, 2000);
+
+})
+.catch(error => {
+
+    console.log("Database Error:");
+    console.log(error);
+
+    alert("Failed To Save Data");
+
+});
 
     document.getElementById("testSection").style.display = "none";
     document.getElementById("result").style.display = "block";
