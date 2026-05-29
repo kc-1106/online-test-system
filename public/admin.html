@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>PSVT-R KPI Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* ========================= */
+/* GLOBAL */
+/* ========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+
+    background:#f1f5f9;
+
+    padding:25px;
+}
+
+/* ========================= */
+/* HEADER */
+/* ========================= */
+
+.header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+}
+
+.header h1{
+
+    color:#0f172a;
+
+    font-size:38px;
+}
+
+.export-buttons{
+
+    display:flex;
+
+    gap:15px;
+}
+
+.export-buttons button{
+
+    padding:14px 24px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:16px;
+
+    cursor:pointer;
+}
+
+.export-buttons button:hover{
+
+    background:#1d4ed8;
+}
+
+/* ========================= */
+/* KPI CARDS */
+/* ========================= */
+
+.kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(250px,1fr));
+
+    gap:20px;
+
+    margin-bottom:35px;
+}
+
+.kpi-card{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    box-shadow:
+        0px 0px 15px rgba(0,0,0,0.08);
+}
+
+.kpi-card h3{
+
+    color:#475569;
+
+    margin-bottom:15px;
+}
+
+.kpi-value{
+
+    font-size:42px;
+
+    font-weight:bold;
+
+    color:#2563eb;
+}
+
+/* ========================= */
+/* CHARTS */
+/* ========================= */
+
+.chart-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(500px,1fr));
+
+    gap:25px;
+
+    margin-bottom:35px;
+}
+
+.chart-card{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    box-shadow:
+        0px 0px 15px rgba(0,0,0,0.08);
+}
+
+.chart-card h2{
+
+    margin-bottom:20px;
+
+    color:#0f172a;
+}
+
+/* ========================= */
+/* AI INSIGHTS */
+/* ========================= */
+
+.ai-panel{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    margin-bottom:35px;
+
+    box-shadow:
+        0px 0px 15px rgba(0,0,0,0.08);
+}
+
+.ai-panel h2{
+
+    margin-bottom:20px;
+
+    color:#0f172a;
+}
+
+.ai-insight{
+
+    padding:18px;
+
+    background:#f8fafc;
+
+    border-left:5px solid #2563eb;
+
+    border-radius:10px;
+
+    margin-bottom:15px;
+}
+
+/* ========================= */
+/* STUDENT TABLE */
+/* ========================= */
+
+.table-container{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    box-shadow:
+        0px 0px 15px rgba(0,0,0,0.08);
+
+    overflow-x:auto;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+}
+
+th{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:16px;
+
+    text-align:left;
+}
+
+td{
+
+    padding:14px;
+
+    border-bottom:1px solid #e2e8f0;
+}
+
+tr:hover{
+
+    background:#f8fafc;
+}
+
+.rank{
+
+    font-weight:bold;
+
+    color:#2563eb;
+}
+
+.high{
+
+    color:green;
+
+    font-weight:bold;
+}
+
+.medium{
+
+    color:orange;
+
+    font-weight:bold;
+}
+
+.low{
+
+    color:red;
+
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ========================= -->
+<!-- HEADER -->
+<!-- ========================= -->
+
+<div class="header">
+
+    <h1>PSVT-R KPI Analytics Dashboard</h1>
+
+    <div class="export-buttons">
+
+        <button onclick="exportExcel()">
+
+            Export Excel
+
+        </button>
+
+        <button onclick="window.print()">
+
+            Export PDF
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- KPI CARDS -->
+<!-- ========================= -->
+
+<div class="kpi-grid">
+
+    <div class="kpi-card">
+
+        <h3>Total Students</h3>
+
+        <div
+            class="kpi-value"
+            id="totalStudents">
+            0
+        </div>
+
+    </div>
+
+    <div class="kpi-card">
+
+        <h3>Average Score</h3>
+
+        <div
+            class="kpi-value"
+            id="avgScore">
+            0
+        </div>
+
+    </div>
+
+    <div class="kpi-card">
+
+        <h3>Average Accuracy</h3>
+
+        <div
+            class="kpi-value"
+            id="avgAccuracy">
+            0%
+        </div>
+
+    </div>
+
+    <div class="kpi-card">
+
+        <h3>Average Confidence</h3>
+
+        <div
+            class="kpi-value"
+            id="avgConfidence">
+            0
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- CHARTS -->
+<!-- ========================= -->
+
+<div class="chart-grid">
+
+    <div class="chart-card">
+
+        <h2>Score Distribution</h2>
+
+        <canvas id="scoreChart"></canvas>
+
+    </div>
+
+    <div class="chart-card">
+
+        <h2>Confidence Analytics</h2>
+
+        <canvas id="confidenceChart"></canvas>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- AI INSIGHTS -->
+<!-- ========================= -->
+
+<div class="ai-panel">
+
+    <h2>AI Behavior Insights</h2>
+
+    <div id="aiInsights"></div>
+
+</div>
+
+<!-- ========================= -->
+<!-- STUDENT TABLE -->
+<!-- ========================= -->
+
+<div class="table-container">
+
+    <h2 style="margin-bottom:20px;">
+
+        Student Performance Ranking
+
+    </h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Score</th>
+                <th>Accuracy</th>
+                <th>Confidence</th>
+                <th>Behavior</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="studentTable"></tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+const API =
+"https://online-test-system-pqd0.onrender.com/results";
+
+let allResults = [];
+
+// =========================
+// LOAD DASHBOARD
+// =========================
+
+async function loadDashboard(){
+
+    try{
+
+        const response = await fetch(API);
+
+        const data = await response.json();
+
+        allResults = data;
+
+        buildKPI(data);
+
+        buildCharts(data);
+
+        buildAIInsights(data);
+
+        buildTable(data);
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        alert("Failed To Load Dashboard");
+
+    }
+
+}
+
+// =========================
+// KPI
+// =========================
+
+function buildKPI(data){
+
+    document.getElementById(
+        "totalStudents"
+    ).innerText = data.length;
+
+    let totalScore = 0;
+
+    let totalAccuracy = 0;
+
+    let totalConfidence = 0;
+
+    data.forEach(student => {
+
+        totalScore += student.score || 0;
+
+        totalAccuracy +=
+            parseFloat(student.accuracy) || 0;
+
+        totalConfidence +=
+            student.confidenceScore || 0;
+
+    });
+
+    const avgScore =
+        (totalScore / data.length).toFixed(2);
+
+    const avgAccuracy =
+        (totalAccuracy / data.length).toFixed(2);
+
+    const avgConfidence =
+        (totalConfidence / data.length).toFixed(2);
+
+    document.getElementById(
+        "avgScore"
+    ).innerText = avgScore;
+
+    document.getElementById(
+        "avgAccuracy"
+    ).innerText = avgAccuracy + "%";
+
+    document.getElementById(
+        "avgConfidence"
+    ).innerText = avgConfidence;
+
+}
+
+// =========================
+// CHARTS
+// =========================
+
+function buildCharts(data){
+
+    const names =
+        data.map(x => x.name);
+
+    const scores =
+        data.map(x => x.score);
+
+    const confidence =
+        data.map(x => x.confidenceScore);
+
+    new Chart(
+
+        document.getElementById("scoreChart"),
+
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:names,
+
+                datasets:[{
+
+                    label:"Score",
+
+                    data:scores
+
+                }]
+
+            }
+
+        }
+
+    );
+
+    new Chart(
+
+        document.getElementById("confidenceChart"),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:names,
+
+                datasets:[{
+
+                    label:"Confidence Score",
+
+                    data:confidence
+
+                }]
+
+            }
+
+        }
+
+    );
+
+}
+
+// =========================
+// AI INSIGHTS
+// =========================
+
+function buildAIInsights(data){
+
+    let html = "";
+
+    data.forEach(student => {
+
+        let level = "Medium";
+
+        if(student.confidenceScore >= 80){
+
+            level = "High";
+
+        }
+
+        else if(student.confidenceScore <= 40){
+
+            level = "Low";
+
+        }
+
+        html += `
+
+            <div class="ai-insight">
+
+                <strong>${student.name}</strong>
+
+                shows
+
+                <strong>${level}</strong>
+
+                confidence behavior.
+
+                AI Analysis:
+
+                ${student.behaviorAnalysis}
+
+            </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "aiInsights"
+    ).innerHTML = html;
+
+}
+
+// =========================
+// TABLE
+// =========================
+
+function buildTable(data){
+
+    data.sort((a,b) => b.score - a.score);
+
+    let html = "";
+
+    data.forEach((student,index) => {
+
+        let confidenceClass = "medium";
+
+        if(student.confidenceScore >= 80){
+
+            confidenceClass = "high";
+
+        }
+
+        else if(student.confidenceScore <= 40){
+
+            confidenceClass = "low";
+
+        }
+
+        html += `
+
+            <tr>
+
+                <td class="rank">
+                    #${index + 1}
+                </td>
+
+                <td>
+                    ${student.name}
+                </td>
+
+                <td>
+                    ${student.email}
+                </td>
+
+                <td>
+                    ${student.score}
+                </td>
+
+                <td>
+                    ${student.accuracy}
+                </td>
+
+                <td class="${confidenceClass}">
+                    ${student.confidenceScore}
+                </td>
+
+                <td>
+                    ${student.behaviorAnalysis}
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "studentTable"
+    ).innerHTML = html;
+
+}
+
+// =========================
+// EXPORT EXCEL
+// =========================
+
+function exportExcel(){
+
+    let csv =
+        "Name,Email,Score,Accuracy,Confidence\n";
+
+    allResults.forEach(student => {
+
+        csv +=
+            `${student.name},` +
+            `${student.email},` +
+            `${student.score},` +
+            `${student.accuracy},` +
+            `${student.confidenceScore}\n`;
+
+    });
+
+    const blob =
+        new Blob([csv], {
+
+            type:"text/csv"
+
+        });
+
+    const url =
+        window.URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download = "student_results.csv";
+
+    a.click();
+
+}
+
+// =========================
+// START
+// =========================
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>

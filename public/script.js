@@ -509,110 +509,100 @@ async function finishTest(){
 
     });
 
-    const reportData = {
+    const confidenceScore =
+    Math.max(
+        0,
+        100 -
+        (
+            skippedByTimeout * 15 +
+            slowAnsweredQuestions * 5
+        )
+    );
 
-        name:
-            document.getElementById("name").value.trim(),
+const hesitationScore =
+    (
+        (slowAnsweredQuestions / questions.length) * 100
+    ).toFixed(2);
 
-        age:
-            document.getElementById("age").value.trim(),
+const completionRate =
+    (
+        ((attemptedQuestions / questions.length) * 100)
+    ).toFixed(2);
 
-        profession:
-            document.getElementById("profession").value.trim(),
+const reportData = {
 
-        experience:
-            document.getElementById("experience").value.trim(),
+    // =========================
+    // USER DETAILS
+    // =========================
 
-        email:
-            document.getElementById("email").value.trim(),
+    name: document.getElementById("name").value.trim(),
 
-        college:
-            document.getElementById("college").value.trim(),
+    age: document.getElementById("age").value.trim(),
 
-        department:
-            document.getElementById("department").value.trim(),
+    profession: document.getElementById("profession").value.trim(),
 
-        score: score,
+    experience: document.getElementById("experience").value.trim(),
 
-        totalQuestions: questions.length,
+    email: document.getElementById("email").value.trim(),
 
-        correctAnswers: correctAnswers,
+    college: document.getElementById("college").value.trim(),
 
-        wrongAnswers: wrongAnswers,
+    department: document.getElementById("department").value.trim(),
 
-        answers: userAnswers,
+    // =========================
+    // KPI METRICS
+    // =========================
 
-        submittedAt:
-            new Date().toLocaleString()
+    score: score,
 
-    };
+    totalQuestions: questions.length,
 
-    try{
+    correctAnswers: correctAnswers,
 
-        const response = await fetch(
+    wrongAnswers: wrongAnswers,
 
-            "https://online-test-system-pqd0.onrender.com/save-result",
+    accuracy: accuracy,
 
-            {
+    confidenceScore: confidenceScore,
 
-                method: "POST",
+    hesitationScore: hesitationScore,
 
-                headers: {
+    completionRate: completionRate,
 
-                    "Content-Type":"application/json"
+    skippedByTimeout: skippedByTimeout,
 
-                },
+    skippedWithTimeRemaining: skippedWithTimeRemaining,
 
-                body: JSON.stringify(reportData)
+    attemptedQuestions: attemptedQuestions,
 
-            }
+    totalThinkingTime: totalThinkingTime,
 
-        );
+    averageThinkingTime: averageThinkingTime,
 
-        const data = await response.json();
+    fastAnsweredQuestions: fastAnsweredQuestions,
 
-        console.log(data);
+    slowAnsweredQuestions: slowAnsweredQuestions,
 
-        if(response.ok){
+    // =========================
+    // AI BEHAVIOR ANALYSIS
+    // =========================
 
-            document.getElementById(
-                "testSection"
-            ).style.display = "none";
+    behaviorAnalysis: behaviorAnalysis,
 
-            document.getElementById(
-                "result"
-            ).style.display = "block";
+    // =========================
+    // QUESTION ANALYSIS
+    // =========================
 
-            document.getElementById(
-                "scoreText"
-            ).innerText =
-                `${score} / ${questions.length}`;
+    questionAnalysis: questionAnalysis,
 
-            setTimeout(() => {
+    answers: userAnswers,
 
-                window.location.href =
-                    "report.html";
+    // =========================
+    // TIMESTAMP
+    // =========================
 
-            },2000);
+    submittedAt: new Date().toLocaleString()
 
-        }
-
-        else{
-
-            alert("Server Error");
-
-            console.log(data);
-
-        }
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        alert("Failed To Save Data");
-
-    }
+};
 
 }
