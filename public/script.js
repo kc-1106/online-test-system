@@ -14,6 +14,20 @@ const questions = [
 ];
 
 // =====================================
+// QUESTION CLUSTERS
+// =====================================
+
+const clusters = {
+
+    easy: [1,2,6,10],
+
+    moderate: [3,4,5],
+
+    hard: [7,8,9]
+
+};
+
+// =====================================
 // VARIABLES
 // =====================================
 
@@ -24,9 +38,11 @@ let userAnswers = Array(questions.length).fill(null);
 let questionTimers = Array(questions.length).fill(60);
 
 let localTimer;
+
 let localTime = 60;
 
 let globalTime = 600;
+
 let globalTimer;
 
 // =====================================
@@ -36,27 +52,29 @@ let globalTimer;
 function startTest(){
 
     const fields = [
+
         "name",
         "age",
         "profession",
         "experience",
         "email",
         "college",
-        "department"
+        "department",
+        "gender"
+
     ];
 
     for(let f of fields){
 
-        const val = document.getElementById(f).value.trim();
+        const val =
+            document.getElementById(f).value.trim();
 
         if(val === ""){
 
             alert("Please fill all fields");
 
             return;
-
         }
-
     }
 
     const email =
@@ -70,7 +88,6 @@ function startTest(){
         alert("Enter Valid Email");
 
         return;
-
     }
 
     document.getElementById(
@@ -80,11 +97,10 @@ function startTest(){
     document.getElementById(
         "instructionPage"
     ).style.display = "block";
-
 }
 
 // =====================================
-// BEGIN ACTUAL TEST
+// BEGIN TEST
 // =====================================
 
 function beginActualTest(){
@@ -110,7 +126,6 @@ function beginActualTest(){
     startGlobalTimer();
 
     loadQuestion();
-
 }
 
 // =====================================
@@ -123,13 +138,16 @@ function startGlobalTimer(){
 
         globalTime--;
 
-        let m = Math.floor(globalTime / 60);
+        let m =
+            Math.floor(globalTime / 60);
 
-        let s = globalTime % 60;
+        let s =
+            globalTime % 60;
 
         document.getElementById(
             "globalTimer"
         ).innerText =
+
             `${m}:${s < 10 ? "0"+s : s}`;
 
         if(globalTime <= 0){
@@ -137,11 +155,9 @@ function startGlobalTimer(){
             clearInterval(globalTimer);
 
             finishTest();
-
         }
 
     },1000);
-
 }
 
 // =====================================
@@ -152,7 +168,8 @@ function startLocalTimer(){
 
     clearInterval(localTimer);
 
-    localTime = questionTimers[currentQuestion];
+    localTime =
+        questionTimers[currentQuestion];
 
     document.getElementById(
         "timer"
@@ -162,7 +179,8 @@ function startLocalTimer(){
 
         localTime--;
 
-        questionTimers[currentQuestion] = localTime;
+        questionTimers[currentQuestion] =
+            localTime;
 
         document.getElementById(
             "timer"
@@ -175,15 +193,12 @@ function startLocalTimer(){
             if(!userAnswers[currentQuestion]){
 
                 saveSkippedAnswer("timeout");
-
             }
 
             nextQuestion();
-
         }
 
     },1000);
-
 }
 
 // =====================================
@@ -207,8 +222,11 @@ function loadQuestion(){
     q.options.forEach(opt => {
 
         const checked =
+
             userAnswers[currentQuestion]?.selectedOption === opt
+
             ? "checked"
+
             : "";
 
         html += `
@@ -232,7 +250,6 @@ function loadQuestion(){
             </label>
 
         `;
-
     });
 
     document.getElementById(
@@ -250,10 +267,12 @@ function loadQuestion(){
     document.getElementById(
         "nextBtn"
     ).innerText =
-        currentQuestion === questions.length - 1
-        ? "Finish Test"
-        : "Next Question";
 
+        currentQuestion === questions.length - 1
+
+        ? "Finish Test"
+
+        : "Next Question";
 }
 
 // =====================================
@@ -263,6 +282,7 @@ function loadQuestion(){
 function selectAnswer(ans){
 
     const timeTaken =
+
         60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
@@ -281,14 +301,14 @@ function selectAnswer(ans){
         isCorrect:
             ans === questions[currentQuestion].answer,
 
-        timeTakenInSeconds: timeTaken,
+        timeTakenInSeconds:
+            timeTaken,
 
-        skipReason: "none"
-
+        skipReason:
+            "none"
     };
 
     updateQuestionStatus();
-
 }
 
 // =====================================
@@ -305,24 +325,23 @@ function saveSkippedAnswer(reason){
         image:
             questions[currentQuestion].image,
 
-        selectedOption: "Not Answered",
+        selectedOption:
+            "Not Answered",
 
         correctAnswer:
             questions[currentQuestion].answer,
 
-        isCorrect: false,
+        isCorrect:false,
 
         timeTakenInSeconds:
             60 - questionTimers[currentQuestion],
 
         skipReason: reason
-
     };
-
 }
 
 // =====================================
-// QUESTION STATUS COLORS
+// QUESTION STATUS
 // =====================================
 
 function updateQuestionStatus(){
@@ -335,45 +354,39 @@ function updateQuestionStatus(){
 
         if(userAnswers[i]){
 
-            // ANSWERED
-            if(userAnswers[i].selectedOption !== "Not Answered"){
+            if(
+                userAnswers[i].selectedOption
+                !== "Not Answered"
+            ){
 
-                // LAST SECOND ANSWER
-                if(userAnswers[i].timeTakenInSeconds >= 55){
+                if(
+                    userAnswers[i]
+                    .timeTakenInSeconds >= 55
+                ){
 
                     cls = "orange";
 
-                }
-
-                // NORMAL ANSWER
-                else{
+                }else{
 
                     cls = "green";
                 }
 
-            }
+            }else{
 
-            // NOT ANSWERED
-            else{
-
-                // TIMEOUT
-                if(userAnswers[i].skipReason === "timeout"){
+                if(
+                    userAnswers[i]
+                    .skipReason === "timeout"
+                ){
 
                     cls = "brown";
 
-                }
-
-                // VIEWED BUT NOT ANSWERED
-                else{
+                }else{
 
                     cls = "red";
                 }
-
             }
-
         }
 
-        // CURRENT QUESTION
         if(i === currentQuestion){
 
             cls += " current";
@@ -406,43 +419,39 @@ function goToQuestion(i){
 
     clearInterval(localTimer);
 
-    // MARK PREVIOUS QUESTION AS RED
-    // if user viewed but did not answer
+    if(!userAnswers[currentQuestion]){
 
-    if(
-        !userAnswers[currentQuestion]
-    ){
-
-        userAnswers[currentQuestion] = {
-
-            question:
-                questions[currentQuestion].question,
-
-            image:
-                questions[currentQuestion].image,
-
-            selectedOption:
-                "Not Answered",
-
-            correctAnswer:
-                questions[currentQuestion].answer,
-
-            isCorrect:false,
-
-            timeTakenInSeconds:
-                60 - questionTimers[currentQuestion],
-
-            skipReason:"manual-skip"
-        };
+        saveSkippedAnswer("manual-skip");
     }
-
-    // MOVE TO NEW QUESTION
 
     currentQuestion = i;
 
     loadQuestion();
+}
 
-    updateQuestionStatus();
+// =====================================
+// NEXT QUESTION
+// =====================================
+
+function nextQuestion(){
+
+    clearInterval(localTimer);
+
+    if(!userAnswers[currentQuestion]){
+
+        saveSkippedAnswer("manual-skip");
+    }
+
+    if(currentQuestion === questions.length - 1){
+
+        finishTest();
+
+        return;
+    }
+
+    currentQuestion++;
+
+    loadQuestion();
 }
 
 // =====================================
@@ -453,14 +462,17 @@ function previousQuestion(){
 
     clearInterval(localTimer);
 
+    if(!userAnswers[currentQuestion]){
+
+        saveSkippedAnswer("manual-skip");
+    }
+
     if(currentQuestion > 0){
 
         currentQuestion--;
 
         loadQuestion();
-
     }
-
 }
 
 // =====================================
@@ -479,11 +491,67 @@ async function finishTest(){
 
     let wrongAnswers = 0;
 
-    userAnswers.forEach(a => {
+    let skippedByTimeout = 0;
 
-        if(!a) return;
+    let skippedWithTimeRemaining = 0;
 
-        if(a.selectedOption !== "Not Answered"){
+    let totalThinkingTime = 0;
+
+    let fastAnsweredQuestions = 0;
+
+    let slowAnsweredQuestions = 0;
+
+    let easyCorrect = 0;
+
+    let moderateCorrect = 0;
+
+    let hardCorrect = 0;
+
+    const questionAnalysis = [];
+
+    // =====================================
+    // ANALYSIS
+    // =====================================
+
+    userAnswers.forEach((a,index) => {
+
+        if(!a){
+
+            skippedWithTimeRemaining++;
+
+            return;
+        }
+
+        totalThinkingTime +=
+            a.timeTakenInSeconds;
+
+        // CLUSTER ANALYSIS
+
+        if(a.isCorrect){
+
+            const qNo = index + 1;
+
+            if(clusters.easy.includes(qNo)){
+
+                easyCorrect++;
+            }
+
+            if(clusters.moderate.includes(qNo)){
+
+                moderateCorrect++;
+            }
+
+            if(clusters.hard.includes(qNo)){
+
+                hardCorrect++;
+            }
+        }
+
+        // ANSWERED
+
+        if(
+            a.selectedOption !== "Not Answered"
+        ){
 
             if(a.isCorrect){
 
@@ -491,118 +559,274 @@ async function finishTest(){
 
                 correctAnswers++;
 
-            }
-
-            else{
+            }else{
 
                 wrongAnswers++;
+            }
 
+            if(a.timeTakenInSeconds <= 15){
+
+                fastAnsweredQuestions++;
+            }
+
+            if(a.timeTakenInSeconds >= 45){
+
+                slowAnsweredQuestions++;
             }
 
         }
+
+        // NOT ANSWERED
 
         else{
 
             wrongAnswers++;
 
+            if(a.skipReason === "timeout"){
+
+                skippedByTimeout++;
+
+            }else{
+
+                skippedWithTimeRemaining++;
+            }
         }
+
+        questionAnalysis.push({
+
+            questionIndex: index + 1,
+
+            selected: a.selectedOption,
+
+            correct: a.correctAnswer,
+
+            isCorrect: a.isCorrect,
+
+            timeSpent: a.timeTakenInSeconds,
+
+            skipReason: a.skipReason
+
+        });
 
     });
 
-    const confidenceScore =
-    Math.max(
-        0,
-        100 -
+    // =====================================
+    // KPI
+    // =====================================
+
+    const attemptedQuestions =
+
+        correctAnswers + wrongAnswers;
+
+    const accuracy =
+
         (
-            skippedByTimeout * 15 +
-            slowAnsweredQuestions * 5
-        )
-    );
+            (correctAnswers / questions.length) * 100
+        ).toFixed(2);
 
-const hesitationScore =
-    (
-        (slowAnsweredQuestions / questions.length) * 100
-    ).toFixed(2);
+    const averageThinkingTime =
 
-const completionRate =
-    (
-        ((attemptedQuestions / questions.length) * 100)
-    ).toFixed(2);
+        (
+            totalThinkingTime / questions.length
+        ).toFixed(2);
 
-const reportData = {
+    const confidenceScore =
 
-    // =========================
-    // USER DETAILS
-    // =========================
+        Math.max(
 
-    name: document.getElementById("name").value.trim(),
+            0,
 
-    age: document.getElementById("age").value.trim(),
+            100 -
 
-    profession: document.getElementById("profession").value.trim(),
+            (
+                skippedByTimeout * 15 +
 
-    experience: document.getElementById("experience").value.trim(),
+                slowAnsweredQuestions * 5
+            )
+        );
 
-    email: document.getElementById("email").value.trim(),
+    const hesitationScore =
 
-    college: document.getElementById("college").value.trim(),
+        (
+            (slowAnsweredQuestions / questions.length)
+            * 100
+        ).toFixed(2);
 
-    department: document.getElementById("department").value.trim(),
+    const completionRate =
 
-    // =========================
-    // KPI METRICS
-    // =========================
+        (
+            (attemptedQuestions / questions.length)
+            * 100
+        ).toFixed(2);
 
-    score: score,
+    // =====================================
+    // CLUSTER PERFORMANCE
+    // =====================================
 
-    totalQuestions: questions.length,
+    const easyPerformance =
 
-    correctAnswers: correctAnswers,
+        (
+            (easyCorrect / 4) * 100
+        ).toFixed(2);
 
-    wrongAnswers: wrongAnswers,
+    const moderatePerformance =
 
-    accuracy: accuracy,
+        (
+            (moderateCorrect / 3) * 100
+        ).toFixed(2);
 
-    confidenceScore: confidenceScore,
+    const hardPerformance =
 
-    hesitationScore: hesitationScore,
+        (
+            (hardCorrect / 3) * 100
+        ).toFixed(2);
 
-    completionRate: completionRate,
+    // =====================================
+    // AI ANALYSIS
+    // =====================================
 
-    skippedByTimeout: skippedByTimeout,
+    let behaviorAnalysis =
+        "Balanced Performance";
 
-    skippedWithTimeRemaining: skippedWithTimeRemaining,
+    if(fastAnsweredQuestions >= 5){
 
-    attemptedQuestions: attemptedQuestions,
+        behaviorAnalysis =
+            "Rapid Responder";
+    }
 
-    totalThinkingTime: totalThinkingTime,
+    if(slowAnsweredQuestions >= 5){
 
-    averageThinkingTime: averageThinkingTime,
+        behaviorAnalysis =
+            "Deliberate Analyzer";
+    }
 
-    fastAnsweredQuestions: fastAnsweredQuestions,
+    // =====================================
+    // REPORT DATA
+    // =====================================
 
-    slowAnsweredQuestions: slowAnsweredQuestions,
+    const reportData = {
 
-    // =========================
-    // AI BEHAVIOR ANALYSIS
-    // =========================
+        name:
+            document.getElementById("name").value,
 
-    behaviorAnalysis: behaviorAnalysis,
+        age:
+            document.getElementById("age").value,
 
-    // =========================
-    // QUESTION ANALYSIS
-    // =========================
+        profession:
+            document.getElementById("profession").value,
 
-    questionAnalysis: questionAnalysis,
+        experience:
+            document.getElementById("experience").value,
 
-    answers: userAnswers,
+        email:
+            document.getElementById("email").value,
 
-    // =========================
-    // TIMESTAMP
-    // =========================
+        college:
+            document.getElementById("college").value,
 
-    submittedAt: new Date().toLocaleString()
+        department:
+            document.getElementById("department").value,
 
-};
+        gender:
+            document.getElementById("gender").value,
 
+        score,
+
+        totalQuestions:
+            questions.length,
+
+        correctAnswers,
+
+        wrongAnswers,
+
+        accuracy,
+
+        confidenceScore,
+
+        hesitationScore,
+
+        completionRate,
+
+        skippedByTimeout,
+
+        skippedWithTimeRemaining,
+
+        attemptedQuestions,
+
+        totalThinkingTime,
+
+        averageThinkingTime,
+
+        fastAnsweredQuestions,
+
+        slowAnsweredQuestions,
+
+        easyPerformance,
+
+        moderatePerformance,
+
+        hardPerformance,
+
+        behaviorAnalysis,
+
+        questionAnalysis,
+
+        answers: userAnswers,
+
+        submittedAt:
+            new Date()
+    };
+
+    // =====================================
+    // SAVE TO DATABASE
+    // =====================================
+
+    try{
+
+        const response = await fetch(
+
+            "https://online-test-system-pqd0.onrender.com/save-result",
+
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(reportData)
+            }
+        );
+
+        const data =
+            await response.json();
+
+        console.log(data);
+
+        document.getElementById(
+            "testSection"
+        ).style.display = "none";
+
+        document.getElementById(
+            "result"
+        ).style.display = "block";
+
+        document.getElementById(
+            "scoreText"
+        ).innerText =
+
+            `${score} / ${questions.length}`;
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        alert("Failed To Save Result");
+    }
 }

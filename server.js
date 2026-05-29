@@ -53,7 +53,7 @@ app.get("/", (req, res) => {
 });
 
 /* =====================================
-   ADMIN DASHBOARD ROUTE
+   ADMIN DASHBOARD
 ===================================== */
 
 app.get("/admin", (req, res) => {
@@ -72,12 +72,7 @@ app.get("/admin", (req, res) => {
    MONGODB CONNECTION
 ===================================== */
 
-mongoose.connect(process.env.MONGO_URI, {
-
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-
-})
+mongoose.connect(process.env.MONGO_URI)
 
 .then(() => {
 
@@ -104,15 +99,7 @@ app.post("/save-result", async (req, res) => {
 
     try {
 
-        console.log("=================================");
-        console.log("NEW RESULT RECEIVED");
-        console.log("=================================");
-
         const reportData = req.body;
-
-        /* ===============================
-           VALIDATION
-        =============================== */
 
         if(
             !reportData.name ||
@@ -121,17 +108,16 @@ app.post("/save-result", async (req, res) => {
 
             return res.status(400).json({
 
-                success: false,
-
-                error: "Name and Email Required"
+                success:false,
+                error:"Name and Email Required"
 
             });
 
         }
 
-        /* ===============================
+        /* =====================================
            AUTO KPI CALCULATION
-        =============================== */
+        ===================================== */
 
         const totalQuestions =
             reportData.totalQuestions || 10;
@@ -139,63 +125,22 @@ app.post("/save-result", async (req, res) => {
         const score =
             reportData.score || 0;
 
-        const wrongAnswers =
-            reportData.wrongAnswers || 0;
-
         const skippedQuestions =
             (reportData.skippedByTimeout || 0) +
             (reportData.skippedWithTimeRemaining || 0);
 
-        /* ACCURACY */
-
         const accuracy =
-            totalQuestions > 0
-            ? ((score / totalQuestions) * 100)
-                .toFixed(2)
-            : 0;
-
-        /* COMPLETION RATE */
+            (
+                (score / totalQuestions) * 100
+            ).toFixed(2);
 
         const completionRate =
-            totalQuestions > 0
-            ? (((totalQuestions - skippedQuestions)
-                / totalQuestions) * 100)
-                .toFixed(2)
-            : 0;
-
-        /* CONFIDENCE SCORE */
-
-        let confidenceScore = 0;
-
-        if(reportData.fastAnsweredQuestions){
-
-            confidenceScore =
+            (
                 (
-                    (
-                        reportData.fastAnsweredQuestions
-                        / totalQuestions
-                    ) * 100
-                ).toFixed(2);
-
-        }
-
-        /* HESITATION SCORE */
-
-        let hesitationScore = 0;
-
-        if(reportData.slowAnsweredQuestions){
-
-            hesitationScore =
-                (
-                    (
-                        reportData.slowAnsweredQuestions
-                        / totalQuestions
-                    ) * 100
-                ).toFixed(2);
-
-        }
-
-        /* PERFORMANCE BAND */
+                    (totalQuestions - skippedQuestions)
+                    / totalQuestions
+                ) * 100
+            ).toFixed(2);
 
         let performanceBand = "Average";
 
@@ -217,10 +162,6 @@ app.post("/save-result", async (req, res) => {
 
         }
 
-        /* =================================
-           FINAL DATABASE OBJECT
-        ================================= */
-
         const finalData = {
 
             ...reportData,
@@ -229,36 +170,21 @@ app.post("/save-result", async (req, res) => {
 
             completionRate,
 
-            confidenceScore,
-
-            hesitationScore,
-
             performanceBand,
 
-            submittedAt: new Date()
+            submittedAt:new Date()
 
         };
-
-        /* =================================
-           SAVE TO DATABASE
-        ================================= */
 
         const newResult =
             new Result(finalData);
 
         await newResult.save();
 
-        console.log("=================================");
-        console.log("DATA SAVED SUCCESSFULLY");
-        console.log("=================================");
-
         res.status(200).json({
 
-            success: true,
-
-            message: "Result Saved Successfully",
-
-            data: finalData
+            success:true,
+            message:"Result Saved Successfully"
 
         });
 
@@ -266,16 +192,12 @@ app.post("/save-result", async (req, res) => {
 
     catch(error){
 
-        console.log("=================================");
-        console.log("DATABASE SAVE ERROR");
         console.log(error);
-        console.log("=================================");
 
         res.status(500).json({
 
-            success: false,
-
-            error: error.message
+            success:false,
+            error:error.message
 
         });
 
@@ -291,27 +213,25 @@ app.get("/results", async (req, res) => {
 
     try {
 
-        const results = await Result.find()
+        const results =
+            await Result.find()
 
-        .sort({
+            .sort({
 
-            submittedAt: -1
+                submittedAt:-1
 
-        });
+            });
 
-        res.status(200).json(results);
+        res.json(results);
 
     }
 
     catch(error){
 
-        console.log(error);
-
         res.status(500).json({
 
-            success: false,
-
-            error: error.message
+            success:false,
+            error:error.message
 
         });
 
@@ -320,7 +240,7 @@ app.get("/results", async (req, res) => {
 });
 
 /* =====================================
-   KPI DASHBOARD API
+   KPI DASHBOARD
 ===================================== */
 
 app.get("/kpi-dashboard", async (req, res) => {
@@ -337,35 +257,19 @@ app.get("/kpi-dashboard", async (req, res) => {
 
         let totalAccuracy = 0;
 
-        let totalConfidence = 0;
-
-        let totalCompletion = 0;
-
         let excellentStudents = 0;
 
-        let averageStudents = 0;
+        let goodStudents = 0;
 
         let weakStudents = 0;
 
-        results.forEach((student) => {
+        results.forEach(student => {
 
             totalScore +=
                 student.score || 0;
 
             totalAccuracy +=
-                parseFloat(
-                    student.accuracy
-                ) || 0;
-
-            totalConfidence +=
-                parseFloat(
-                    student.confidenceScore
-                ) || 0;
-
-            totalCompletion +=
-                parseFloat(
-                    student.completionRate
-                ) || 0;
+                parseFloat(student.accuracy) || 0;
 
             if(student.performanceBand === "Excellent"){
 
@@ -375,7 +279,7 @@ app.get("/kpi-dashboard", async (req, res) => {
 
             else if(student.performanceBand === "Good"){
 
-                averageStudents++;
+                goodStudents++;
 
             }
 
@@ -387,63 +291,38 @@ app.get("/kpi-dashboard", async (req, res) => {
 
         });
 
-        const dashboard = {
+        res.json({
 
             totalStudents,
 
             averageScore:
                 totalStudents > 0
                 ? (
-                    totalScore /
-                    totalStudents
+                    totalScore / totalStudents
                   ).toFixed(2)
                 : 0,
 
             averageAccuracy:
                 totalStudents > 0
                 ? (
-                    totalAccuracy /
-                    totalStudents
-                  ).toFixed(2)
-                : 0,
-
-            averageConfidence:
-                totalStudents > 0
-                ? (
-                    totalConfidence /
-                    totalStudents
-                  ).toFixed(2)
-                : 0,
-
-            averageCompletionRate:
-                totalStudents > 0
-                ? (
-                    totalCompletion /
-                    totalStudents
+                    totalAccuracy / totalStudents
                   ).toFixed(2)
                 : 0,
 
             excellentStudents,
-
-            averageStudents,
-
+            goodStudents,
             weakStudents
 
-        };
-
-        res.status(200).json(dashboard);
+        });
 
     }
 
     catch(error){
 
-        console.log(error);
-
         res.status(500).json({
 
-            success: false,
-
-            error: error.message
+            success:false,
+            error:error.message
 
         });
 
@@ -452,7 +331,196 @@ app.get("/kpi-dashboard", async (req, res) => {
 });
 
 /* =====================================
-   TOP STUDENTS API
+   GENDER ANALYTICS API
+===================================== */
+
+app.get("/gender-analytics", async (req, res) => {
+
+    try {
+
+        const results =
+            await Result.find();
+
+        const maleStudents =
+            results.filter(
+                s => s.gender === "Male"
+            );
+
+        const femaleStudents =
+            results.filter(
+                s => s.gender === "Female"
+            );
+
+        function calculateAverage(data){
+
+            if(data.length === 0){
+
+                return 0;
+
+            }
+
+            let total = 0;
+
+            data.forEach(s => {
+
+                total += s.score || 0;
+
+            });
+
+            return (
+                total / data.length
+            ).toFixed(2);
+
+        }
+
+        res.json({
+
+            maleCount:
+                maleStudents.length,
+
+            femaleCount:
+                femaleStudents.length,
+
+            maleAverage:
+                calculateAverage(maleStudents),
+
+            femaleAverage:
+                calculateAverage(femaleStudents)
+
+        });
+
+    }
+
+    catch(error){
+
+        res.status(500).json({
+
+            success:false,
+            error:error.message
+
+        });
+
+    }
+
+});
+
+/* =====================================
+   CLUSTER ANALYTICS
+===================================== */
+
+app.get("/cluster-analytics", async (req, res) => {
+
+    try {
+
+        const results =
+            await Result.find();
+
+        const clusters = {
+
+            easy:[1,2,6,10],
+
+            moderate:[3,4,5],
+
+            hard:[7,8,9]
+
+        };
+
+        let analytics = {
+
+            easy:0,
+            moderate:0,
+            hard:0
+
+        };
+
+        let totalStudents =
+            results.length;
+
+        results.forEach(student => {
+
+            if(!student.answers) return;
+
+            student.answers.forEach((ans,index) => {
+
+                const qNo = index + 1;
+
+                if(ans.isCorrect){
+
+                    if(clusters.easy.includes(qNo)){
+
+                        analytics.easy++;
+
+                    }
+
+                    if(clusters.moderate.includes(qNo)){
+
+                        analytics.moderate++;
+
+                    }
+
+                    if(clusters.hard.includes(qNo)){
+
+                        analytics.hard++;
+
+                    }
+
+                }
+
+            });
+
+        });
+
+        const easyTotal =
+            totalStudents * 4;
+
+        const moderateTotal =
+            totalStudents * 3;
+
+        const hardTotal =
+            totalStudents * 3;
+
+        res.json({
+
+            easyAccuracy:
+                easyTotal > 0
+                ? (
+                    (analytics.easy / easyTotal) * 100
+                  ).toFixed(2)
+                : 0,
+
+            moderateAccuracy:
+                moderateTotal > 0
+                ? (
+                    (analytics.moderate / moderateTotal) * 100
+                  ).toFixed(2)
+                : 0,
+
+            hardAccuracy:
+                hardTotal > 0
+                ? (
+                    (analytics.hard / hardTotal) * 100
+                  ).toFixed(2)
+                : 0
+
+        });
+
+    }
+
+    catch(error){
+
+        res.status(500).json({
+
+            success:false,
+            error:error.message
+
+        });
+
+    }
+
+});
+
+/* =====================================
+   TOP STUDENTS
 ===================================== */
 
 app.get("/top-students", async (req, res) => {
@@ -464,75 +532,21 @@ app.get("/top-students", async (req, res) => {
 
             .sort({
 
-                score: -1,
-
-                confidenceScore: -1
+                score:-1
 
             })
 
             .limit(10);
 
-        res.status(200).json(topStudents);
+        res.json(topStudents);
 
     }
 
     catch(error){
-
-        console.log(error);
-
-        res.status(500).json({
-
-            success: false,
-
-            error: error.message
-
-        });
-
-    }
-
-});
-
-/* =====================================
-   SINGLE STUDENT ANALYTICS
-===================================== */
-
-app.get(
-    "/student/:email",
-    async (req, res) => {
-
-    try {
-
-        const student =
-            await Result.findOne({
-
-                email: req.params.email
-
-            });
-
-        if(!student){
-
-            return res.status(404).json({
-
-                success:false,
-
-                error:"Student Not Found"
-
-            });
-
-        }
-
-        res.status(200).json(student);
-
-    }
-
-    catch(error){
-
-        console.log(error);
 
         res.status(500).json({
 
             success:false,
-
             error:error.message
 
         });
@@ -545,9 +559,8 @@ app.get(
    DELETE RESULT
 ===================================== */
 
-app.delete(
-    "/delete-result/:id",
-    async (req, res) => {
+app.delete("/delete-result/:id",
+async (req, res) => {
 
     try {
 
@@ -557,9 +570,8 @@ app.delete(
 
         res.json({
 
-            success: true,
-
-            message: "Result Deleted"
+            success:true,
+            message:"Deleted Successfully"
 
         });
 
@@ -567,13 +579,10 @@ app.delete(
 
     catch(error){
 
-        console.log(error);
-
         res.status(500).json({
 
-            success: false,
-
-            error: error.message
+            success:false,
+            error:error.message
 
         });
 
@@ -591,9 +600,7 @@ const PORT =
 app.listen(PORT, () => {
 
     console.log("=================================");
-    console.log(
-        `Server Running On Port ${PORT}`
-    );
+    console.log(`Server Running On Port ${PORT}`);
     console.log("=================================");
 
 });
