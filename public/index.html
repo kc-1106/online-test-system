@@ -398,33 +398,281 @@ button:disabled{
 /* ========================= */
 /* QUESTION SECTION */
 /* ========================= */
+/* ========================= */
+/* TOP DASHBOARD */
+/* ========================= */
+
+.dashboard-top{
+
+    display:flex;
+    gap:20px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:25px;
+}
+
+/* USER PANEL */
+
+.dashboard-user{
+
+    flex:1;
+
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    box-shadow:0px 0px 10px rgba(0,0,0,0.08);
+}
+
+.user-icon{
+
+    width:70px;
+    height:70px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:35px;
+}
+
+.dashboard-user h2{
+
+    color:#0f172a;
+    margin-bottom:6px;
+}
+
+.dashboard-user p{
+
+    color:#475569;
+}
+
+/* QUESTION STATUS */
+
+.dashboard-status{
+
+    flex:2;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    box-shadow:0px 0px 10px rgba(0,0,0,0.08);
+}
+
+/* GLOBAL TIMER */
+
+.dashboard-global-timer{
+
+    width:280px;
+
+    background:#001b66;
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    text-align:center;
+}
+
+.timer-title{
+
+    font-size:20px;
+    margin-bottom:10px;
+}
+
+#globalTimer{
+
+    font-size:55px;
+    font-weight:bold;
+}
+
+/* ========================= */
+/* QUESTION STATUS COLORS */
+/* ========================= */
+
+.question-status-container{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:center;
+}
+
+.status-circle{
+
+    width:50px;
+    height:50px;
+
+    border-radius:50%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    border:3px solid transparent;
+}
+
+/* WHITE */
+
+.white{
+
+    background:white;
+    color:black;
+    border:2px solid #cbd5e1;
+}
+
+/* RED */
+
+.red{
+
+    background:red;
+    color:white;
+}
+
+/* BROWN */
+
+.brown{
+
+    background:brown;
+    color:white;
+}
+
+/* GREEN */
+
+.green{
+
+    background:green;
+    color:white;
+}
+
+/* ORANGE */
+
+.orange{
+
+    background:orange;
+    color:white;
+}
+
+/* CURRENT */
+
+.current{
+
+    border:4px solid black;
+}
+
+/* ========================= */
+/* MAIN QUESTION LAYOUT */
+/* ========================= */
+
+.main-question-layout{
+
+    display:flex;
+    gap:25px;
+    align-items:flex-start;
+}
+
+/* LEFT TIMER */
+
+.left-timer-panel{
+
+    width:260px;
+}
+
+.local-timer-box{
+
+    background:#fff1f2;
+
+    border:3px solid red;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    text-align:center;
+
+    position:sticky;
+
+    top:20px;
+}
+
+.local-title{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    color:#b91c1c;
+
+    margin-bottom:20px;
+}
+
+.local-time{
+
+    font-size:55px;
+
+    font-weight:bold;
+
+    color:#dc2626;
+}
+
+/* ========================= */
+/* QUESTION AREA */
+/* ========================= */
 
 .dashboard-bottom{
+
+    flex:1;
 
     background:white;
 
     padding:25px;
 
-    border-radius:20px;
+    border-radius:25px;
+
+    box-shadow:0px 0px 15px rgba(0,0,0,0.08);
 }
 
-.question-box{
+/* QUESTION TITLE */
 
-    text-align:center;
+.question-box h1{
+
+    margin-bottom:25px;
+
+    color:#001b66;
 }
+
+/* QUESTION IMAGE */
 
 .question-image{
 
     width:100%;
 
-    max-width:850px;
+    border-radius:20px;
 
-    margin-top:20px;
-
-    border-radius:18px;
-
-    box-shadow:
-        0px 0px 15px rgba(0,0,0,0.25);
+    box-shadow:0px 0px 10px rgba(0,0,0,0.15);
 
     user-select:none;
 
@@ -437,38 +685,37 @@ button:disabled{
 
 .options{
 
-    margin-top:35px;
+    margin-top:30px;
 
     display:grid;
 
-    grid-template-columns:
-        repeat(auto-fit,minmax(150px,1fr));
+    grid-template-columns:repeat(5,1fr);
 
     gap:20px;
 }
 
+/* OPTION */
+
 .option{
 
-    background:#f1f5f9;
+    background:white;
 
-    padding:22px;
+    border:2px solid #dbeafe;
 
     border-radius:18px;
 
-    cursor:pointer;
+    padding:15px;
 
-    border:2px solid transparent;
+    text-align:center;
 
     transition:0.3s;
 
-    font-size:24px;
-
-    font-weight:bold;
+    cursor:pointer;
 }
 
 .option:hover{
 
-    background:#dbeafe;
+    transform:translateY(-4px);
 
     border-color:#2563eb;
 }
@@ -481,14 +728,20 @@ button:disabled{
 
     display:flex;
 
-    gap:20px;
+    justify-content:space-between;
 
-    margin-top:35px;
+    margin-top:30px;
 }
 
 .navigation-buttons button{
 
-    flex:1;
+    width:260px;
+
+    padding:18px;
+
+    font-size:24px;
+
+    border-radius:18px;
 }
 
 /* ========================= */
@@ -529,7 +782,6 @@ button:disabled{
 
     font-size:20px;
 }
-
 </style>
 
 </head>
@@ -702,95 +954,127 @@ button:disabled{
 <!-- TEST SECTION -->
 <!-- ========================= -->
 
+<!-- TEST SECTION -->
+
 <div id="testSection">
+
+    <!-- TOP DASHBOARD -->
 
     <div class="dashboard-top">
 
-        <div class="user-panel">
+        <!-- USER INFO -->
 
-            <h2 id="displayUserName"></h2>
+        <div class="dashboard-user">
 
-            <p id="displayUserEmail"></p>
+            <div class="user-icon">
+                👤
+            </div>
+
+            <div>
+
+                <h2 id="displayUserName"></h2>
+
+                <p id="displayUserEmail"></p>
+
+            </div>
 
         </div>
 
-        <!-- STATUS -->
+        <!-- QUESTION STATUS -->
 
-        <div id="questionStatusContainer"
-             class="question-status-container">
+        <div class="dashboard-status">
+
+            <div
+                id="questionStatusContainer"
+                class="question-status-container">
+            </div>
+
         </div>
 
-        <!-- TIMER -->
+        <!-- GLOBAL TIMER -->
 
-        <div class="timer-panel">
+        <div class="dashboard-global-timer">
 
-            ⏳ Total Time Left :
-            <span id="globalTimer">
+            <div class="timer-title">
+                ⏱ Total Time Left
+            </div>
 
+            <div id="globalTimer">
                 10:00
-
-            </span>
+            </div>
 
         </div>
 
     </div>
 
-    <!-- QUESTION -->
+    <!-- MAIN QUESTION AREA -->
 
-    <div class="dashboard-bottom">
+    <div class="main-question-layout">
 
-        <div class="question-box">
+        <!-- LOCAL TIMER -->
 
-            <h1 id="questionTitle"></h1>
+        <div class="left-timer-panel">
 
-            <div class="local-timer">
+            <div class="local-timer-box">
 
-                ⏰ Question Time Left :
-                <span id="timer">
+                <div class="local-title">
+                    ⏰ Question Time Left
+                </div>
 
-                    60
+                <div class="local-time">
 
-                </span>
+                    <span id="timer">60</span> sec
 
-                sec
+                </div>
 
-            </div>
-
-            <img
-                id="questionImage"
-                class="question-image"
-                alt="Question Image">
-
-            <!-- OPTIONS -->
-
-            <div
-                class="options"
-                id="optionsContainer">
             </div>
 
         </div>
 
-        <!-- BUTTONS -->
+        <!-- QUESTION AREA -->
 
-        <div class="navigation-buttons">
+        <div class="dashboard-bottom">
 
-            <button
-                id="prevBtn"
-                onclick="previousQuestion()">
+            <div class="question-box">
 
-                Previous
+                <h1 id="questionTitle"></h1>
 
-            </button>
+                <img
+                    id="questionImage"
+                    class="question-image"
+                    alt="Question Image"
+                >
 
-            <button
-                id="nextBtn"
-                onclick="nextQuestion()">
+                <div
+                    class="options"
+                    id="optionsContainer">
+                </div>
 
-                Next Question
-
-            </button>
+            </div>
 
         </div>
+
+    </div>
+
+    <!-- NAVIGATION -->
+
+    <div class="navigation-buttons">
+
+        <button
+            id="prevBtn"
+            onclick="previousQuestion()">
+
+            ← Previous
+
+        </button>
+
+        <button
+            id="nextBtn"
+            onclick="nextQuestion()">
+
+            Next Question →
+
+        </button>
 
     </div>
 
