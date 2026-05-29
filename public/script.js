@@ -1,4 +1,5 @@
 const questions = [
+
     { question: "Question 1", image: "images/q1.png", options: ["A","B","C","D","E"], answer: "C" },
     { question: "Question 2", image: "images/q2.png", options: ["A","B","C","D","E"], answer: "E" },
     { question: "Question 3", image: "images/q3.png", options: ["A","B","C","D","E"], answer: "E" },
@@ -9,405 +10,607 @@ const questions = [
     { question: "Question 8", image: "images/q8.png", options: ["A","B","C","D","E"], answer: "B" },
     { question: "Question 9", image: "images/q9.png", options: ["A","B","C","D","E"], answer: "D" },
     { question: "Question 10", image: "images/q10.png", options: ["A","B","C","D","E"], answer: "C" }
+
 ];
 
-// ================= VARIABLES =================
+// =====================================
+// VARIABLES
+// =====================================
+
 let currentQuestion = 0;
+
 let userAnswers = Array(questions.length).fill(null);
-let questionStatus = Array(questions.length).fill("not-visited");
 
 let questionTimers = Array(questions.length).fill(60);
 
 let localTimer;
 let localTime = 60;
+
 let globalTime = 600;
 let globalTimer;
 
-// ================= START TEST =================
+// =====================================
+// START TEST
+// =====================================
+
 function startTest(){
-    const fields = ["name","age","profession","experience","email","college","department"];
+
+    const fields = [
+        "name",
+        "age",
+        "profession",
+        "experience",
+        "email",
+        "college",
+        "department"
+    ];
 
     for(let f of fields){
+
         const val = document.getElementById(f).value.trim();
+
         if(val === ""){
+
             alert("Please fill all fields");
+
             return;
+
         }
+
     }
 
-    const email = document.getElementById("email").value.trim();
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const email =
+        document.getElementById("email").value.trim();
+
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
-        alert("Enter valid email");
+
+        alert("Enter Valid Email");
+
         return;
+
     }
 
-    document.getElementById("registrationForm").style.display = "none";
-    document.getElementById("instructionPage").style.display = "block";
+    document.getElementById(
+        "registrationForm"
+    ).style.display = "none";
+
+    document.getElementById(
+        "instructionPage"
+    ).style.display = "block";
+
 }
 
-// ================= BEGIN TEST =================
-function beginActualTest(){
-    document.getElementById("instructionPage").style.display = "none";
-    document.getElementById("testSection").style.display = "block";
+// =====================================
+// BEGIN ACTUAL TEST
+// =====================================
 
-    document.getElementById("displayUserName").innerText = document.getElementById("name").value;
-    document.getElementById("displayUserEmail").innerText = document.getElementById("email").value;
+function beginActualTest(){
+
+    document.getElementById(
+        "instructionPage"
+    ).style.display = "none";
+
+    document.getElementById(
+        "testSection"
+    ).style.display = "block";
+
+    document.getElementById(
+        "displayUserName"
+    ).innerText =
+        document.getElementById("name").value;
+
+    document.getElementById(
+        "displayUserEmail"
+    ).innerText =
+        document.getElementById("email").value;
 
     startGlobalTimer();
+
     loadQuestion();
+
 }
 
-// ================= GLOBAL TIMER =================
+// =====================================
+// GLOBAL TIMER
+// =====================================
+
 function startGlobalTimer(){
+
     globalTimer = setInterval(() => {
+
         globalTime--;
 
         let m = Math.floor(globalTime / 60);
+
         let s = globalTime % 60;
 
-        document.getElementById("globalTimer").innerText = `${m}:${s < 10 ? "0"+s : s}`;
+        document.getElementById(
+            "globalTimer"
+        ).innerText =
+            `${m}:${s < 10 ? "0"+s : s}`;
 
         if(globalTime <= 0){
+
             clearInterval(globalTimer);
+
             finishTest();
+
         }
-    }, 1000);
+
+    },1000);
+
 }
 
-// ================= LOCAL TIMER =================
+// =====================================
+// LOCAL TIMER
+// =====================================
+
 function startLocalTimer(){
+
     clearInterval(localTimer);
+
     localTime = questionTimers[currentQuestion];
-    document.getElementById("timer").innerText = localTime;
+
+    document.getElementById(
+        "timer"
+    ).innerText = localTime;
 
     localTimer = setInterval(() => {
+
         localTime--;
+
         questionTimers[currentQuestion] = localTime;
-        document.getElementById("timer").innerText = localTime;
+
+        document.getElementById(
+            "timer"
+        ).innerText = localTime;
 
         if(localTime <= 0){
+
             clearInterval(localTimer);
+
             if(!userAnswers[currentQuestion]){
+
                 saveSkippedAnswer("timeout");
+
             }
+
             nextQuestion();
+
         }
-    }, 1000);
+
+    },1000);
+
 }
 
-// ================= LOAD QUESTION =================
+// =====================================
+// LOAD QUESTION
+// =====================================
+
 function loadQuestion(){
+
     const q = questions[currentQuestion];
 
-    document.getElementById("questionTitle").innerText = q.question;
-    document.getElementById("questionImage").src = q.image;
+    document.getElementById(
+        "questionTitle"
+    ).innerText = q.question;
 
-    if(questionStatus[currentQuestion] === "not-visited"){
-        questionStatus[currentQuestion] = "current";
-    }
+    document.getElementById(
+        "questionImage"
+    ).src = q.image;
 
     let html = "";
+
     q.options.forEach(opt => {
-        const checked = userAnswers[currentQuestion]?.selectedOption === opt ? "checked" : "";
+
+        const checked =
+            userAnswers[currentQuestion]?.selectedOption === opt
+            ? "checked"
+            : "";
 
         html += `
+
             <label class="option">
-                <input type="radio" 
-                    name="option" 
-                    value="${opt}" 
-                    ${checked} 
-                    onchange="selectAnswer('${opt}')">
-                <div style="margin-top:10px">${opt}</div>
+
+                <input
+                    type="radio"
+                    name="option"
+                    value="${opt}"
+                    ${checked}
+                    onchange="selectAnswer('${opt}')"
+                >
+
+                <div style="margin-top:10px">
+
+                    ${opt}
+
+                </div>
+
             </label>
+
         `;
+
     });
 
-    document.getElementById("optionsContainer").innerHTML = html;
+    document.getElementById(
+        "optionsContainer"
+    ).innerHTML = html;
+
     updateQuestionStatus();
+
     startLocalTimer();
 
-    document.getElementById("prevBtn").disabled = currentQuestion === 0;
-    document.getElementById("nextBtn").innerText = currentQuestion === questions.length - 1 ? "Finish Test" : "Next Question";
+    document.getElementById(
+        "prevBtn"
+    ).disabled = currentQuestion === 0;
+
+    document.getElementById(
+        "nextBtn"
+    ).innerText =
+        currentQuestion === questions.length - 1
+        ? "Finish Test"
+        : "Next Question";
+
 }
 
-// ================= SELECT ANSWER =================
+// =====================================
+// SELECT ANSWER
+// =====================================
+
 function selectAnswer(ans){
-    const timeTaken = 60 - questionTimers[currentQuestion];
+
+    const timeTaken =
+        60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
-        question: questions[currentQuestion].question,
-        image: questions[currentQuestion].image,
+
+        question:
+            questions[currentQuestion].question,
+
+        image:
+            questions[currentQuestion].image,
+
         selectedOption: ans,
-        correctAnswer: questions[currentQuestion].answer,
-        isCorrect: ans === questions[currentQuestion].answer,
+
+        correctAnswer:
+            questions[currentQuestion].answer,
+
+        isCorrect:
+            ans === questions[currentQuestion].answer,
+
         timeTakenInSeconds: timeTaken,
+
         skipReason: "none"
+
     };
 
-    questionStatus[currentQuestion] = "answered";
     updateQuestionStatus();
+
 }
 
-// ================= SKIP =================
+// =====================================
+// SAVE SKIPPED
+// =====================================
+
 function saveSkippedAnswer(reason){
+
     userAnswers[currentQuestion] = {
-        question: questions[currentQuestion].question,
-        image: questions[currentQuestion].image,
+
+        question:
+            questions[currentQuestion].question,
+
+        image:
+            questions[currentQuestion].image,
+
         selectedOption: "Not Answered",
-        correctAnswer: questions[currentQuestion].answer,
+
+        correctAnswer:
+            questions[currentQuestion].answer,
+
         isCorrect: false,
-        timeTakenInSeconds: 60 - questionTimers[currentQuestion],
+
+        timeTakenInSeconds:
+            60 - questionTimers[currentQuestion],
+
         skipReason: reason
+
     };
 
-    questionStatus[currentQuestion] = "not-answered";
 }
 
-// ================= STATUS UI =================
-function updateQuestionStatus(){
-    let html = "";
-    for(let i=0; i<questions.length; i++){
-        let cls = "not-visited";
+// =====================================
+// QUESTION STATUS COLORS
+// =====================================
 
-        if(i === currentQuestion) cls = "current";
-        else if(userAnswers[i]?.selectedOption && userAnswers[i].selectedOption !== "Not Answered") cls = "answered";
-        else if(questionStatus[i] === "not-answered") cls = "not-answered";
+function updateQuestionStatus(){
+
+    let html = "";
+
+    for(let i = 0; i < questions.length; i++){
+
+        let cls = "white";
+
+        if(userAnswers[i]){
+
+            // ANSWERED
+
+            if(userAnswers[i].selectedOption !== "Not Answered"){
+
+                // LAST SECOND ANSWER
+
+                if(userAnswers[i].timeTakenInSeconds >= 55){
+
+                    cls = "orange";
+
+                }
+
+                // NORMAL ANSWER
+
+                else{
+
+                    cls = "green";
+
+                }
+
+            }
+
+            // NOT ANSWERED
+
+            else{
+
+                // TIMEOUT
+
+                if(userAnswers[i].skipReason === "timeout"){
+
+                    cls = "brown";
+
+                }
+
+                // VIEWED BUT NOT ANSWERED
+
+                else{
+
+                    cls = "red";
+
+                }
+
+            }
+
+        }
+
+        if(i === currentQuestion){
+
+            cls += " current";
+
+        }
 
         html += `
-            <div class="status-circle ${cls}" onclick="goToQuestion(${i})">
+
+            <div
+                class="status-circle ${cls}"
+                onclick="goToQuestion(${i})"
+            >
+
                 ${i+1}
+
             </div>
+
         `;
+
     }
-    document.getElementById("questionStatusContainer").innerHTML = html;
+
+    document.getElementById(
+        "questionStatusContainer"
+    ).innerHTML = html;
+
 }
 
-// ================= NAVIGATION =================
+// =====================================
+// GO TO QUESTION
+// =====================================
+
 function goToQuestion(i){
+
     clearInterval(localTimer);
+
     currentQuestion = i;
+
     loadQuestion();
+
 }
+
+// =====================================
+// NEXT QUESTION
+// =====================================
 
 function nextQuestion(){
+
     clearInterval(localTimer);
 
     if(!userAnswers[currentQuestion]){
-        saveSkippedAnswer(localTime <= 0 ? "timeout" : "manual-skip");
+
+        saveSkippedAnswer(
+            localTime <= 0
+            ? "timeout"
+            : "manual-skip"
+        );
+
     }
 
     if(currentQuestion === questions.length - 1){
+
         finishTest();
+
         return;
+
     }
 
     currentQuestion++;
+
     loadQuestion();
+
 }
 
-// Make sure your HTML previous button calls this exactly
+// =====================================
+// PREVIOUS QUESTION
+// =====================================
+
 function previousQuestion(){
+
     clearInterval(localTimer);
 
-    if(!userAnswers[currentQuestion]){
-        questionStatus[currentQuestion] = "not-answered";
+    if(currentQuestion > 0){
+
+        currentQuestion--;
+
+        loadQuestion();
+
     }
 
-    if(currentQuestion > 0){
-        currentQuestion--;
-        loadQuestion();
-    }
 }
 
-// ================= FINISH TEST =================
+// =====================================
+// FINISH TEST
+// =====================================
+
 async function finishTest(){
 
     clearInterval(globalTimer);
+
     clearInterval(localTimer);
 
     let score = 0;
+
     let correctAnswers = 0;
+
     let wrongAnswers = 0;
-    let skippedByTimeout = 0;
-    let skippedWithTimeRemaining = 0;
-    let totalThinkingTime = 0;
-    let fastAnsweredQuestions = 0;
-    let slowAnsweredQuestions = 0;
 
-    const questionAnalysis = [];
+    userAnswers.forEach(a => {
 
-    userAnswers.forEach((a, index) => {
+        if(!a) return;
 
-        if (!a) {
+        if(a.selectedOption !== "Not Answered"){
 
-            const timeSpent = 60 - questionTimers[index];
+            if(a.isCorrect){
 
-            totalThinkingTime += timeSpent;
+                score++;
 
-            skippedWithTimeRemaining++;
+                correctAnswers++;
 
-            questionAnalysis.push({
-                questionIndex: index + 1,
-                status: "skipped",
-                timeSpent: timeSpent,
-                isCorrect: false
-            });
+            }
 
-            return;
+            else{
+
+                wrongAnswers++;
+
+            }
+
         }
 
-        totalThinkingTime += a.timeTakenInSeconds;
-
-        if (a.selectedOption === "Not Answered") {
-
-            if (a.skipReason === "timeout") {
-                skippedByTimeout++;
-            } else {
-                skippedWithTimeRemaining++;
-            }
+        else{
 
             wrongAnswers++;
 
-        } else {
-
-            if (a.isCorrect) {
-                score++;
-                correctAnswers++;
-            } else {
-                wrongAnswers++;
-            }
-
-            if (a.timeTakenInSeconds <= 15) {
-                fastAnsweredQuestions++;
-            }
-
-            else if (a.timeTakenInSeconds >= 45) {
-                slowAnsweredQuestions++;
-            }
         }
-
-        questionAnalysis.push({
-            questionIndex: index + 1,
-            selected: a.selectedOption,
-            correct: a.correctAnswer,
-            isCorrect: a.isCorrect,
-            timeSpent: a.timeTakenInSeconds,
-            skipReason: a.skipReason
-        });
 
     });
 
-    const attemptedQuestions =
-        correctAnswers +
-        wrongAnswers -
-        (skippedByTimeout + skippedWithTimeRemaining);
-
-    const accuracy =
-        attemptedQuestions > 0
-        ? ((correctAnswers / attemptedQuestions) * 100).toFixed(2) + "%"
-        : "0%";
-
-    const averageThinkingTime =
-        (totalThinkingTime / questions.length).toFixed(2) + "s";
-
-    let behaviorAnalysis = "Balanced pace profile.";
-
-    if (fastAnsweredQuestions > questions.length / 2) {
-
-        behaviorAnalysis =
-            "Rapid responder archetype. Risk of impulsive errors.";
-
-    }
-
-    else if (slowAnsweredQuestions > questions.length / 2) {
-
-        behaviorAnalysis =
-            "Deliberate analyzer archetype. Risk of pacing constraints.";
-
-    }
-
     const reportData = {
 
-        name: document.getElementById("name").value.trim(),
-        age: document.getElementById("age").value.trim(),
-        profession: document.getElementById("profession").value.trim(),
-        experience: document.getElementById("experience").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        college: document.getElementById("college").value.trim(),
-        department: document.getElementById("department").value.trim(),
+        name:
+            document.getElementById("name").value.trim(),
+
+        age:
+            document.getElementById("age").value.trim(),
+
+        profession:
+            document.getElementById("profession").value.trim(),
+
+        experience:
+            document.getElementById("experience").value.trim(),
+
+        email:
+            document.getElementById("email").value.trim(),
+
+        college:
+            document.getElementById("college").value.trim(),
+
+        department:
+            document.getElementById("department").value.trim(),
 
         score: score,
+
         totalQuestions: questions.length,
 
         correctAnswers: correctAnswers,
+
         wrongAnswers: wrongAnswers,
-
-        accuracy: accuracy,
-
-        skippedByTimeout: skippedByTimeout,
-        skippedWithTimeRemaining: skippedWithTimeRemaining,
-
-        attemptedQuestions: attemptedQuestions,
-
-        totalThinkingTime: totalThinkingTime,
-        averageThinkingTime: averageThinkingTime,
-
-        fastAnsweredQuestions: fastAnsweredQuestions,
-        slowAnsweredQuestions: slowAnsweredQuestions,
-
-        behaviorAnalysis: behaviorAnalysis,
-
-        questionAnalysis: questionAnalysis,
 
         answers: userAnswers,
 
-        submittedAt: new Date().toLocaleString()
+        submittedAt:
+            new Date().toLocaleString()
 
     };
 
-    try {
+    try{
 
         const response = await fetch(
+
             "https://online-test-system-pqd0.onrender.com/save-result",
+
             {
+
                 method: "POST",
+
                 headers: {
-                    "Content-Type": "application/json"
+
+                    "Content-Type":"application/json"
+
                 },
+
                 body: JSON.stringify(reportData)
+
             }
+
         );
 
         const data = await response.json();
 
-        console.log("SERVER RESPONSE:", data);
+        console.log(data);
 
         if(response.ok){
 
-            console.log("Data Saved Successfully");
+            document.getElementById(
+                "testSection"
+            ).style.display = "none";
 
-            document.getElementById("scoreText").innerText =
+            document.getElementById(
+                "result"
+            ).style.display = "block";
+
+            document.getElementById(
+                "scoreText"
+            ).innerText =
                 `${score} / ${questions.length}`;
-
-            document.getElementById("testSection").style.display = "none";
-
-            document.getElementById("result").style.display = "block";
 
             setTimeout(() => {
 
-                window.location.href = "report.html";
+                window.location.href =
+                    "report.html";
 
-            }, 2000);
+            },2000);
 
         }
 
-        else {
+        else{
 
-            console.log("SERVER ERROR:", data);
+            alert("Server Error");
 
-            alert("Server Error: " + data.error);
+            console.log(data);
 
         }
 
@@ -415,7 +618,6 @@ async function finishTest(){
 
     catch(error){
 
-        console.log("FETCH ERROR:");
         console.log(error);
 
         alert("Failed To Save Data");
