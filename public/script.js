@@ -406,42 +406,43 @@ function goToQuestion(i){
 
     clearInterval(localTimer);
 
+    // MARK PREVIOUS QUESTION AS RED
+    // if user viewed but did not answer
+
+    if(
+        !userAnswers[currentQuestion]
+    ){
+
+        userAnswers[currentQuestion] = {
+
+            question:
+                questions[currentQuestion].question,
+
+            image:
+                questions[currentQuestion].image,
+
+            selectedOption:
+                "Not Answered",
+
+            correctAnswer:
+                questions[currentQuestion].answer,
+
+            isCorrect:false,
+
+            timeTakenInSeconds:
+                60 - questionTimers[currentQuestion],
+
+            skipReason:"manual-skip"
+        };
+    }
+
+    // MOVE TO NEW QUESTION
+
     currentQuestion = i;
 
     loadQuestion();
 
-}
-
-// =====================================
-// NEXT QUESTION
-// =====================================
-
-function nextQuestion(){
-
-    clearInterval(localTimer);
-
-    if(!userAnswers[currentQuestion]){
-
-        saveSkippedAnswer(
-            localTime <= 0
-            ? "timeout"
-            : "manual-skip"
-        );
-
-    }
-
-    if(currentQuestion === questions.length - 1){
-
-        finishTest();
-
-        return;
-
-    }
-
-    currentQuestion++;
-
-    loadQuestion();
-
+    updateQuestionStatus();
 }
 
 // =====================================
