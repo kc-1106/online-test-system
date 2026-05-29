@@ -336,11 +336,9 @@ function updateQuestionStatus(){
         if(userAnswers[i]){
 
             // ANSWERED
-
             if(userAnswers[i].selectedOption !== "Not Answered"){
 
                 // LAST SECOND ANSWER
-
                 if(userAnswers[i].timeTakenInSeconds >= 55){
 
                     cls = "orange";
@@ -348,21 +346,17 @@ function updateQuestionStatus(){
                 }
 
                 // NORMAL ANSWER
-
                 else{
 
                     cls = "green";
-
                 }
 
             }
 
             // NOT ANSWERED
-
             else{
 
                 // TIMEOUT
-
                 if(userAnswers[i].skipReason === "timeout"){
 
                     cls = "brown";
@@ -370,21 +364,19 @@ function updateQuestionStatus(){
                 }
 
                 // VIEWED BUT NOT ANSWERED
-
                 else{
 
                     cls = "red";
-
                 }
 
             }
 
         }
 
+        // CURRENT QUESTION
         if(i === currentQuestion){
 
             cls += " current";
-
         }
 
         html += `
@@ -399,13 +391,11 @@ function updateQuestionStatus(){
             </div>
 
         `;
-
     }
 
     document.getElementById(
         "questionStatusContainer"
     ).innerHTML = html;
-
 }
 
 // =====================================
