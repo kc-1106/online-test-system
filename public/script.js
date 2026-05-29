@@ -222,7 +222,8 @@ function previousQuestion(){
 }
 
 // ================= FINISH TEST =================
-function finishTest(){
+async function finishTest(){
+
     clearInterval(globalTimer);
     clearInterval(localTimer);
 
@@ -238,30 +239,39 @@ function finishTest(){
     const questionAnalysis = [];
 
     userAnswers.forEach((a, index) => {
+
         if (!a) {
+
             const timeSpent = 60 - questionTimers[index];
+
             totalThinkingTime += timeSpent;
+
             skippedWithTimeRemaining++;
-            
+
             questionAnalysis.push({
                 questionIndex: index + 1,
                 status: "skipped",
                 timeSpent: timeSpent,
                 isCorrect: false
             });
+
             return;
         }
 
         totalThinkingTime += a.timeTakenInSeconds;
 
         if (a.selectedOption === "Not Answered") {
+
             if (a.skipReason === "timeout") {
                 skippedByTimeout++;
             } else {
                 skippedWithTimeRemaining++;
             }
-            wrongAnswers++; 
+
+            wrongAnswers++;
+
         } else {
+
             if (a.isCorrect) {
                 score++;
                 correctAnswers++;
@@ -271,7 +281,9 @@ function finishTest(){
 
             if (a.timeTakenInSeconds <= 15) {
                 fastAnsweredQuestions++;
-            } else if (a.timeTakenInSeconds >= 45) {
+            }
+
+            else if (a.timeTakenInSeconds >= 45) {
                 slowAnsweredQuestions++;
             }
         }
@@ -284,20 +296,40 @@ function finishTest(){
             timeSpent: a.timeTakenInSeconds,
             skipReason: a.skipReason
         });
+
     });
 
-    const attemptedQuestions = correctAnswers + wrongAnswers - (skippedByTimeout + skippedWithTimeRemaining);
-    const accuracy = attemptedQuestions > 0 ? ((correctAnswers / attemptedQuestions) * 100).toFixed(2) + "%" : "0%";
-    const averageThinkingTime = (totalThinkingTime / questions.length).toFixed(2) + "s";
+    const attemptedQuestions =
+        correctAnswers +
+        wrongAnswers -
+        (skippedByTimeout + skippedWithTimeRemaining);
+
+    const accuracy =
+        attemptedQuestions > 0
+        ? ((correctAnswers / attemptedQuestions) * 100).toFixed(2) + "%"
+        : "0%";
+
+    const averageThinkingTime =
+        (totalThinkingTime / questions.length).toFixed(2) + "s";
 
     let behaviorAnalysis = "Balanced pace profile.";
+
     if (fastAnsweredQuestions > questions.length / 2) {
-        behaviorAnalysis = "Rapid responder archetype. Risk of impulsive errors.";
-    } else if (slowAnsweredQuestions > questions.length / 2) {
-        behaviorAnalysis = "Deliberate analyzer archetype. Risk of pacing constraints.";
+
+        behaviorAnalysis =
+            "Rapid responder archetype. Risk of impulsive errors.";
+
+    }
+
+    else if (slowAnsweredQuestions > questions.length / 2) {
+
+        behaviorAnalysis =
+            "Deliberate analyzer archetype. Risk of pacing constraints.";
+
     }
 
     const reportData = {
+
         name: document.getElementById("name").value.trim(),
         age: document.getElementById("age").value.trim(),
         profession: document.getElementById("profession").value.trim(),
@@ -305,52 +337,89 @@ function finishTest(){
         email: document.getElementById("email").value.trim(),
         college: document.getElementById("college").value.trim(),
         department: document.getElementById("department").value.trim(),
+
         score: score,
         totalQuestions: questions.length,
+
         correctAnswers: correctAnswers,
         wrongAnswers: wrongAnswers,
+
         accuracy: accuracy,
+
         skippedByTimeout: skippedByTimeout,
         skippedWithTimeRemaining: skippedWithTimeRemaining,
+
         attemptedQuestions: attemptedQuestions,
+
         totalThinkingTime: totalThinkingTime,
         averageThinkingTime: averageThinkingTime,
+
         fastAnsweredQuestions: fastAnsweredQuestions,
         slowAnsweredQuestions: slowAnsweredQuestions,
+
         behaviorAnalysis: behaviorAnalysis,
+
         questionAnalysis: questionAnalysis,
+
         answers: userAnswers,
+
         submittedAt: new Date().toLocaleString()
+
     };
 
-    // ✅ FIXED: Relative route path ensures target hits Vercel production seamlessly
-    fetch("https://online-test-system-pqd0.onrender.com/save-result", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(reportData)
-})
-.then(response => response.json())
-.then(data => {
+    try {
 
-    console.log("Saved Successfully:", data);
+        const response = await fetch(
+            "https://online-test-system-pqd0.onrender.com/save-result",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(reportData)
+            }
+        );
 
-    setTimeout(() => {
-        window.location.href = "report.html";
-    }, 2000);
+        const data = await response.json();
 
-})
-.catch(error => {
+        console.log("SERVER RESPONSE:", data);
 
-    console.log("Database Error:");
-    console.log(error);
+        if(response.ok){
 
-    alert("Failed To Save Data");
+            console.log("Data Saved Successfully");
 
-});
+            document.getElementById("scoreText").innerText =
+                `${score} / ${questions.length}`;
 
-    document.getElementById("testSection").style.display = "none";
-    document.getElementById("result").style.display = "block";
-    document.getElementById("scoreText").innerText = `${score} / ${questions.length}`;
+            document.getElementById("testSection").style.display = "none";
+
+            document.getElementById("result").style.display = "block";
+
+            setTimeout(() => {
+
+                window.location.href = "report.html";
+
+            }, 2000);
+
+        }
+
+        else {
+
+            console.log("SERVER ERROR:", data);
+
+            alert("Server Error: " + data.error);
+
+        }
+
+    }
+
+    catch(error){
+
+        console.log("FETCH ERROR:");
+        console.log(error);
+
+        alert("Failed To Save Data");
+
+    }
+
 }
