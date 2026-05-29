@@ -8,9 +8,792 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
 
-<title>PSVT-R Online Assessment</title>
+<title>PSVT-R Online Test</title>
 
-<link rel="stylesheet" href="style.css">
+<style>
+
+/* ========================= */
+/* GLOBAL */
+/* ========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+
+    background:linear-gradient(
+        135deg,
+        #0f172a,
+        #1e293b
+    );
+
+    min-height:100vh;
+
+    padding:20px;
+}
+
+.container{
+
+    width:100%;
+    max-width:1350px;
+
+    margin:auto;
+
+    background:white;
+
+    border-radius:25px;
+
+    padding:30px;
+
+    box-shadow:
+        0px 0px 25px rgba(0,0,0,0.4);
+}
+
+h1{
+
+    text-align:center;
+
+    color:#0f172a;
+
+    margin-bottom:25px;
+}
+
+/* ========================= */
+/* FORM */
+/* ========================= */
+
+label{
+
+    display:block;
+
+    margin-top:18px;
+
+    margin-bottom:8px;
+
+    font-size:18px;
+
+    font-weight:bold;
+}
+
+input{
+
+    width:100%;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    border:1px solid #cbd5e1;
+
+    font-size:16px;
+}
+
+input:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0px 0px 10px rgba(37,99,235,0.3);
+}
+
+/* ========================= */
+/* BUTTONS */
+/* ========================= */
+
+button{
+
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+button:hover{
+
+    background:#1d4ed8;
+}
+
+button:disabled{
+
+    background:#94a3b8;
+
+    cursor:not-allowed;
+}
+
+/* ========================= */
+/* HIDE SECTIONS */
+/* ========================= */
+
+#instructionPage,
+#testSection,
+#result{
+
+    display:none;
+}
+
+/* ========================= */
+/* INSTRUCTIONS */
+/* ========================= */
+
+.instruction-box{
+
+    background:#f8fafc;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    border-left:6px solid #2563eb;
+
+    line-height:2;
+}
+
+.instruction-box ol{
+
+    margin-left:25px;
+}
+
+/* ========================= */
+/* LEGEND */
+/* ========================= */
+
+.legend-box{
+
+    margin-top:30px;
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    border:1px solid #cbd5e1;
+}
+
+.legend-title{
+
+    font-size:24px;
+
+    margin-bottom:25px;
+
+    color:#0f172a;
+}
+
+.legend-item{
+
+    display:flex;
+
+    align-items:center;
+
+    margin-bottom:18px;
+}
+
+.legend-circle{
+
+    width:28px;
+
+    height:28px;
+
+    border-radius:50%;
+
+    margin-right:18px;
+}
+
+.legend-text{
+
+    font-size:18px;
+
+    font-weight:500;
+}
+
+/* ========================= */
+/* TEST TOP */
+/* ========================= */
+
+.dashboard-top{
+
+    background:#f8fafc;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    margin-bottom:30px;
+
+    box-shadow:
+        0px 0px 10px rgba(0,0,0,0.08);
+}
+
+.user-panel{
+
+    margin-bottom:25px;
+}
+
+.user-panel h2{
+
+    color:#0f172a;
+
+    font-size:28px;
+
+    margin-bottom:8px;
+}
+
+.user-panel p{
+
+    color:#475569;
+
+    font-size:18px;
+}
+
+/* ========================= */
+/* TIMER */
+/* ========================= */
+
+.timer-panel{
+
+    margin-top:25px;
+
+    background:#0f172a;
+
+    color:white;
+
+    padding:18px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    font-size:32px;
+
+    font-weight:bold;
+}
+
+.local-timer{
+
+    margin-top:15px;
+
+    background:#fee2e2;
+
+    color:#b91c1c;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    display:inline-block;
+}
+
+/* ========================= */
+/* QUESTION STATUS */
+/* ========================= */
+
+.question-status-container{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:14px;
+
+    justify-content:center;
+}
+
+.status-circle{
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    color:white;
+
+    border:3px solid transparent;
+}
+
+/* WHITE */
+
+.white{
+
+    background:white;
+
+    color:black;
+
+    border:2px solid #cbd5e1;
+}
+
+/* GREEN */
+
+.green{
+
+    background:green;
+}
+
+/* RED */
+
+.red{
+
+    background:red;
+}
+
+/* ORANGE */
+
+.orange{
+
+    background:orange;
+}
+
+/* BROWN */
+
+.brown{
+
+    background:brown;
+}
+
+/* CURRENT QUESTION */
+
+.current{
+
+    border:4px solid black !important;
+
+    transform:scale(1.08);
+}
+/* ========================= */
+/* QUESTION SECTION */
+/* ========================= */
+/* ========================= */
+/* TOP DASHBOARD */
+/* ========================= */
+
+.dashboard-top{
+
+    display:flex;
+    gap:20px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:25px;
+}
+
+/* USER PANEL */
+
+.dashboard-user{
+
+    flex:1;
+
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    box-shadow:0px 0px 10px rgba(0,0,0,0.08);
+}
+
+.user-icon{
+
+    width:70px;
+    height:70px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:35px;
+}
+
+.dashboard-user h2{
+
+    color:#0f172a;
+    margin-bottom:6px;
+}
+
+.dashboard-user p{
+
+    color:#475569;
+}
+
+/* QUESTION STATUS */
+
+.dashboard-status{
+
+    flex:2;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    box-shadow:0px 0px 10px rgba(0,0,0,0.08);
+}
+
+/* GLOBAL TIMER */
+
+.dashboard-global-timer{
+
+    width:280px;
+
+    background:#001b66;
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    text-align:center;
+}
+
+.timer-title{
+
+    font-size:20px;
+    margin-bottom:10px;
+}
+
+#globalTimer{
+
+    font-size:55px;
+    font-weight:bold;
+}
+
+/* ========================= */
+/* QUESTION STATUS COLORS */
+/* ========================= */
+
+.question-status-container{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:center;
+}
+
+.status-circle{
+
+    width:50px;
+    height:50px;
+
+    border-radius:50%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    border:3px solid transparent;
+}
+
+/* WHITE */
+
+.white{
+
+    background:white;
+    color:black;
+    border:2px solid #cbd5e1;
+}
+
+/* RED */
+
+.red{
+
+    background:red;
+    color:white;
+}
+
+/* BROWN */
+
+.brown{
+
+    background:brown;
+    color:white;
+}
+
+/* GREEN */
+
+.green{
+
+    background:green;
+    color:white;
+}
+
+/* ORANGE */
+
+.orange{
+
+    background:orange;
+    color:white;
+}
+
+/* CURRENT */
+
+.current{
+
+    border:4px solid black;
+}
+
+/* ========================= */
+/* MAIN QUESTION LAYOUT */
+/* ========================= */
+
+.main-question-layout{
+
+    display:flex;
+    gap:25px;
+    align-items:flex-start;
+}
+
+/* LEFT TIMER */
+
+/* LEFT TIMER PANEL */
+
+.left-timer-panel{
+
+    width:120px;
+}
+
+/* TIMER BOX */
+
+.local-timer-box{
+
+    background:#fff1f2;
+
+    border:2px solid red;
+
+    border-radius:14px;
+
+    padding:14px;
+
+    text-align:center;
+
+    position:sticky;
+
+    top:16px;
+
+    width:130px;
+}
+
+/* TITLE */
+
+.local-title{
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    color:#b91c1c;
+
+    margin-bottom:08px;
+
+    line-height:1.4;
+}
+
+/* TIME */
+
+.local-time{
+
+    font-size:32px;
+
+    font-weight:bold;
+
+    color:#dc2626;
+}
+/* ========================= */
+/* QUESTION AREA */
+/* ========================= */
+
+.dashboard-bottom{
+
+    flex:1;
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:25px;
+
+    box-shadow:0px 0px 15px rgba(0,0,0,0.08);
+}
+
+/* QUESTION TITLE */
+
+.question-box h1{
+
+    margin-bottom:25px;
+
+    color:#001b66;
+}
+
+/* QUESTION IMAGE */
+
+.question-image{
+
+    width:100%;
+
+    border-radius:20px;
+
+    box-shadow:0px 0px 10px rgba(0,0,0,0.15);
+
+    user-select:none;
+
+    -webkit-user-drag:none;
+}
+
+/* ========================= */
+/* OPTIONS */
+/* ========================= */
+
+.options{
+
+    margin-top:30px;
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:20px;
+}
+
+/* OPTION */
+
+.option{
+
+    background:white;
+
+    border:2px solid #dbeafe;
+
+    border-radius:18px;
+
+    padding:15px;
+
+    text-align:center;
+
+    transition:0.3s;
+
+    cursor:pointer;
+}
+
+.option:hover{
+
+    transform:translateY(-4px);
+
+    border-color:#2563eb;
+}
+
+/* ========================= */
+/* NAVIGATION */
+/* ========================= */
+
+.navigation-buttons{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:30px;
+}
+
+.navigation-buttons button{
+
+    width:260px;
+
+    padding:18px;
+
+    font-size:24px;
+
+    border-radius:18px;
+}
+
+/* ========================= */
+/* RESULT */
+/* ========================= */
+
+.score-box{
+
+    text-align:center;
+
+    padding:40px;
+}
+
+.score{
+
+    font-size:55px;
+
+    color:#2563eb;
+
+    font-weight:bold;
+
+    margin-top:20px;
+}
+
+.message-box{
+
+    margin-top:30px;
+
+    padding:25px;
+
+    background:#f8fafc;
+
+    border-left:6px solid #2563eb;
+
+    border-radius:15px;
+
+    line-height:2;
+
+    font-size:20px;
+}
+</style>
 
 </head>
 
@@ -18,321 +801,344 @@
 
 <div class="container">
 
-    <!-- ===================================== -->
-    <!-- REGISTRATION -->
-    <!-- ===================================== -->
+<!-- ========================= -->
+<!-- REGISTRATION -->
+<!-- ========================= -->
 
-    <div id="registrationForm">
+<div id="registrationForm">
 
-        <h1>PSVT-R Online Assessment</h1>
+    <h1>PSVT-R Online Assessment</h1>
 
-        <label>Name</label>
-        <input type="text" id="name">
+    <label>Name</label>
+<input type="text" id="name">
 
-        <label>Gender</label>
+<label>Gender</label>
 
-        <select id="gender">
+<select id="gender"
+        style="
+            width:100%;
+            padding:15px;
+            border-radius:12px;
+            border:1px solid #cbd5e1;
+            font-size:16px;
+        ">
 
-            <option value="">Select Gender</option>
+    <option value="">Select Gender</option>
 
-            <option value="Male">Male</option>
+    <option value="Male">Male</option>
 
-            <option value="Female">Female</option>
+    <option value="Female">Female</option>
 
-        </select>
+</select>
 
-        <label>Age</label>
-        <input type="number" id="age">
+    <label>Age</label>
+    <input type="number" id="age">
 
-        <label>Profession</label>
-        <input type="text" id="profession">
+    <label>Profession</label>
+    <input type="text" id="profession">
 
-        <label>Experience</label>
-        <input type="text" id="experience">
+    <label>Experience</label>
+    <input type="text" id="experience">
 
-        <label>Email</label>
-        <input type="email" id="email">
+    <label>Email</label>
+    <input type="email" id="email">
 
-        <label>Institute / College</label>
-        <input type="text" id="college">
+    <label>Institute / College Name</label>
+    <input type="text" id="college">
 
-        <label>Department</label>
-        <input type="text" id="department">
+    <label>Department</label>
+    <input type="text" id="department">
 
-        <button
-            onclick="startTest()"
-            class="main-btn">
+    <button
+        onclick="startTest()"
+        style="margin-top:25px;">
 
-            Continue
+        Continue
+
+    </button>
+
+</div>
+
+<!-- ========================= -->
+<!-- INSTRUCTIONS -->
+<!-- ========================= -->
+
+<div id="instructionPage">
+
+    <h1>PSVT-R Instructions</h1>
+
+    <div class="instruction-box">
+
+        <ol>
+
+            <li>Observe the rotated object carefully.</li>
+
+            <li>Select the correct answer.</li>
+
+            <li>Only one option is correct.</li>
+
+            <li>Total duration is 10 minutes.</li>
+
+            <li>Retest is not allowed.</li>
+
+        </ol>
+
+        <!-- LEGEND -->
+
+        <div class="legend-box">
+
+            <div class="legend-title">
+
+                Question Status Information
+
+            </div>
+
+            <div class="legend-item">
+
+                <div class="legend-circle"
+                     style="
+                        background:white;
+                        border:2px solid #cbd5e1;
+                     ">
+                </div>
+
+                <div class="legend-text">
+
+                    Question Not Visited
+
+                </div>
+
+            </div>
+
+            <div class="legend-item">
+
+                <div class="legend-circle"
+                     style="background:red;">
+                </div>
+
+                <div class="legend-text">
+
+                    Viewed but Not Answered
+
+                </div>
+
+            </div>
+
+            <div class="legend-item">
+
+                <div class="legend-circle"
+                     style="background:brown;">
+                </div>
+
+                <div class="legend-text">
+
+                    Viewed but Timeout
+
+                </div>
+
+            </div>
+
+            <div class="legend-item">
+
+                <div class="legend-circle"
+                     style="background:green;">
+                </div>
+
+                <div class="legend-text">
+
+                    Viewed & Answered
+
+                </div>
+
+            </div>
+
+            <div class="legend-item">
+
+                <div class="legend-circle"
+                     style="background:orange;">
+                </div>
+
+                <div class="legend-text">
+
+                    Answered at Last Seconds
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        <button onclick="beginActualTest()">
+
+            Start Actual Test
 
         </button>
 
     </div>
 
-    <!-- ===================================== -->
-    <!-- INSTRUCTION PAGE -->
-    <!-- ===================================== -->
+</div>
 
-    <div id="instructionPage">
+<!-- ========================= -->
+<!-- TEST SECTION -->
+<!-- ========================= -->
 
-        <h1>PSVT-R Instructions</h1>
+<!-- TEST SECTION -->
 
-        <div class="instruction-box">
+<div id="testSection">
 
-            <ol>
+    <!-- TOP DASHBOARD -->
 
-                <li>Observe the rotated object carefully.</li>
+    <div class="dashboard-top">
 
-                <li>Select the correct answer.</li>
+        <!-- USER INFO -->
 
-                <li>Only one option is correct.</li>
+        <div class="dashboard-user">
 
-                <li>Total test duration is 10 minutes.</li>
-
-                <li>Each question has 60 seconds.</li>
-
-                <li>Question status colors indicate progress.</li>
-
-            </ol>
-
-            <!-- LEGEND -->
-
-            <div class="legend-box">
-
-                <h2>Question Status Legend</h2>
-
-                <div class="legend-grid">
-
-                    <div class="legend-item">
-
-                        <div class="legend-circle white"></div>
-
-                        <span>Not Visited</span>
-
-                    </div>
-
-                    <div class="legend-item">
-
-                        <div class="legend-circle red"></div>
-
-                        <span>Skipped</span>
-
-                    </div>
-
-                    <div class="legend-item">
-
-                        <div class="legend-circle brown"></div>
-
-                        <span>Timeout</span>
-
-                    </div>
-
-                    <div class="legend-item">
-
-                        <div class="legend-circle green"></div>
-
-                        <span>Answered</span>
-
-                    </div>
-
-                    <div class="legend-item">
-
-                        <div class="legend-circle orange"></div>
-
-                        <span>Last Second Answer</span>
-
-                    </div>
-
-                </div>
-
+            <div class="user-icon">
+                👤
             </div>
 
-            <button
-                onclick="beginActualTest()"
-                class="main-btn">
+            <div>
 
-                Start Actual Test
+                <h2 id="displayUserName"></h2>
 
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- ===================================== -->
-    <!-- TEST SECTION -->
-    <!-- ===================================== -->
-
-    <div id="testSection">
-
-        <!-- TOP DASHBOARD -->
-
-        <div class="dashboard-top">
-
-            <!-- USER -->
-
-            <div class="dashboard-user">
-
-                <div class="user-icon">
-
-                    👤
-
-                </div>
-
-                <div>
-
-                    <h2 id="displayUserName"></h2>
-
-                    <p id="displayUserEmail"></p>
-
-                </div>
-
-            </div>
-
-            <!-- QUESTION STATUS -->
-
-            <div class="dashboard-status">
-
-                <div
-                    id="questionStatusContainer"
-                    class="question-status-container">
-                </div>
-
-            </div>
-
-            <!-- GLOBAL TIMER -->
-
-            <div class="dashboard-global-timer">
-
-                <div class="timer-title">
-
-                    ⏱ Total Time Left
-
-                </div>
-
-                <div id="globalTimer">
-
-                    10:00
-
-                </div>
+                <p id="displayUserEmail"></p>
 
             </div>
 
         </div>
 
-        <!-- MAIN CONTENT -->
+        <!-- QUESTION STATUS -->
 
-        <div class="main-question-layout">
-
-            <!-- LEFT TIMER -->
-
-            <div class="left-timer-panel">
-
-                <div class="local-timer-box">
-
-                    <div class="local-title">
-
-                        ⏰ Question Timer
-
-                    </div>
-
-                    <div class="local-time">
-
-                        <span id="timer">
-
-                            60
-
-                        </span>
-
-                        sec
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- QUESTION AREA -->
-
-            <div class="dashboard-bottom">
-
-                <div class="question-box">
-
-                    <h1 id="questionTitle"></h1>
-
-                    <img
-                        id="questionImage"
-                        class="question-image"
-                        alt="Question Image"
-                    >
-
-                    <div
-                        class="options"
-                        id="optionsContainer">
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- NAVIGATION -->
-
-        <div class="navigation-buttons">
-
-            <button
-                id="prevBtn"
-                onclick="previousQuestion()">
-
-                ← Previous
-
-            </button>
-
-            <button
-                id="nextBtn"
-                onclick="nextQuestion()">
-
-                Next →
-
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- ===================================== -->
-    <!-- RESULT -->
-    <!-- ===================================== -->
-
-    <div id="result">
-
-        <div class="score-box">
-
-            <h1>
-
-                Assessment Completed
-
-            </h1>
+        <div class="dashboard-status">
 
             <div
-                class="score"
-                id="scoreText">
+                id="questionStatusContainer"
+                class="question-status-container">
             </div>
 
-            <div class="message-box">
+        </div>
 
-                ✅ Your assessment was submitted successfully.
+        <!-- GLOBAL TIMER -->
 
-                <br><br>
+        <div class="dashboard-global-timer">
 
-                📊 KPI Analytics Generated Successfully.
+            <div class="timer-title">
+                ⏱ Total Time Left
+            </div>
 
-                <br><br>
+            <div id="globalTimer">
+                10:00
+            </div>
 
-                📩 Please wait for your report.
+        </div>
+
+    </div>
+
+    <!-- MAIN QUESTION AREA -->
+
+    <div class="main-question-layout">
+
+        <!-- LOCAL TIMER -->
+
+        <div class="left-timer-panel">
+
+            <div class="local-timer-box">
+
+                <div class="local-title">
+                    ⏰ Question Time Left
+                </div>
+
+                <div class="local-time">
+
+                    <span id="timer">60</span> sec
+
+                </div>
 
             </div>
+
+        </div>
+
+        <!-- QUESTION AREA -->
+
+        <div class="dashboard-bottom">
+
+            <div class="question-box">
+
+                <h1 id="questionTitle"></h1>
+
+                <img
+                    id="questionImage"
+                    class="question-image"
+                    alt="Question Image"
+                >
+
+                <div
+                    class="options"
+                    id="optionsContainer">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- NAVIGATION -->
+
+    <div class="navigation-buttons">
+
+        <button
+            id="prevBtn"
+            onclick="previousQuestion()">
+
+            ← Previous
+
+        </button>
+
+        <button
+            id="nextBtn"
+            onclick="nextQuestion()">
+
+            Next Question →
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- RESULT -->
+<!-- ========================= -->
+
+<div id="result">
+
+    <div class="score-box">
+
+        <h1>
+
+            Assessment Completed
+
+        </h1>
+
+        <div class="score"
+             id="scoreText">
+        </div>
+
+        <div class="message-box">
+
+            ✅ Your assessment has been submitted successfully.
+
+            <br><br>
+
+            📩 Please wait for your assessment report.
+
+            <br><br>
+
+            ⏳ It may take a few seconds.
 
         </div>
 
@@ -340,8 +1146,9 @@
 
 </div>
 
+</div>
+
 <script src="script.js"></script>
 
 </body>
-
 </html>

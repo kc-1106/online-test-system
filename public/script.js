@@ -54,6 +54,7 @@ function startTest(){
     const fields = [
 
         "name",
+        "gender",
         "age",
         "profession",
         "experience",
@@ -708,6 +709,9 @@ async function finishTest(){
 
         name:
             document.getElementById("name").value,
+
+        gender:
+            document.getElementById("gender").value,
 
         age:
             document.getElementById("age").value,

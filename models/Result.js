@@ -51,7 +51,9 @@ const ResultSchema = new mongoose.Schema({
     // =========================
 
     name: String,
-
+    
+    gender: String,
+    
     age: Number,
 
     profession: String,
