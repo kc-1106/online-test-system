@@ -13,9 +13,7 @@ const app = express();
    MIDDLEWARE
 ===================================== */
 
-app.use(cors({
-    origin: "*"
-}));
+app.use(cors());
 
 app.use(express.json({
     limit: "50mb"
@@ -30,14 +28,12 @@ app.use(express.urlencoded({
    STATIC FILES
 ===================================== */
 
-app.use(
-    express.static(
-        path.join(__dirname, "public")
-    )
-);
+app.use(express.static(
+    path.join(__dirname, "public")
+));
 
 /* =====================================
-   HOME ROUTE
+   HOME PAGE
 ===================================== */
 
 app.get("/", (req, res) => {
@@ -53,7 +49,7 @@ app.get("/", (req, res) => {
 });
 
 /* =====================================
-   ADMIN DASHBOARD
+   ADMIN PAGE
 ===================================== */
 
 app.get("/admin", (req, res) => {
@@ -77,57 +73,49 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => {
 
     console.log("=================================");
-    console.log("MongoDB Connected Successfully");
+    console.log("MongoDB Connected");
     console.log("=================================");
 
 })
 
-.catch((err) => {
+.catch(err => {
 
-    console.log("=================================");
-    console.log("MongoDB Connection Failed");
+    console.log("MongoDB Error");
     console.log(err);
-    console.log("=================================");
 
 });
 
 /* =====================================
-   SAVE RESULT API
+   SAVE RESULT
 ===================================== */
 
 app.post("/save-result", async (req, res) => {
 
     try {
 
-        const reportData = req.body;
+        const data = req.body;
 
-        if(
-            !reportData.name ||
-            !reportData.email
-        ){
+        if (!data.name || !data.email) {
 
             return res.status(400).json({
 
-                success:false,
-                error:"Name and Email Required"
+                success: false,
+                error: "Name and Email Required"
 
             });
 
         }
 
-        /* =====================================
-           AUTO KPI CALCULATION
-        ===================================== */
-
         const totalQuestions =
-            reportData.totalQuestions || 10;
+            data.totalQuestions || 10;
 
         const score =
-            reportData.score || 0;
+            data.score || 0;
 
         const skippedQuestions =
-            (reportData.skippedByTimeout || 0) +
-            (reportData.skippedWithTimeRemaining || 0);
+            (data.skippedByTimeout || 0)
+            +
+            (data.skippedWithTimeRemaining || 0);
 
         const accuracy =
             (
@@ -138,53 +126,42 @@ app.post("/save-result", async (req, res) => {
             (
                 (
                     (totalQuestions - skippedQuestions)
-                    / totalQuestions
+                    /
+                    totalQuestions
                 ) * 100
             ).toFixed(2);
 
-        let performanceBand = "Average";
+        let performanceBand = "Needs Improvement";
 
         if(score >= 8){
 
             performanceBand = "Excellent";
 
         }
-
         else if(score >= 5){
 
             performanceBand = "Good";
 
         }
 
-        else{
+        const result = new Result({
 
-            performanceBand = "Needs Improvement";
-
-        }
-
-        const finalData = {
-
-            ...reportData,
+            ...data,
 
             accuracy,
-
             completionRate,
-
             performanceBand,
 
-            submittedAt:new Date()
+            submittedAt: new Date()
 
-        };
+        });
 
-        const newResult =
-            new Result(finalData);
+        await result.save();
 
-        await newResult.save();
+        res.json({
 
-        res.status(200).json({
-
-            success:true,
-            message:"Result Saved Successfully"
+            success: true,
+            message: "Result Saved"
 
         });
 
@@ -213,14 +190,13 @@ app.get("/results", async (req, res) => {
 
     try {
 
-        const results =
-            await Result.find()
+        const results = await Result.find()
 
-            .sort({
+        .sort({
 
-                submittedAt:-1
+            submittedAt:-1
 
-            });
+        });
 
         res.json(results);
 
@@ -254,13 +230,10 @@ app.get("/kpi-dashboard", async (req, res) => {
             results.length;
 
         let totalScore = 0;
-
         let totalAccuracy = 0;
 
         let excellentStudents = 0;
-
         let goodStudents = 0;
-
         let weakStudents = 0;
 
         results.forEach(student => {
@@ -269,20 +242,18 @@ app.get("/kpi-dashboard", async (req, res) => {
                 student.score || 0;
 
             totalAccuracy +=
-                parseFloat(student.accuracy) || 0;
+                parseFloat(student.accuracy || 0);
 
             if(student.performanceBand === "Excellent"){
 
                 excellentStudents++;
 
             }
-
             else if(student.performanceBand === "Good"){
 
                 goodStudents++;
 
             }
-
             else{
 
                 weakStudents++;
@@ -297,17 +268,23 @@ app.get("/kpi-dashboard", async (req, res) => {
 
             averageScore:
                 totalStudents > 0
-                ? (
-                    totalScore / totalStudents
-                  ).toFixed(2)
-                : 0,
+                ?
+                (
+                    totalScore /
+                    totalStudents
+                ).toFixed(2)
+                :
+                0,
 
             averageAccuracy:
                 totalStudents > 0
-                ? (
-                    totalAccuracy / totalStudents
-                  ).toFixed(2)
-                : 0,
+                ?
+                (
+                    totalAccuracy /
+                    totalStudents
+                ).toFixed(2)
+                :
+                0,
 
             excellentStudents,
             goodStudents,
@@ -331,61 +308,56 @@ app.get("/kpi-dashboard", async (req, res) => {
 });
 
 /* =====================================
-   GENDER ANALYTICS API
+   GENDER ANALYTICS
 ===================================== */
 
 app.get("/gender-analytics", async (req, res) => {
 
     try {
 
-        const results =
+        const students =
             await Result.find();
 
-        const maleStudents =
-            results.filter(
+        const male =
+            students.filter(
                 s => s.gender === "Male"
             );
 
-        const femaleStudents =
-            results.filter(
+        const female =
+            students.filter(
                 s => s.gender === "Female"
             );
 
-        function calculateAverage(data){
+        const avg = (arr) => {
 
-            if(data.length === 0){
+            if(arr.length === 0) return 0;
 
-                return 0;
-
-            }
-
-            let total = 0;
-
-            data.forEach(s => {
-
-                total += s.score || 0;
-
-            });
+            const total =
+                arr.reduce(
+                    (sum,s) =>
+                    sum + (s.score || 0),
+                    0
+                );
 
             return (
-                total / data.length
+                total / arr.length
             ).toFixed(2);
 
-        }
+        };
 
         res.json({
 
             maleCount:
-                maleStudents.length,
+                male.length,
 
             femaleCount:
-                femaleStudents.length,
+                female.length,
 
             maleAverage:
-                calculateAverage(maleStudents),
+                avg(male),
 
             femaleAverage:
-                calculateAverage(femaleStudents)
+                avg(female)
 
         });
 
@@ -412,56 +384,48 @@ app.get("/cluster-analytics", async (req, res) => {
 
     try {
 
-        const results =
+        const students =
             await Result.find();
 
-        const clusters = {
+        const easyQuestions =
+            [1,2,6,10];
 
-            easy:[1,2,6,10],
+        const moderateQuestions =
+            [3,4,5];
 
-            moderate:[3,4,5],
+        const hardQuestions =
+            [7,8,9];
 
-            hard:[7,8,9]
+        let easyCorrect = 0;
+        let moderateCorrect = 0;
+        let hardCorrect = 0;
 
-        };
-
-        let analytics = {
-
-            easy:0,
-            moderate:0,
-            hard:0
-
-        };
-
-        let totalStudents =
-            results.length;
-
-        results.forEach(student => {
+        students.forEach(student => {
 
             if(!student.answers) return;
 
-            student.answers.forEach((ans,index) => {
+            student.answers.forEach((answer,index)=>{
 
                 const qNo = index + 1;
 
-                if(ans.isCorrect){
+                if(answer.isCorrect){
 
-                    if(clusters.easy.includes(qNo)){
-
-                        analytics.easy++;
-
+                    if(
+                        easyQuestions.includes(qNo)
+                    ){
+                        easyCorrect++;
                     }
 
-                    if(clusters.moderate.includes(qNo)){
-
-                        analytics.moderate++;
-
+                    if(
+                        moderateQuestions.includes(qNo)
+                    ){
+                        moderateCorrect++;
                     }
 
-                    if(clusters.hard.includes(qNo)){
-
-                        analytics.hard++;
-
+                    if(
+                        hardQuestions.includes(qNo)
+                    ){
+                        hardCorrect++;
                     }
 
                 }
@@ -471,38 +435,92 @@ app.get("/cluster-analytics", async (req, res) => {
         });
 
         const easyTotal =
-            totalStudents * 4;
+            students.length * 4;
 
         const moderateTotal =
-            totalStudents * 3;
+            students.length * 3;
 
         const hardTotal =
-            totalStudents * 3;
+            students.length * 3;
 
         res.json({
 
             easyAccuracy:
                 easyTotal > 0
-                ? (
-                    (analytics.easy / easyTotal) * 100
-                  ).toFixed(2)
-                : 0,
+                ?
+                (
+                    easyCorrect /
+                    easyTotal *
+                    100
+                ).toFixed(2)
+                :
+                0,
 
             moderateAccuracy:
                 moderateTotal > 0
-                ? (
-                    (analytics.moderate / moderateTotal) * 100
-                  ).toFixed(2)
-                : 0,
+                ?
+                (
+                    moderateCorrect /
+                    moderateTotal *
+                    100
+                ).toFixed(2)
+                :
+                0,
 
             hardAccuracy:
                 hardTotal > 0
-                ? (
-                    (analytics.hard / hardTotal) * 100
-                  ).toFixed(2)
-                : 0
+                ?
+                (
+                    hardCorrect /
+                    hardTotal *
+                    100
+                ).toFixed(2)
+                :
+                0
 
         });
+
+    }
+
+    catch(error){
+
+        res.status(500).json({
+
+            success:false,
+            error:error.message
+
+        });
+
+    }
+
+});
+
+/* =====================================
+   SCATTER PLOT DATA
+===================================== */
+
+app.get("/scatter-data", async (req, res) => {
+
+    try {
+
+        const results =
+            await Result.find();
+
+        const data =
+            results.map(student => ({
+
+                name:
+                    student.name,
+
+                score:
+                    student.score || 0,
+
+                thinkingTime:
+                    student.totalThinkingTime || 0
+
+            }));
+
+        res.json(data);
 
     }
 
@@ -527,7 +545,7 @@ app.get("/top-students", async (req, res) => {
 
     try {
 
-        const topStudents =
+        const students =
             await Result.find()
 
             .sort({
@@ -538,7 +556,51 @@ app.get("/top-students", async (req, res) => {
 
             .limit(10);
 
-        res.json(topStudents);
+        res.json(students);
+
+    }
+
+    catch(error){
+
+        res.status(500).json({
+
+            success:false,
+            error:error.message
+
+        });
+
+    }
+
+});
+
+/* =====================================
+   SINGLE STUDENT
+===================================== */
+
+app.get("/student/:email", async (req, res) => {
+
+    try {
+
+        const student =
+            await Result.findOne({
+
+                email:
+                    req.params.email
+
+            });
+
+        if(!student){
+
+            return res.status(404).json({
+
+                success:false,
+                error:"Student Not Found"
+
+            });
+
+        }
+
+        res.json(student);
 
     }
 
@@ -559,8 +621,7 @@ app.get("/top-students", async (req, res) => {
    DELETE RESULT
 ===================================== */
 
-app.delete("/delete-result/:id",
-async (req, res) => {
+app.delete("/delete-result/:id", async (req, res) => {
 
     try {
 
@@ -571,7 +632,7 @@ async (req, res) => {
         res.json({
 
             success:true,
-            message:"Deleted Successfully"
+            message:"Deleted"
 
         });
 

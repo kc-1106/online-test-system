@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-// =========================
-// ANSWER SCHEMA
-// =========================
+/* =====================================
+   ANSWER SCHEMA
+===================================== */
 
 const AnswerSchema = new mongoose.Schema({
 
@@ -20,9 +20,9 @@ const AnswerSchema = new mongoose.Schema({
 
 });
 
-// =========================
-// QUESTION ANALYSIS SCHEMA
-// =========================
+/* =====================================
+   QUESTION ANALYSIS SCHEMA
+===================================== */
 
 const QuestionAnalysisSchema = new mongoose.Schema({
 
@@ -40,98 +40,170 @@ const QuestionAnalysisSchema = new mongoose.Schema({
 
 });
 
-// =========================
-// MAIN RESULT SCHEMA
-// =========================
+/* =====================================
+   RESULT SCHEMA
+===================================== */
 
 const ResultSchema = new mongoose.Schema({
 
-    // =========================
-    // USER DETAILS
-    // =========================
+    /* USER DETAILS */
 
-    name: String,
+    name: {
+        type: String
+    },
+
+    gender: {
+        type: String,
+        default: ""
+    },
+
+    age: {
+        type: Number
+    },
+
+    profession: {
+        type: String
+    },
+
+    experience: {
+        type: String
+    },
+
+    email: {
+        type: String
+    },
+
+    college: {
+        type: String
+    },
+
+    department: {
+        type: String
+    },
+
+    /* BASIC SCORE */
+
+    score: {
+        type: Number,
+        default: 0
+    },
+
+    totalQuestions: {
+        type: Number,
+        default: 10
+    },
+
+    correctAnswers: {
+        type: Number,
+        default: 0
+    },
+
+    wrongAnswers: {
+        type: Number,
+        default: 0
+    },
+
+    accuracy: {
+        type: String,
+        default: "0"
+    },
+
+    /* KPI */
+
+    confidenceScore: {
+        type: Number,
+        default: 0
+    },
+
+    hesitationScore: {
+        type: String,
+        default: "0"
+    },
+
+    completionRate: {
+        type: String,
+        default: "0"
+    },
+
+    skippedByTimeout: {
+        type: Number,
+        default: 0
+    },
+
+    skippedWithTimeRemaining: {
+        type: Number,
+        default: 0
+    },
+
+    attemptedQuestions: {
+        type: Number,
+        default: 0
+    },
+
+    totalThinkingTime: {
+        type: Number,
+        default: 0
+    },
+
+    averageThinkingTime: {
+        type: String,
+        default: "0"
+    },
+
+    fastAnsweredQuestions: {
+        type: Number,
+        default: 0
+    },
+
+    slowAnsweredQuestions: {
+        type: Number,
+        default: 0
+    },
     
-    gender: String,
-    
-    age: Number,
+    /* CLUSTER PERFORMANCE */
 
-    profession: String,
+easyPerformance: {
+    type: Number,
+    default: 0
+},
 
-    experience: String,
+moderatePerformance: {
+    type: Number,
+    default: 0
+},
 
-    email: String,
+hardPerformance: {
+    type: Number,
+    default: 0
+},
 
-    college: String,
+    /* PERFORMANCE BAND */
 
-    department: String,
+    performanceBand: {
+        type: String,
+        default: "Average"
+    },
 
-    // =========================
-    // BASIC TEST RESULT
-    // =========================
+    /* AI ANALYSIS */
 
-    score: Number,
+    behaviorAnalysis: {
+        type: String,
+        default: ""
+    },
 
-    totalQuestions: Number,
-
-    correctAnswers: Number,
-
-    wrongAnswers: Number,
-
-    accuracy: String,
-
-    // =========================
-    // KPI ANALYTICS
-    // =========================
-
-    confidenceScore: Number,
-
-    hesitationScore: String,
-
-    completionRate: String,
-
-    skippedByTimeout: Number,
-
-    skippedWithTimeRemaining: Number,
-
-    attemptedQuestions: Number,
-
-    totalThinkingTime: Number,
-
-    averageThinkingTime: String,
-
-    fastAnsweredQuestions: Number,
-
-    slowAnsweredQuestions: Number,
-
-    // =========================
-    // AI ANALYSIS
-    // =========================
-
-    behaviorAnalysis: String,
-
-    // =========================
-    // QUESTION ANALYSIS
-    // =========================
+    /* QUESTION ANALYSIS */
 
     questionAnalysis: [QuestionAnalysisSchema],
 
-    // =========================
-    // ANSWERS
-    // =========================
+    /* ANSWERS */
 
     answers: [AnswerSchema],
 
-    // =========================
-    // DATE
-    // =========================
+    /* DATE */
 
     submittedAt: {
-
         type: Date,
-
         default: Date.now
-
     }
 
 });
