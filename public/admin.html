@@ -164,7 +164,379 @@ th{
 
 </div>
 
-<script src="admin.js"></script>
+<script>
+
+const BASE =
+"https://online-test-system-pqd0.onrender.com";
+
+let allStudents = [];
+
+async function loadDashboard(){
+
+const response =
+await fetch(BASE + "/results");
+
+const students =
+await response.json();
+
+allStudents = students;
+
+/* KPI */
+
+document.getElementById(
+"totalStudents"
+).innerText = students.length;
+
+let totalScore = 0;
+let totalAccuracy = 0;
+let totalConfidence = 0;
+
+students.forEach(s=>{
+
+totalScore += s.score || 0;
+totalAccuracy += parseFloat(s.accuracy || 0);
+totalConfidence += s.confidenceScore || 0;
+
+});
+
+if(students.length){
+
+document.getElementById(
+"avgScore"
+).innerText =
+(totalScore/students.length).toFixed(2);
+
+document.getElementById(
+"avgAccuracy"
+).innerText =
+(totalAccuracy/students.length).toFixed(2)+"%";
+
+document.getElementById(
+"avgConfidence"
+).innerText =
+(totalConfidence/students.length).toFixed(2);
+
+}
+
+/* OVERALL CLUSTER */
+
+let c1=0,c2=0,c3=0;
+
+students.forEach(student=>{
+
+if(!student.answers) return;
+
+student.answers.forEach((ans,index)=>{
+
+const q=index+1;
+
+if(ans.isCorrect){
+
+if([1,2,6,10].includes(q)) c1++;
+if([3,4,5].includes(q)) c2++;
+if([7,8,9].includes(q)) c3++;
+
+}
+
+});
+
+});
+
+const totalStudents = students.length;
+
+const c1Acc =
+((c1/(totalStudents*4))*100 || 0).toFixed(2);
+
+const c2Acc =
+((c2/(totalStudents*3))*100 || 0).toFixed(2);
+
+const c3Acc =
+((c3/(totalStudents*3))*100 || 0).toFixed(2);
+
+const overall =
+(
+(parseFloat(c1Acc)+
+ parseFloat(c2Acc)+
+ parseFloat(c3Acc))/3
+).toFixed(2);
+
+new ApexCharts(
+
+document.querySelector("#overallChart"),
+
+{
+chart:{type:'bar',height:350},
+
+series:[{
+name:'Accuracy',
+data:[
+Number(c1Acc),
+Number(c2Acc),
+Number(c3Acc),
+Number(overall)
+]
+}],
+
+xaxis:{
+categories:[
+'C1',
+'C2',
+'C3',
+'Overall'
+]
+},
+
+title:{
+text:'Overall Performance'
+},
+
+dataLabels:{
+enabled:true
+}
+
+}
+
+).render();
+
+/* MALE */
+
+const males =
+students.filter(
+s=>s.gender==="Male"
+);
+
+drawGenderChart(
+males,
+"#maleChart",
+"Male Performance"
+);
+
+/* FEMALE */
+
+const females =
+students.filter(
+s=>s.gender==="Female"
+);
+
+drawGenderChart(
+females,
+"#femaleChart",
+"Female Performance"
+);
+
+/* SCATTER */
+
+const scatter =
+await fetch(BASE+"/scatter-data")
+.then(r=>r.json());
+
+new ApexCharts(
+
+document.querySelector("#scatterChart"),
+
+{
+
+chart:{
+type:'scatter',
+height:350
+},
+
+series:[{
+
+name:"Students",
+
+data:
+scatter.map(s=>({
+
+x:s.thinkingTime,
+y:s.score
+
+}))
+
+}],
+
+title:{
+text:'Thinking Time vs Score'
+},
+
+xaxis:{
+title:{
+text:'Thinking Time'
+}
+},
+
+yaxis:{
+title:{
+text:'Score'
+}
+}
+
+}
+
+).render();
+
+/* TABLE */
+
+const sorted =
+[...students]
+.sort((a,b)=>b.score-a.score);
+
+document.getElementById(
+"studentTable"
+).innerHTML =
+sorted.map((s,i)=>`
+
+<tr>
+
+<td>#${i+1}</td>
+
+<td>${s.name||''}</td>
+
+<td>${s.email||''}</td>
+
+<td>${s.gender||''}</td>
+
+<td>${s.score||0}</td>
+
+<td>${s.accuracy||0}%</td>
+
+<td>${s.confidenceScore||0}</td>
+
+</tr>
+
+`).join("");
+
+}
+
+function drawGenderChart(
+students,
+selector,
+title
+){
+
+let c1=0,c2=0,c3=0;
+
+students.forEach(student=>{
+
+if(!student.answers) return;
+
+student.answers.forEach((ans,index)=>{
+
+const q=index+1;
+
+if(ans.isCorrect){
+
+if([1,2,6,10].includes(q)) c1++;
+if([3,4,5].includes(q)) c2++;
+if([7,8,9].includes(q)) c3++;
+
+}
+
+});
+
+});
+
+const total =
+students.length || 1;
+
+const a =
+((c1/(total*4))*100).toFixed(2);
+
+const b =
+((c2/(total*3))*100).toFixed(2);
+
+const c =
+((c3/(total*3))*100).toFixed(2);
+
+const overall =
+(
+(parseFloat(a)+
+ parseFloat(b)+
+ parseFloat(c))/3
+).toFixed(2);
+
+new ApexCharts(
+
+document.querySelector(selector),
+
+{
+
+chart:{
+type:'bar',
+height:350
+},
+
+series:[{
+
+name:'Accuracy',
+
+data:[
+Number(a),
+Number(b),
+Number(c),
+Number(overall)
+]
+
+}],
+
+xaxis:{
+
+categories:[
+'C1',
+'C2',
+'C3',
+'Overall'
+]
+
+},
+
+title:{
+text:title
+},
+
+dataLabels:{
+enabled:true
+}
+
+}
+
+).render();
+
+}
+
+function exportCSV(){
+
+let csv =
+"Name,Email,Gender,Score,Accuracy,Confidence\n";
+
+allStudents.forEach(s=>{
+
+csv +=
+`${s.name},${s.email},${s.gender},${s.score},${s.accuracy},${s.confidenceScore}\n`;
+
+});
+
+const blob =
+new Blob([csv],{
+type:"text/csv"
+});
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(blob);
+
+a.download =
+"student_results.csv";
+
+a.click();
+
+}
+
+loadDashboard();
+
+</script>
 
 </body>
 </html>
