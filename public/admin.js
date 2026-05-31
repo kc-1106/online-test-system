@@ -313,6 +313,161 @@ function generateCharts(data){
     ).render();
 
 }
+
+function generateMaleFemaleClusterChart(data){
+
+    const males =
+        data.filter(
+            s => s.gender &&
+            s.gender.toLowerCase() === "male"
+        );
+
+    const females =
+        data.filter(
+            s => s.gender &&
+            s.gender.toLowerCase() === "female"
+        );
+
+    function clusterAverage(students, questions){
+
+        let totalCorrect = 0;
+
+        let totalPossible =
+            students.length * questions.length;
+
+        students.forEach(student => {
+
+            if(!student.answers) return;
+
+            student.answers.forEach((ans,index)=>{
+
+                const qNo = index + 1;
+
+                if(
+                    questions.includes(qNo) &&
+                    ans.isCorrect
+                ){
+                    totalCorrect++;
+                }
+
+            });
+
+        });
+
+        if(totalPossible === 0) return 0;
+
+        return Number(
+            (
+                totalCorrect /
+                totalPossible *
+                100
+            ).toFixed(2)
+        );
+
+    }
+
+    const cluster1 = [1,2,6,10];
+    const cluster2 = [3,4,5];
+    const cluster3 = [7,8,9];
+
+    const maleData = [
+
+        clusterAverage(
+            males,
+            cluster1
+        ),
+
+        clusterAverage(
+            males,
+            cluster2
+        ),
+
+        clusterAverage(
+            males,
+            cluster3
+        )
+
+    ];
+
+    const femaleData = [
+
+        clusterAverage(
+            females,
+            cluster1
+        ),
+
+        clusterAverage(
+            females,
+            cluster2
+        ),
+
+        clusterAverage(
+            females,
+            cluster3
+        )
+
+    ];
+
+    const options = {
+
+        chart:{
+            type:'line',
+            height:400
+        },
+
+        series:[
+            {
+                name:'Male',
+                data:maleData
+            },
+            {
+                name:'Female',
+                data:femaleData
+            }
+        ],
+
+        xaxis:{
+            categories:[
+                'Cluster 1',
+                'Cluster 2',
+                'Cluster 3'
+            ]
+        },
+
+        stroke:{
+            curve:'smooth',
+            width:4
+        },
+
+        markers:{
+            size:6
+        },
+
+        dataLabels:{
+            enabled:true
+        },
+
+        title:{
+            text:'Cluster-wise Male vs Female Comparison'
+        },
+
+        yaxis:{
+            title:{
+                text:'Accuracy %'
+            },
+            max:100
+        }
+
+    };
+
+    new ApexCharts(
+        document.querySelector(
+            "#maleFemaleClusterChart"
+        ),
+        options
+    ).render();
+
+}
 /* ========================= */
 /* AI INSIGHTS */
 /* ========================= */
@@ -419,3 +574,5 @@ function exportCSV(){
 /* ========================= */
 
 loadDashboard();
+
+generateMaleFemaleClusterChart(data);
