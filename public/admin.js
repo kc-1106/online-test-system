@@ -413,7 +413,7 @@ function generateClusterGenderCharts(data){
 
     new ApexCharts(
         document.querySelector(
-            "#cluster1LineChart"
+            "#cluster1"
         ),
         {
             chart:{
@@ -446,7 +446,7 @@ function generateClusterGenderCharts(data){
 
     new ApexCharts(
         document.querySelector(
-            "#cluster2LineChart"
+            "#cluster2"
         ),
         {
             chart:{
@@ -479,7 +479,7 @@ function generateClusterGenderCharts(data){
 
     new ApexCharts(
         document.querySelector(
-            "#cluster3LineChart"
+            "#cluster3"
         ),
         {
             chart:{
