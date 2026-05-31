@@ -23,7 +23,7 @@ async function loadDashboard(){
 
         generateTable(data);
 
-        generateChart(data);
+        generateCharts(data);
 
         generateAIInsights(data);
 
@@ -318,7 +318,8 @@ function generateCharts(data){
 
 }
 
-function generateClusterGenderCharts(data){
+function generateClusterGenderCharts(data)
+{
 
      alert("Cluster Function Running");
 
