@@ -409,104 +409,52 @@ function generateClusterGenderCharts(data){
             cluster3
         );
 
-    /* CLUSTER 1 */
+    function generateClusterGenderCharts(data){
+
+    // ... your calculateCluster code ...
 
     new ApexCharts(
-        document.querySelector(
-            "#cluster1"
-        ),
+        document.querySelector("#cluster1LineChart"),
         {
             chart:{
                 type:'line',
-                height:300
+                height:350
             },
 
             title:{
-                text:'Cluster 1'
+                text:'Male vs Female Cluster Performance'
             },
 
             series:[
                 {
                     name:'Male',
-                    data:[maleC1]
+                    data:[maleC1,maleC2,maleC3]
                 },
                 {
                     name:'Female',
-                    data:[femaleC1]
+                    data:[femaleC1,femaleC2,femaleC3]
                 }
             ],
 
             xaxis:{
-                categories:['C1']
+                categories:[
+                    'Cluster 1',
+                    'Cluster 2',
+                    'Cluster 3'
+                ]
+            },
+
+            stroke:{
+                width:4
+            },
+
+            markers:{
+                size:6
             }
         }
     ).render();
 
-    /* CLUSTER 2 */
-
-    new ApexCharts(
-        document.querySelector(
-            "#cluster2"
-        ),
-        {
-            chart:{
-                type:'line',
-                height:300
-            },
-
-            title:{
-                text:'Cluster 2'
-            },
-
-            series:[
-                {
-                    name:'Male',
-                    data:[maleC2]
-                },
-                {
-                    name:'Female',
-                    data:[femaleC2]
-                }
-            ],
-
-            xaxis:{
-                categories:['C2']
-            }
-        }
-    ).render();
-
-    /* CLUSTER 3 */
-
-    new ApexCharts(
-        document.querySelector(
-            "#cluster3"
-        ),
-        {
-            chart:{
-                type:'line',
-                height:300
-            },
-
-            title:{
-                text:'Cluster 3'
-            },
-
-            series:[
-                {
-                    name:'Male',
-                    data:[maleC3]
-                },
-                {
-                    name:'Female',
-                    data:[femaleC3]
-                }
-            ],
-
-            xaxis:{
-                categories:['C3']
-            }
-        }
-    ).render();
+}
 
 }
 
