@@ -14,6 +14,9 @@ async function loadDashboard(){
         const response = await fetch(API_URL);
 
         const data = await response.json();
+        
+        console.log("Dashboard Loaded");
+
 
         allResults = data;
 
@@ -454,7 +457,6 @@ function generateClusterGenderCharts(data){
     ).render();
 
 }
-
 
 /* ========================= */
 /* AI INSIGHTS */
