@@ -15,8 +15,7 @@ async function loadDashboard(){
 
         const data = await response.json();
         
-  
-        console.log("Calling Cluster Chart");
+        console.log("Dashboard Loaded");
 
         allResults = data;
 
