@@ -127,56 +127,192 @@ function generateTable(data){
 
 }
 
-/* ========================= */
-/* CHART */
-/* ========================= */
+function generateCharts(data){
 
-function generateChart(data){
+    let c1 = 0;
+    let c2 = 0;
+    let c3 = 0;
 
-    const labels = data.map(s => s.name);
+    let maleC1 = 0;
+    let maleC2 = 0;
+    let maleC3 = 0;
 
-    const scores = data.map(s => s.score);
+    let femaleC1 = 0;
+    let femaleC2 = 0;
+    let femaleC3 = 0;
 
-    const ctx =
-        document.getElementById("scoreChart");
+    let maleCount = 0;
+    let femaleCount = 0;
 
-    new Chart(ctx, {
+    data.forEach(student=>{
 
-        type:"bar",
+        if(!student.answers) return;
 
-        data:{
+        let cluster1Correct = 0;
+        let cluster2Correct = 0;
+        let cluster3Correct = 0;
 
-            labels:labels,
+        student.answers.forEach((ans,index)=>{
 
-            datasets:[{
+            const q=index+1;
 
-                label:"Student Scores",
+            if(ans.isCorrect){
 
-                data:scores,
+                if([1,2,6,10].includes(q))
+                    cluster1Correct++;
 
-                borderWidth:1
+                if([3,4,5].includes(q))
+                    cluster2Correct++;
 
-            }]
-
-        },
-
-        options:{
-
-            responsive:true,
-
-            scales:{
-                y:{
-                    beginAtZero:true,
-                    max:10
-                }
+                if([7,8,9].includes(q))
+                    cluster3Correct++;
             }
+        });
 
+        c1 += cluster1Correct;
+        c2 += cluster2Correct;
+        c3 += cluster3Correct;
+
+        if(student.gender==="Male"){
+
+            maleCount++;
+
+            maleC1 += cluster1Correct;
+            maleC2 += cluster2Correct;
+            maleC3 += cluster3Correct;
+        }
+
+        if(student.gender==="Female"){
+
+            femaleCount++;
+
+            femaleC1 += cluster1Correct;
+            femaleC2 += cluster2Correct;
+            femaleC3 += cluster3Correct;
         }
 
     });
 
-}
+    const totalStudents=data.length;
 
+    const overall=
+    (
+        (c1+c2+c3)/
+        (totalStudents*10)
+    )*100;
+
+    const overallChart = new ApexCharts(
+        document.querySelector("#overallChart"),
+        {
+            chart:{
+                type:"bar",
+                height:350
+            },
+
+            series:[{
+                name:"Accuracy %",
+                data:[
+                    (c1/(totalStudents*4)*100).toFixed(2),
+                    (c2/(totalStudents*3)*100).toFixed(2),
+                    (c3/(totalStudents*3)*100).toFixed(2),
+                    overall.toFixed(2)
+                ]
+            }],
+
+            xaxis:{
+                categories:[
+                    "Cluster 1",
+                    "Cluster 2",
+                    "Cluster 3",
+                    "Overall"
+                ]
+            },
+
+            title:{
+                text:"Overall Performance"
+            }
+        }
+    );
+
+    overallChart.render();
+
+    const maleOverall=
+    (
+        (maleC1+maleC2+maleC3)/
+        (maleCount*10 || 1)
+    )*100;
+
+    new ApexCharts(
+        document.querySelector("#maleChart"),
+        {
+            chart:{
+                type:"bar",
+                height:350
+            },
+
+            series:[{
+                data:[
+                    (maleC1/(maleCount*4 || 1)*100).toFixed(2),
+                    (maleC2/(maleCount*3 || 1)*100).toFixed(2),
+                    (maleC3/(maleCount*3 || 1)*100).toFixed(2),
+                    maleOverall.toFixed(2)
+                ]
+            }],
+
+            xaxis:{
+                categories:[
+                    "Cluster 1",
+                    "Cluster 2",
+                    "Cluster 3",
+                    "Overall"
+                ]
+            },
+
+            title:{
+                text:"Male Performance"
+            }
+        }
+    ).render();
+
+    const femaleOverall=
+    (
+        (femaleC1+femaleC2+femaleC3)/
+        (femaleCount*10 || 1)
+    )*100;
+
+    new ApexCharts(
+        document.querySelector("#femaleChart"),
+        {
+            chart:{
+                type:"bar",
+                height:350
+            },
+
+            series:[{
+                data:[
+                    (femaleC1/(femaleCount*4 || 1)*100).toFixed(2),
+                    (femaleC2/(femaleCount*3 || 1)*100).toFixed(2),
+                    (femaleC3/(femaleCount*3 || 1)*100).toFixed(2),
+                    femaleOverall.toFixed(2)
+                ]
+            }],
+
+            xaxis:{
+                categories:[
+                    "Cluster 1",
+                    "Cluster 2",
+                    "Cluster 3",
+                    "Overall"
+                ]
+            },
+
+            title:{
+                text:"Female Performance"
+            }
+        }
+    ).render();
+
+}
 /* ========================= */
 /* AI INSIGHTS */
 /* ========================= */
