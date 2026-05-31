@@ -409,9 +409,8 @@ function generateClusterGenderCharts(data){
             cluster3
         );
 
-    function generateClusterGenderCharts(data){
-
-    // ... your calculateCluster code ...
+        console.log(maleC1,maleC2,maleC3);
+        console.log(femaleC1,femaleC2,femaleC3);
 
     new ApexCharts(
         document.querySelector("#cluster1LineChart"),
@@ -456,7 +455,6 @@ function generateClusterGenderCharts(data){
 
 }
 
-}
 
 /* ========================= */
 /* AI INSIGHTS */
