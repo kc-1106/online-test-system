@@ -16,7 +16,7 @@ async function loadDashboard(){
         const data = await response.json();
         
         console.log("Dashboard Loaded");
-
+        console.log("Calling Cluster Chart");
 
         allResults = data;
 
@@ -320,6 +320,8 @@ function generateCharts(data){
 }
 
 function generateClusterGenderCharts(data){
+
+     alert("Cluster Function Running");
 
     const males =
         data.filter(
