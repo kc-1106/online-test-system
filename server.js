@@ -652,6 +652,120 @@ app.delete("/delete-result/:id", async (req, res) => {
 });
 
 /* =====================================
+   PERFORMANCE BY GENDER
+===================================== */
+
+app.get("/performance-by-gender", async (req, res) => {
+
+    try {
+
+        const students = await Result.find();
+
+        const easyQuestions = [1,2,6,10];
+        const moderateQuestions = [3,4,5];
+        const hardQuestions = [7,8,9];
+
+        function calculatePerformance(studentList){
+
+            let easyCorrect = 0;
+            let moderateCorrect = 0;
+            let hardCorrect = 0;
+
+            studentList.forEach(student => {
+
+                if(!student.answers) return;
+
+                student.answers.forEach((answer,index) => {
+
+                    const qNo = index + 1;
+
+                    if(answer.isCorrect){
+
+                        if(easyQuestions.includes(qNo))
+                            easyCorrect++;
+
+                        if(moderateQuestions.includes(qNo))
+                            moderateCorrect++;
+
+                        if(hardQuestions.includes(qNo))
+                            hardCorrect++;
+                    }
+
+                });
+
+            });
+
+            const totalStudents = studentList.length;
+
+            const easyTotal = totalStudents * 4;
+            const moderateTotal = totalStudents * 3;
+            const hardTotal = totalStudents * 3;
+
+            const easy =
+                easyTotal > 0
+                ? Number(((easyCorrect/easyTotal)*100).toFixed(2))
+                : 0;
+
+            const moderate =
+                moderateTotal > 0
+                ? Number(((moderateCorrect/moderateTotal)*100).toFixed(2))
+                : 0;
+
+            const hard =
+                hardTotal > 0
+                ? Number(((hardCorrect/hardTotal)*100).toFixed(2))
+                : 0;
+
+            const overall =
+                Number(((easy + moderate + hard)/3).toFixed(2));
+
+            return {
+                easy,
+                moderate,
+                hard,
+                overall
+            };
+        }
+
+        const males =
+            students.filter(
+                s => (s.gender || "").toLowerCase() === "male"
+            );
+
+        const females =
+            students.filter(
+                s => (s.gender || "").toLowerCase() === "female"
+            );
+
+        res.json({
+
+            overall:
+                calculatePerformance(students),
+
+            male:
+                calculatePerformance(males),
+
+            female:
+                calculatePerformance(females)
+
+        });
+
+    }
+
+    catch(error){
+
+        res.status(500).json({
+
+            success:false,
+            error:error.message
+
+        });
+
+    }
+
+});
+
+/* =====================================
    SERVER
 ===================================== */
 
