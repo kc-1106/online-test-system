@@ -375,6 +375,8 @@ text:'Score'
 
 ).render();
 
+generateClusterGenderCharts(students);
+
 /* TABLE */
 
 const sorted =
@@ -501,6 +503,111 @@ enabled:true
 }
 
 ).render();
+
+}
+
+function generateClusterGenderCharts(students){
+
+    const males =
+        students.filter(s => s.gender === "Male");
+
+    const females =
+        students.filter(s => s.gender === "Female");
+
+    function clusterAccuracy(group, questions){
+
+        let correct = 0;
+
+        group.forEach(student => {
+
+            if(!student.answers) return;
+
+            student.answers.forEach((ans,index)=>{
+
+                const qNo = index + 1;
+
+                if(
+                    questions.includes(qNo) &&
+                    ans.isCorrect
+                ){
+                    correct++;
+                }
+
+            });
+
+        });
+
+        const total =
+            group.length * questions.length;
+
+        return total
+            ? Number(
+                (
+                    correct /
+                    total *
+                    100
+                ).toFixed(2)
+            )
+            : 0;
+
+    }
+
+    const maleData = [
+
+        clusterAccuracy(males,[1,2,6,10]),
+        clusterAccuracy(males,[3,4,5]),
+        clusterAccuracy(males,[7,8,9])
+
+    ];
+
+    const femaleData = [
+
+        clusterAccuracy(females,[1,2,6,10]),
+        clusterAccuracy(females,[3,4,5]),
+        clusterAccuracy(females,[7,8,9])
+
+    ];
+
+    new ApexCharts(
+        document.querySelector("#cluster1LineChart"),
+        {
+            chart:{
+                type:'line',
+                height:350
+            },
+
+            series:[
+                {
+                    name:'Male',
+                    data:maleData
+                },
+                {
+                    name:'Female',
+                    data:femaleData
+                }
+            ],
+
+            xaxis:{
+                categories:[
+                    'Cluster 1',
+                    'Cluster 2',
+                    'Cluster 3'
+                ]
+            },
+
+            title:{
+                text:'Cluster-wise Male vs Female Comparison'
+            },
+
+            stroke:{
+                width:4
+            },
+
+            markers:{
+                size:6
+            }
+        }
+    ).render();
 
 }
 
