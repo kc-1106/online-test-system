@@ -1,768 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSVT-R KPI Dashboard</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <style>
 
-/* ========================= */
-/* GLOBAL */
-/* ========================= */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
-
 body{
-
-    background:#f1f5f9;
-
-    padding:25px;
+    font-family:Arial, sans-serif;
+    background:#f5f7fb;
+    margin:0;
+    padding:20px;
 }
 
-/* ========================= */
-/* HEADER */
-/* ========================= */
-
-.header{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:30px;
+h1{
+    text-align:center;
+    margin-bottom:20px;
 }
 
-.header h1{
-
-    color:#0f172a;
-
-    font-size:38px;
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
 }
 
-.export-buttons{
-
-    display:flex;
-
-    gap:15px;
-}
-
-.export-buttons button{
-
-    padding:14px 24px;
-
-    border:none;
-
+.card{
+    background:white;
+    padding:20px;
     border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
 
+.kpi{
+    text-align:center;
+}
+
+.kpi h2{
+    color:#2563eb;
+    margin-top:10px;
+}
+
+.chart{
+    height:350px;
+}
+
+button{
     background:#2563eb;
-
     color:white;
-
-    font-size:16px;
-
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
     cursor:pointer;
 }
 
-.export-buttons button:hover{
-
-    background:#1d4ed8;
-}
-
-/* ========================= */
-/* KPI CARDS */
-/* ========================= */
-
-.kpi-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(auto-fit,minmax(250px,1fr));
-
-    gap:20px;
-
-    margin-bottom:35px;
-}
-
-.kpi-card{
-
-    background:white;
-
-    padding:25px;
-
-    border-radius:20px;
-
-    box-shadow:
-        0px 0px 15px rgba(0,0,0,0.08);
-}
-
-.kpi-card h3{
-
-    color:#475569;
-
-    margin-bottom:15px;
-}
-
-.kpi-value{
-
-    font-size:42px;
-
-    font-weight:bold;
-
-    color:#2563eb;
-}
-
-/* ========================= */
-/* CHARTS */
-/* ========================= */
-
-.chart-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(auto-fit,minmax(500px,1fr));
-
-    gap:25px;
-
-    margin-bottom:35px;
-}
-
-.chart-card{
-
-    background:white;
-
-    padding:25px;
-
-    border-radius:20px;
-
-    box-shadow:
-        0px 0px 15px rgba(0,0,0,0.08);
-}
-
-.chart-card h2{
-
-    margin-bottom:20px;
-
-    color:#0f172a;
-}
-
-/* ========================= */
-/* AI INSIGHTS */
-/* ========================= */
-
-.ai-panel{
-
-    background:white;
-
-    padding:30px;
-
-    border-radius:20px;
-
-    margin-bottom:35px;
-
-    box-shadow:
-        0px 0px 15px rgba(0,0,0,0.08);
-}
-
-.ai-panel h2{
-
-    margin-bottom:20px;
-
-    color:#0f172a;
-}
-
-.ai-insight{
-
-    padding:18px;
-
-    background:#f8fafc;
-
-    border-left:5px solid #2563eb;
-
-    border-radius:10px;
-
-    margin-bottom:15px;
-}
-
-/* ========================= */
-/* STUDENT TABLE */
-/* ========================= */
-
-.table-container{
-
-    background:white;
-
-    padding:25px;
-
-    border-radius:20px;
-
-    box-shadow:
-        0px 0px 15px rgba(0,0,0,0.08);
-
-    overflow-x:auto;
-}
-
 table{
-
     width:100%;
-
     border-collapse:collapse;
 }
 
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
 th{
-
     background:#2563eb;
-
     color:white;
-
-    padding:16px;
-
-    text-align:left;
-}
-
-td{
-
-    padding:14px;
-
-    border-bottom:1px solid #e2e8f0;
-}
-
-tr:hover{
-
-    background:#f8fafc;
-}
-
-.rank{
-
-    font-weight:bold;
-
-    color:#2563eb;
-}
-
-.high{
-
-    color:green;
-
-    font-weight:bold;
-}
-
-.medium{
-
-    color:orange;
-
-    font-weight:bold;
-}
-
-.low{
-
-    color:red;
-
-    font-weight:bold;
 }
 
 </style>
-
 </head>
-
 <body>
 
-<!-- ========================= -->
-<!-- HEADER -->
-<!-- ========================= -->
+<h1>PSVT-R KPI Dashboard</h1>
 
-<div class="header">
+<div class="grid">
 
-    <h1>PSVT-R KPI Analytics Dashboard</h1>
+<div class="card kpi">
+<h3>Total Students</h3>
+<h2 id="totalStudents">0</h2>
+</div>
 
-    <div class="export-buttons">
+<div class="card kpi">
+<h3>Average Score</h3>
+<h2 id="avgScore">0</h2>
+</div>
 
-        <button onclick="exportExcel()">
+<div class="card kpi">
+<h3>Average Accuracy</h3>
+<h2 id="avgAccuracy">0%</h2>
+</div>
 
-            Export Excel
-
-        </button>
-
-        <button onclick="window.print()">
-
-            Export PDF
-
-        </button>
-
-    </div>
+<div class="card kpi">
+<h3>Average Confidence</h3>
+<h2 id="avgConfidence">0</h2>
+</div>
 
 </div>
 
-<!-- ========================= -->
-<!-- KPI CARDS -->
-<!-- ========================= -->
+<br>
 
-<div class="kpi-grid">
+<div class="grid">
 
-    <div class="kpi-card">
+<div class="card">
+<div id="overallChart"></div>
+</div>
 
-        <h3>Total Students</h3>
+<div class="card">
+<div id="maleChart"></div>
+</div>
 
-        <div
-            class="kpi-value"
-            id="totalStudents">
-            0
-        </div>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <h3>Average Score</h3>
-
-        <div
-            class="kpi-value"
-            id="avgScore">
-            0
-        </div>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <h3>Average Accuracy</h3>
-
-        <div
-            class="kpi-value"
-            id="avgAccuracy">
-            0%
-        </div>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <h3>Average Confidence</h3>
-
-        <div
-            class="kpi-value"
-            id="avgConfidence">
-            0
-        </div>
-
-    </div>
+<div class="card">
+<div id="femaleChart"></div>
+</div>
 
 </div>
 
-<!-- ========================= -->
-<!-- CHARTS -->
-<!-- ========================= -->
+<br>
 
-<div class="chart-grid">
-
-    <div class="chart-card">
-
-        <h2>Score Distribution</h2>
-
-        <canvas id="scoreChart"></canvas>
-
-    </div>
-
-    <div class="chart-card">
-
-        <h2>Confidence Analytics</h2>
-
-        <canvas id="confidenceChart"></canvas>
-
-    </div>
-
+<div class="card">
+<div id="scatterChart"></div>
 </div>
 
-<!-- ========================= -->
-<!-- AI INSIGHTS -->
-<!-- ========================= -->
+<br>
 
-<div class="ai-panel">
-
-    <h2>AI Behavior Insights</h2>
-
-    <div id="aiInsights"></div>
-
+<div class="card">
+<button onclick="exportCSV()">Export CSV</button>
 </div>
 
-<!-- ========================= -->
-<!-- STUDENT TABLE -->
-<!-- ========================= -->
+<br>
 
-<div class="table-container">
+<div class="card">
 
-    <h2 style="margin-bottom:20px;">
+<h2>Student Ranking</h2>
 
-        Student Performance Ranking
+<table>
 
-    </h2>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Name</th>
+<th>Email</th>
+<th>Gender</th>
+<th>Score</th>
+<th>Accuracy</th>
+<th>Confidence</th>
+</tr>
+</thead>
 
-    <table>
+<tbody id="studentTable"></tbody>
 
-        <thead>
-
-            <tr>
-
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Score</th>
-                <th>Accuracy</th>
-                <th>Confidence</th>
-                <th>Behavior</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody id="studentTable"></tbody>
-
-    </table>
+</table>
 
 </div>
 
 <script>
 
-const API =
-"https://online-test-system-pqd0.onrender.com/results";
+const BASE =
+"https://online-test-system-pqd0.onrender.com";
 
-let allResults = [];
-
-// =========================
-// LOAD DASHBOARD
-// =========================
+let allStudents = [];
 
 async function loadDashboard(){
 
-    try{
+const response =
+await fetch(BASE + "/results");
 
-        const response = await fetch(API);
+const students =
+await response.json();
 
-        const data = await response.json();
+allStudents = students;
 
-        allResults = data;
+/* KPI */
 
-        buildKPI(data);
+document.getElementById(
+"totalStudents"
+).innerText = students.length;
 
-        buildCharts(data);
+let totalScore = 0;
+let totalAccuracy = 0;
+let totalConfidence = 0;
 
-        buildAIInsights(data);
+students.forEach(s=>{
 
-        buildTable(data);
+totalScore += s.score || 0;
+totalAccuracy += parseFloat(s.accuracy || 0);
+totalConfidence += s.confidenceScore || 0;
 
-    }
+});
 
-    catch(error){
+if(students.length){
 
-        console.log(error);
+document.getElementById(
+"avgScore"
+).innerText =
+(totalScore/students.length).toFixed(2);
 
-        alert("Failed To Load Dashboard");
+document.getElementById(
+"avgAccuracy"
+).innerText =
+(totalAccuracy/students.length).toFixed(2)+"%";
 
-    }
-
-}
-
-// =========================
-// KPI
-// =========================
-
-function buildKPI(data){
-
-    document.getElementById(
-        "totalStudents"
-    ).innerText = data.length;
-
-    let totalScore = 0;
-
-    let totalAccuracy = 0;
-
-    let totalConfidence = 0;
-
-    data.forEach(student => {
-
-        totalScore += student.score || 0;
-
-        totalAccuracy +=
-            parseFloat(student.accuracy) || 0;
-
-        totalConfidence +=
-            student.confidenceScore || 0;
-
-    });
-
-    const avgScore =
-        (totalScore / data.length).toFixed(2);
-
-    const avgAccuracy =
-        (totalAccuracy / data.length).toFixed(2);
-
-    const avgConfidence =
-        (totalConfidence / data.length).toFixed(2);
-
-    document.getElementById(
-        "avgScore"
-    ).innerText = avgScore;
-
-    document.getElementById(
-        "avgAccuracy"
-    ).innerText = avgAccuracy + "%";
-
-    document.getElementById(
-        "avgConfidence"
-    ).innerText = avgConfidence;
+document.getElementById(
+"avgConfidence"
+).innerText =
+(totalConfidence/students.length).toFixed(2);
 
 }
 
-// =========================
-// CHARTS
-// =========================
+/* OVERALL CLUSTER */
 
-function buildCharts(data){
+let c1=0,c2=0,c3=0;
 
-    const names =
-        data.map(x => x.name);
+students.forEach(student=>{
 
-    const scores =
-        data.map(x => x.score);
+if(!student.answers) return;
 
-    const confidence =
-        data.map(x => x.confidenceScore);
+student.answers.forEach((ans,index)=>{
 
-    new Chart(
+const q=index+1;
 
-        document.getElementById("scoreChart"),
+if(ans.isCorrect){
 
-        {
-
-            type:"bar",
-
-            data:{
-
-                labels:names,
-
-                datasets:[{
-
-                    label:"Score",
-
-                    data:scores
-
-                }]
-
-            }
-
-        }
-
-    );
-
-    new Chart(
-
-        document.getElementById("confidenceChart"),
-
-        {
-
-            type:"line",
-
-            data:{
-
-                labels:names,
-
-                datasets:[{
-
-                    label:"Confidence Score",
-
-                    data:confidence
-
-                }]
-
-            }
-
-        }
-
-    );
+if([1,2,6,10].includes(q)) c1++;
+if([3,4,5].includes(q)) c2++;
+if([7,8,9].includes(q)) c3++;
 
 }
 
-// =========================
-// AI INSIGHTS
-// =========================
+});
 
-function buildAIInsights(data){
+});
 
-    let html = "";
+const totalStudents = students.length;
 
-    data.forEach(student => {
+const c1Acc =
+((c1/(totalStudents*4))*100 || 0).toFixed(2);
 
-        let level = "Medium";
+const c2Acc =
+((c2/(totalStudents*3))*100 || 0).toFixed(2);
 
-        if(student.confidenceScore >= 80){
+const c3Acc =
+((c3/(totalStudents*3))*100 || 0).toFixed(2);
 
-            level = "High";
+const overall =
+(
+(parseFloat(c1Acc)+
+ parseFloat(c2Acc)+
+ parseFloat(c3Acc))/3
+).toFixed(2);
 
-        }
+new ApexCharts(
 
-        else if(student.confidenceScore <= 40){
+document.querySelector("#overallChart"),
 
-            level = "Low";
+{
+chart:{type:'bar',height:350},
 
-        }
+series:[{
+name:'Accuracy',
+data:[
+Number(c1Acc),
+Number(c2Acc),
+Number(c3Acc),
+Number(overall)
+]
+}],
 
-        html += `
+xaxis:{
+categories:[
+'C1',
+'C2',
+'C3',
+'Overall'
+]
+},
 
-            <div class="ai-insight">
+title:{
+text:'Overall Performance'
+},
 
-                <strong>${student.name}</strong>
-
-                shows
-
-                <strong>${level}</strong>
-
-                confidence behavior.
-
-                AI Analysis:
-
-                ${student.behaviorAnalysis}
-
-            </div>
-
-        `;
-
-    });
-
-    document.getElementById(
-        "aiInsights"
-    ).innerHTML = html;
+dataLabels:{
+enabled:true
+}
 
 }
 
-// =========================
-// TABLE
-// =========================
+).render();
 
-function buildTable(data){
+/* MALE */
 
-    data.sort((a,b) => b.score - a.score);
+const males =
+students.filter(
+s=>s.gender==="Male"
+);
 
-    let html = "";
+drawGenderChart(
+males,
+"#maleChart",
+"Male Performance"
+);
 
-    data.forEach((student,index) => {
+/* FEMALE */
 
-        let confidenceClass = "medium";
+const females =
+students.filter(
+s=>s.gender==="Female"
+);
 
-        if(student.confidenceScore >= 80){
+drawGenderChart(
+females,
+"#femaleChart",
+"Female Performance"
+);
 
-            confidenceClass = "high";
+/* SCATTER */
 
-        }
+const scatter =
+await fetch(BASE+"/scatter-data")
+.then(r=>r.json());
 
-        else if(student.confidenceScore <= 40){
+new ApexCharts(
 
-            confidenceClass = "low";
+document.querySelector("#scatterChart"),
 
-        }
+{
 
-        html += `
+chart:{
+type:'scatter',
+height:350
+},
 
-            <tr>
+series:[{
 
-                <td class="rank">
-                    #${index + 1}
-                </td>
+name:"Students",
 
-                <td>
-                    ${student.name}
-                </td>
+data:
+scatter.map(s=>({
 
-                <td>
-                    ${student.email}
-                </td>
+x:s.thinkingTime,
+y:s.score
 
-                <td>
-                    ${student.score}
-                </td>
+}))
 
-                <td>
-                    ${student.accuracy}
-                </td>
+}],
 
-                <td class="${confidenceClass}">
-                    ${student.confidenceScore}
-                </td>
+title:{
+text:'Thinking Time vs Score'
+},
 
-                <td>
-                    ${student.behaviorAnalysis}
-                </td>
+xaxis:{
+title:{
+text:'Thinking Time'
+}
+},
 
-            </tr>
-
-        `;
-
-    });
-
-    document.getElementById(
-        "studentTable"
-    ).innerHTML = html;
+yaxis:{
+title:{
+text:'Score'
+}
+}
 
 }
 
-// =========================
-// EXPORT EXCEL
-// =========================
+).render();
 
-function exportExcel(){
+/* TABLE */
 
-    let csv =
-        "Name,Email,Score,Accuracy,Confidence\n";
+const sorted =
+[...students]
+.sort((a,b)=>b.score-a.score);
 
-    allResults.forEach(student => {
+document.getElementById(
+"studentTable"
+).innerHTML =
+sorted.map((s,i)=>`
 
-        csv +=
-            `${student.name},` +
-            `${student.email},` +
-            `${student.score},` +
-            `${student.accuracy},` +
-            `${student.confidenceScore}\n`;
+<tr>
 
-    });
+<td>#${i+1}</td>
 
-    const blob =
-        new Blob([csv], {
+<td>${s.name||''}</td>
 
-            type:"text/csv"
+<td>${s.email||''}</td>
 
-        });
+<td>${s.gender||''}</td>
 
-    const url =
-        window.URL.createObjectURL(blob);
+<td>${s.score||0}</td>
 
-    const a =
-        document.createElement("a");
+<td>${s.accuracy||0}%</td>
 
-    a.href = url;
+<td>${s.confidenceScore||0}</td>
 
-    a.download = "student_results.csv";
+</tr>
 
-    a.click();
+`).join("");
 
 }
 
-// =========================
-// START
-// =========================
+function drawGenderChart(
+students,
+selector,
+title
+){
+
+let c1=0,c2=0,c3=0;
+
+students.forEach(student=>{
+
+if(!student.answers) return;
+
+student.answers.forEach((ans,index)=>{
+
+const q=index+1;
+
+if(ans.isCorrect){
+
+if([1,2,6,10].includes(q)) c1++;
+if([3,4,5].includes(q)) c2++;
+if([7,8,9].includes(q)) c3++;
+
+}
+
+});
+
+});
+
+const total =
+students.length || 1;
+
+const a =
+((c1/(total*4))*100).toFixed(2);
+
+const b =
+((c2/(total*3))*100).toFixed(2);
+
+const c =
+((c3/(total*3))*100).toFixed(2);
+
+const overall =
+(
+(parseFloat(a)+
+ parseFloat(b)+
+ parseFloat(c))/3
+).toFixed(2);
+
+new ApexCharts(
+
+document.querySelector(selector),
+
+{
+
+chart:{
+type:'bar',
+height:350
+},
+
+series:[{
+
+name:'Accuracy',
+
+data:[
+Number(a),
+Number(b),
+Number(c),
+Number(overall)
+]
+
+}],
+
+xaxis:{
+
+categories:[
+'C1',
+'C2',
+'C3',
+'Overall'
+]
+
+},
+
+title:{
+text:title
+},
+
+dataLabels:{
+enabled:true
+}
+
+}
+
+).render();
+
+}
+
+function exportCSV(){
+
+let csv =
+"Name,Email,Gender,Score,Accuracy,Confidence\n";
+
+allStudents.forEach(s=>{
+
+csv +=
+`${s.name},${s.email},${s.gender},${s.score},${s.accuracy},${s.confidenceScore}\n`;
+
+});
+
+const blob =
+new Blob([csv],{
+type:"text/csv"
+});
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(blob);
+
+a.download =
+"student_results.csv";
+
+a.click();
+
+}
 
 loadDashboard();
 
