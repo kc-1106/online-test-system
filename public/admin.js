@@ -25,6 +25,8 @@ async function loadDashboard(){
 
         generateAIInsights(data);
 
+        generateClusterGenderCharts(data);
+
     }
 
     catch(error){
@@ -314,28 +316,33 @@ function generateCharts(data){
 
 }
 
-function generateMaleFemaleClusterChart(data){
+function generateClusterGenderCharts(data){
 
     const males =
         data.filter(
-            s => s.gender &&
-            s.gender.toLowerCase() === "male"
+            s => (s.gender || "")
+            .toLowerCase() === "male"
         );
 
     const females =
         data.filter(
-            s => s.gender &&
-            s.gender.toLowerCase() === "female"
+            s => (s.gender || "")
+            .toLowerCase() === "female"
         );
 
-    function clusterAverage(students, questions){
+    const cluster1 = [1,2,6,10];
+    const cluster2 = [3,4,5];
+    const cluster3 = [7,8,9];
 
-        let totalCorrect = 0;
+    function calculateCluster(students, questions){
 
-        let totalPossible =
-            students.length * questions.length;
+        let correct = 0;
 
-        students.forEach(student => {
+        let total =
+            students.length *
+            questions.length;
+
+        students.forEach(student=>{
 
             if(!student.answers) return;
 
@@ -347,127 +354,162 @@ function generateMaleFemaleClusterChart(data){
                     questions.includes(qNo) &&
                     ans.isCorrect
                 ){
-                    totalCorrect++;
+                    correct++;
                 }
 
             });
 
         });
 
-        if(totalPossible === 0) return 0;
+        if(total === 0) return 0;
 
         return Number(
             (
-                totalCorrect /
-                totalPossible *
+                correct /
+                total *
                 100
             ).toFixed(2)
         );
 
     }
 
-    const cluster1 = [1,2,6,10];
-    const cluster2 = [3,4,5];
-    const cluster3 = [7,8,9];
-
-    const maleData = [
-
-        clusterAverage(
+    const maleC1 =
+        calculateCluster(
             males,
             cluster1
-        ),
+        );
 
-        clusterAverage(
-            males,
-            cluster2
-        ),
-
-        clusterAverage(
-            males,
-            cluster3
-        )
-
-    ];
-
-    const femaleData = [
-
-        clusterAverage(
+    const femaleC1 =
+        calculateCluster(
             females,
             cluster1
-        ),
+        );
 
-        clusterAverage(
+    const maleC2 =
+        calculateCluster(
+            males,
+            cluster2
+        );
+
+    const femaleC2 =
+        calculateCluster(
             females,
             cluster2
-        ),
+        );
 
-        clusterAverage(
+    const maleC3 =
+        calculateCluster(
+            males,
+            cluster3
+        );
+
+    const femaleC3 =
+        calculateCluster(
             females,
             cluster3
-        )
+        );
 
-    ];
-
-    const options = {
-
-        chart:{
-            type:'line',
-            height:400
-        },
-
-        series:[
-            {
-                name:'Male',
-                data:maleData
-            },
-            {
-                name:'Female',
-                data:femaleData
-            }
-        ],
-
-        xaxis:{
-            categories:[
-                'Cluster 1',
-                'Cluster 2',
-                'Cluster 3'
-            ]
-        },
-
-        stroke:{
-            curve:'smooth',
-            width:4
-        },
-
-        markers:{
-            size:6
-        },
-
-        dataLabels:{
-            enabled:true
-        },
-
-        title:{
-            text:'Cluster-wise Male vs Female Comparison'
-        },
-
-        yaxis:{
-            title:{
-                text:'Accuracy %'
-            },
-            max:100
-        }
-
-    };
+    /* CLUSTER 1 */
 
     new ApexCharts(
         document.querySelector(
-            "#maleFemaleClusterChart"
+            "#cluster1LineChart"
         ),
-        options
+        {
+            chart:{
+                type:'line',
+                height:300
+            },
+
+            title:{
+                text:'Cluster 1'
+            },
+
+            series:[
+                {
+                    name:'Male',
+                    data:[maleC1]
+                },
+                {
+                    name:'Female',
+                    data:[femaleC1]
+                }
+            ],
+
+            xaxis:{
+                categories:['C1']
+            }
+        }
+    ).render();
+
+    /* CLUSTER 2 */
+
+    new ApexCharts(
+        document.querySelector(
+            "#cluster2LineChart"
+        ),
+        {
+            chart:{
+                type:'line',
+                height:300
+            },
+
+            title:{
+                text:'Cluster 2'
+            },
+
+            series:[
+                {
+                    name:'Male',
+                    data:[maleC2]
+                },
+                {
+                    name:'Female',
+                    data:[femaleC2]
+                }
+            ],
+
+            xaxis:{
+                categories:['C2']
+            }
+        }
+    ).render();
+
+    /* CLUSTER 3 */
+
+    new ApexCharts(
+        document.querySelector(
+            "#cluster3LineChart"
+        ),
+        {
+            chart:{
+                type:'line',
+                height:300
+            },
+
+            title:{
+                text:'Cluster 3'
+            },
+
+            series:[
+                {
+                    name:'Male',
+                    data:[maleC3]
+                },
+                {
+                    name:'Female',
+                    data:[femaleC3]
+                }
+            ],
+
+            xaxis:{
+                categories:['C3']
+            }
+        }
     ).render();
 
 }
+
 /* ========================= */
 /* AI INSIGHTS */
 /* ========================= */
@@ -574,5 +616,3 @@ function exportCSV(){
 /* ========================= */
 
 loadDashboard();
-
-generateMaleFemaleClusterChart(data);
