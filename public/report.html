@@ -162,148 +162,73 @@ setTimeout(() => {
         return;
     }
 
-    let html = `
+   let html = `
 
-    <h1 style="
-        text-align:center;
-        color:#2563eb;
-    ">
-        PSVT-R Assessment Report
-    </h1>
+<h1 style="text-align:center;color:#2563eb;">
+    PSVT-R Assessment Report
+</h1>
 
-    <div class="info">
+<div class="info">
 
-        <p><strong>Name :</strong>
-        ${report.name}</p>
+    <p><strong>Name:</strong> ${report.name}</p>
 
-        <p><strong>Email :</strong>
-        ${report.email}</p>
+    <p><strong>Email:</strong> ${report.email}</p>
 
-        <p><strong>Gender :</strong>
-        ${report.gender}</p>
+    <p><strong>Gender:</strong> ${report.gender}</p>
 
-        <p><strong>Age :</strong>
-        ${report.age}</p>
+    <p><strong>Age:</strong> ${report.age}</p>
 
-        <p><strong>Profession :</strong>
-        ${report.profession}</p>
+    <p><strong>Profession:</strong> ${report.profession}</p>
 
-        <p><strong>Score :</strong>
-        ${report.score} / ${report.totalQuestions}</p>
+    <p><strong>Accuracy Rate:</strong> ${report.accuracy}%</p>
 
-        <p><strong>Correct Answers :</strong>
-        ${report.correctAnswers}</p>
+</div>
 
-        <p><strong>Wrong Answers :</strong>
-        ${report.wrongAnswers}</p>
+<h2 style="margin-top:30px;">
+    Question Wise Analysis
+</h2>
 
-       <p><strong>Accuracy :</strong>
-       ${report.accuracy}</p>
+<table>
 
-        <p><strong>Confidence Score :</strong>
-        ${report.confidenceScore}</p>
+<tr>
+    <th>Question</th>
+    <th>Your Answer</th>
+    <th>Correct Answer</th>
+    <th>Status</th>
+    <th>Time Taken</th>
+</tr>
 
-        <p><strong>Completion Rate :</strong>
-        ${report.completionRate}%</p>
+`;
 
-        <p><strong>Behavior :</strong>
-        ${report.behaviorAnalysis}</p>
+report.answers.forEach(answer => {
 
-        <p><strong>Average Thinking Time :</strong>
-        ${report.averageThinkingTime} sec</p>
+    html += `
 
-    </div>
+    <tr>
 
-    <h2>Cluster Analysis</h2>
+        <td>${answer.question}</td>
 
-    <table>
+        <td>${answer.selectedOption}</td>
 
-        <tr>
+        <td>${answer.correctAnswer}</td>
 
-            <th>Cluster</th>
-            <th>Performance</th>
+        <td>
+            ${answer.isCorrect
+                ? "✅ Correct"
+                : "❌ Wrong"}
+        </td>
 
-        </tr>
+        <td>${answer.timeTakenInSeconds} sec</td>
 
-        <tr>
-
-            <td>Easy Cluster</td>
-            <td>${report.easyPerformance}%</td>
-
-        </tr>
-
-        <tr>
-
-            <td>Moderate Cluster</td>
-            <td>${report.moderatePerformance}%</td>
-
-        </tr>
-
-        <tr>
-
-            <td>Hard Cluster</td>
-            <td>${report.hardPerformance}%</td>
-
-        </tr>
-
-    </table>
-
-    <h2 style="margin-top:30px;">
-        Question Wise Analysis
-    </h2>
-
-    <table>
-
-        <tr>
-
-            <th>Question</th>
-            <th>Your Answer</th>
-            <th>Correct Answer</th>
-            <th>Status</th>
-            <th>Time Taken</th>
-
-        </tr>
+    </tr>
 
     `;
+});
 
-    report.answers.forEach(answer => {
+html += `</table>`;
 
-        html += `
-
-        <tr>
-
-            <td>${answer.question}</td>
-
-            <td>
-                ${answer.selectedOption}
-            </td>
-
-            <td>
-                ${answer.correctAnswer}
-            </td>
-
-            <td>
-                ${answer.isCorrect
-                    ? "✅ Correct"
-                    : "❌ Wrong"}
-            </td>
-
-            <td>
-                ${answer.timeTakenInSeconds} sec
-            </td>
-
-        </tr>
-
-        `;
-
-    });
-
-    html += `</table>`;
-
-    document.getElementById(
-        "reportData"
-    ).innerHTML = html;
-
+document.getElementById("reportData").innerHTML = html;
+    
 },3000);
 
 </script>
