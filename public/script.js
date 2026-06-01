@@ -805,25 +805,19 @@ async function finishTest(){
                     JSON.stringify(reportData)
             }
         );
-
+        console.log("Save Response:", data);
+        alert("Result Saved Successfully");
         const data =
             await response.json();
 
         console.log(data);
 
-        document.getElementById(
-            "testSection"
-        ).style.display = "none";
+        localStorage.setItem(
+        "reportData",
+        JSON.stringify(reportData)
+        );
 
-        document.getElementById(
-            "result"
-        ).style.display = "block";
-
-        document.getElementById(
-            "scoreText"
-        ).innerText =
-
-            `${score} / ${questions.length}`;
+        window.location.href = "report.html";
 
     }
 
