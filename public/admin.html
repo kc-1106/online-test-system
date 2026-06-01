@@ -375,7 +375,7 @@ text:'Score'
 
 ).render();
 
-generateAgeWiseCharts(students);
+generateClusterGenderCharts(students);
 
 /* TABLE */
 
@@ -506,22 +506,13 @@ enabled:true
 
 }
 
-function generateAgeWiseCharts(students){
+function generateClusterGenderCharts(students){
 
-    const age18_25 =
-        students.filter(
-            s => s.age === "18 to 25 years"
-        );
+    const males =
+        students.filter(s => s.gender === "Male");
 
-    const age26_35 =
-        students.filter(
-            s => s.age === "26 to 35 years"
-        );
-
-    const age36_45 =
-        students.filter(
-            s => s.age === "36 to 45 years"
-        );
+    const females =
+        students.filter(s => s.gender === "Female");
 
     function clusterAccuracy(group, questions){
 
@@ -547,8 +538,7 @@ function generateAgeWiseCharts(students){
         });
 
         const total =
-            group.length *
-            questions.length;
+            group.length * questions.length;
 
         return total
             ? Number(
@@ -559,97 +549,42 @@ function generateAgeWiseCharts(students){
                 ).toFixed(2)
             )
             : 0;
+
     }
 
-    const age18Data = [
+    const maleData = [
 
-        clusterAccuracy(
-            age18_25,
-            [1,2,6,10]
-        ),
-
-        clusterAccuracy(
-            age18_25,
-            [3,4,5]
-        ),
-
-        clusterAccuracy(
-            age18_25,
-            [7,8,9]
-        )
+        clusterAccuracy(males,[1,2,6,10]),
+        clusterAccuracy(males,[3,4,5]),
+        clusterAccuracy(males,[7,8,9])
 
     ];
 
-    const age26Data = [
+    const femaleData = [
 
-        clusterAccuracy(
-            age26_35,
-            [1,2,6,10]
-        ),
-
-        clusterAccuracy(
-            age26_35,
-            [3,4,5]
-        ),
-
-        clusterAccuracy(
-            age26_35,
-            [7,8,9]
-        )
-
-    ];
-
-    const age36Data = [
-
-        clusterAccuracy(
-            age36_45,
-            [1,2,6,10]
-        ),
-
-        clusterAccuracy(
-            age36_45,
-            [3,4,5]
-        ),
-
-        clusterAccuracy(
-            age36_45,
-            [7,8,9]
-        )
+        clusterAccuracy(females,[1,2,6,10]),
+        clusterAccuracy(females,[3,4,5]),
+        clusterAccuracy(females,[7,8,9])
 
     ];
 
     new ApexCharts(
-
-        document.querySelector("#ageChart"),
-
+        document.querySelector("#cluster1LineChart"),
         {
-
             chart:{
                 type:'line',
                 height:350
             },
 
-            title:{
-                text:'Age-wise Cluster Performance'
-            },
-
             series:[
-
                 {
-                    name:'18-25 Years',
-                    data:age18Data
+                    name:'Male',
+                    data:maleData
                 },
-
                 {
-                    name:'26-35 Years',
-                    data:age26Data
-                },
-
-                {
-                    name:'36-45 Years',
-                    data:age36Data
+                    name:'Female',
+                    data:femaleData
                 }
-
             ],
 
             xaxis:{
@@ -660,6 +595,10 @@ function generateAgeWiseCharts(students){
                 ]
             },
 
+            title:{
+                text:'Cluster-wise Male vs Female Comparison'
+            },
+
             stroke:{
                 width:4
             },
@@ -667,9 +606,7 @@ function generateAgeWiseCharts(students){
             markers:{
                 size:6
             }
-
         }
-
     ).render();
 
 }
