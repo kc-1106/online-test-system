@@ -784,47 +784,47 @@ async function finishTest(){
     // =====================================
     // SAVE TO DATABASE
     // =====================================
-
     try{
 
-        const response = await fetch(
+    const response = await fetch(
 
-            "https://online-test-system-pqd0.onrender.com/save-result",
+        "https://online-test-system-pqd0.onrender.com/save-result",
 
-            {
+        {
 
-                method: "POST",
+            method:"POST",
 
-                headers: {
+            headers:{
+                "Content-Type":"application/json"
+            },
 
-                    "Content-Type":
-                        "application/json"
-                },
+            body:JSON.stringify(reportData)
 
-                body:
-                    JSON.stringify(reportData)
-            }
-        );
-        console.log("Save Response:", data);
-        alert("Result Saved Successfully");
-        const data =
-            await response.json();
+        }
 
-        console.log(data);
+    );
 
-        localStorage.setItem(
-        "reportData",
+    const data = await response.json();
+
+    console.log("Saved:", data);
+
+    // SAVE REPORT LOCALLY
+    localStorage.setItem(
+        "testReport",
         JSON.stringify(reportData)
-        );
+    );
 
-        window.location.href = "report.html";
+    // OPEN REPORT PAGE
+    window.location.href =
+        "report.html";
 
-    }
+}
+catch(error){
 
-    catch(error){
+    console.log(error);
 
-        console.log(error);
+    alert("Failed To Save Result");
 
-        alert("Failed To Save Result");
-    }
+}
+
 }
