@@ -1,5 +1,4 @@
 const questions = [
-
     { question: "Question 1", image: "images/q1.png", options: ["A","B","C","D","E"], answer: "C" },
     { question: "Question 2", image: "images/q2.png", options: ["A","B","C","D","E"], answer: "E" },
     { question: "Question 3", image: "images/q3.png", options: ["A","B","C","D","E"], answer: "E" },
@@ -10,49 +9,34 @@ const questions = [
     { question: "Question 8", image: "images/q8.png", options: ["A","B","C","D","E"], answer: "B" },
     { question: "Question 9", image: "images/q9.png", options: ["A","B","C","D","E"], answer: "D" },
     { question: "Question 10", image: "images/q10.png", options: ["A","B","C","D","E"], answer: "C" }
-
 ];
 
 // =====================================
 // QUESTION CLUSTERS
 // =====================================
-
 const clusters = {
-
     easy: [1,2,6,10],
-
     moderate: [3,4,5],
-
     hard: [7,8,9]
-
 };
 
 // =====================================
 // VARIABLES
 // =====================================
-
 let currentQuestion = 0;
-
 let userAnswers = Array(questions.length).fill(null);
-
 let questionTimers = Array(questions.length).fill(60);
-
 let localTimer;
-
 let localTime = 60;
-
 let globalTime = 600;
-
 let globalTimer;
+let isTestActive = false; // Tracks if the user is actively taking the test
 
 // =====================================
 // START TEST
 // =====================================
-
 function startTest(){
-
     const fields = [
-
         "name",
         "gender",
         "age",
@@ -60,253 +44,166 @@ function startTest(){
         "experience",
         "email",
         "college",
-        "department",
-        "gender"
-
+        "department"
     ];
 
     for(let f of fields){
-
-        const val =
-            document.getElementById(f).value.trim();
-
+        const val = document.getElementById(f).value.trim();
         if(val === ""){
-
             alert("Please fill all fields");
-
             return;
         }
     }
 
-    const email =
-        document.getElementById("email").value.trim();
-
-    const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const email = document.getElementById("email").value.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailPattern.test(email)){
-
         alert("Enter Valid Email");
-
         return;
     }
 
-    document.getElementById(
-        "registrationForm"
-    ).style.display = "none";
-
-    document.getElementById(
-        "instructionPage"
-    ).style.display = "block";
+    document.getElementById("registrationForm").style.display = "none";
+    document.getElementById("instructionPage").style.display = "block";
 }
 
 // =====================================
 // BEGIN TEST
 // =====================================
-
 function beginActualTest(){
+    document.getElementById("instructionPage").style.display = "none";
+    document.getElementById("testSection").style.display = "block";
 
-    document.getElementById(
-        "instructionPage"
-    ).style.display = "none";
+    document.getElementById("displayUserName").innerText = document.getElementById("name").value;
+    document.getElementById("displayUserEmail").innerText = document.getElementById("email").value;
 
-    document.getElementById(
-        "testSection"
-    ).style.display = "block";
-
-    document.getElementById(
-        "displayUserName"
-    ).innerText =
-        document.getElementById("name").value;
-
-    document.getElementById(
-        "displayUserEmail"
-    ).innerText =
-        document.getElementById("email").value;
-
+    isTestActive = true; // Security guard is now active
     startGlobalTimer();
-
     loadQuestion();
 }
 
 // =====================================
+// ANTI-MALPRACTICE SECURITY SYSTEM
+// =====================================
+function triggerMalpractice() {
+    // Prevent recursive or duplicate triggers
+    if (!isTestActive) return; 
+    isTestActive = false;
+
+    clearInterval(globalTimer);
+    clearInterval(localTimer);
+
+    alert("Malpractice Detected! You left the test window/tab. Your assessment has been automatically terminated.");
+    
+    // Call finishTest with a flag indicating a security violation
+    finishTest(true);
+}
+
+// Event listener for moving tabs, minimizing windows, or opening OS menus
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden && isTestActive) {
+        triggerMalpractice();
+    }
+});
+
+// Event listener for clicking outside the browser screen or changing applications
+window.addEventListener("blur", () => {
+    if (isTestActive) {
+        triggerMalpractice();
+    }
+});
+
+// =====================================
 // GLOBAL TIMER
 // =====================================
-
 function startGlobalTimer(){
-
     globalTimer = setInterval(() => {
-
         globalTime--;
 
-        let m =
-            Math.floor(globalTime / 60);
+        let m = Math.floor(globalTime / 60);
+        let s = globalTime % 60;
 
-        let s =
-            globalTime % 60;
-
-        document.getElementById(
-            "globalTimer"
-        ).innerText =
-
-            `${m}:${s < 10 ? "0"+s : s}`;
+        document.getElementById("globalTimer").innerText = `${m}:${s < 10 ? "0"+s : s}`;
 
         if(globalTime <= 0){
-
             clearInterval(globalTimer);
-
-            finishTest();
+            isTestActive = false;
+            finishTest(false);
         }
-
-    },1000);
+    }, 1000);
 }
 
 // =====================================
 // LOCAL TIMER
 // =====================================
-
 function startLocalTimer(){
-
     clearInterval(localTimer);
-
-    localTime =
-        questionTimers[currentQuestion];
-
-    document.getElementById(
-        "timer"
-    ).innerText = localTime;
+    localTime = questionTimers[currentQuestion];
+    document.getElementById("timer").innerText = localTime;
 
     localTimer = setInterval(() => {
-
         localTime--;
-
-        questionTimers[currentQuestion] =
-            localTime;
-
-        document.getElementById(
-            "timer"
-        ).innerText = localTime;
+        questionTimers[currentQuestion] = localTime;
+        document.getElementById("timer").innerText = localTime;
 
         if(localTime <= 0){
-
             clearInterval(localTimer);
-
             if(!userAnswers[currentQuestion]){
-
                 saveSkippedAnswer("timeout");
             }
-
             nextQuestion();
         }
-
-    },1000);
+    }, 1000);
 }
 
 // =====================================
 // LOAD QUESTION
 // =====================================
-
 function loadQuestion(){
-
     const q = questions[currentQuestion];
-
-    document.getElementById(
-        "questionTitle"
-    ).innerText = q.question;
-
-    document.getElementById(
-        "questionImage"
-    ).src = q.image;
+    document.getElementById("questionTitle").innerText = q.question;
+    document.getElementById("questionImage").src = q.image;
 
     let html = "";
-
     q.options.forEach(opt => {
-
-        const checked =
-
-            userAnswers[currentQuestion]?.selectedOption === opt
-
-            ? "checked"
-
-            : "";
+        const checked = userAnswers[currentQuestion]?.selectedOption === opt ? "checked" : "";
 
         html += `
-
             <label class="option">
-
-                <input
-                    type="radio"
-                    name="option"
-                    value="${opt}"
-                    ${checked}
+                <input 
+                    type="radio" 
+                    name="option" 
+                    value="${opt}" 
+                    ${checked} 
                     onchange="selectAnswer('${opt}')"
                 >
-
-                <div style="margin-top:10px">
-
-                    ${opt}
-
-                </div>
-
+                <div style="margin-top:10px">${opt}</div>
             </label>
-
         `;
     });
 
-    document.getElementById(
-        "optionsContainer"
-    ).innerHTML = html;
-
+    document.getElementById("optionsContainer").innerHTML = html;
     updateQuestionStatus();
-
     startLocalTimer();
 
-    document.getElementById(
-        "prevBtn"
-    ).disabled = currentQuestion === 0;
-
-    document.getElementById(
-        "nextBtn"
-    ).innerText =
-
-        currentQuestion === questions.length - 1
-
-        ? "Finish Test"
-
-        : "Next Question";
+    document.getElementById("prevBtn").disabled = currentQuestion === 0;
+    document.getElementById("nextBtn").innerText = currentQuestion === questions.length - 1 ? "Finish Test" : "Next Question";
 }
 
 // =====================================
 // SELECT ANSWER
 // =====================================
-
 function selectAnswer(ans){
-
-    const timeTaken =
-
-        60 - questionTimers[currentQuestion];
+    const timeTaken = 60 - questionTimers[currentQuestion];
 
     userAnswers[currentQuestion] = {
-
-        question:
-            questions[currentQuestion].question,
-
-        image:
-            questions[currentQuestion].image,
-
+        question: questions[currentQuestion].question,
+        image: questions[currentQuestion].image,
         selectedOption: ans,
-
-        correctAnswer:
-            questions[currentQuestion].answer,
-
-        isCorrect:
-            ans === questions[currentQuestion].answer,
-
-        timeTakenInSeconds:
-            timeTaken,
-
-        skipReason:
-            "none"
+        correctAnswer: questions[currentQuestion].answer,
+        isCorrect: ans === questions[currentQuestion].answer,
+        timeTakenInSeconds: timeTaken,
+        skipReason: "none"
     };
 
     updateQuestionStatus();
@@ -315,28 +212,14 @@ function selectAnswer(ans){
 // =====================================
 // SAVE SKIPPED
 // =====================================
-
 function saveSkippedAnswer(reason){
-
     userAnswers[currentQuestion] = {
-
-        question:
-            questions[currentQuestion].question,
-
-        image:
-            questions[currentQuestion].image,
-
-        selectedOption:
-            "Not Answered",
-
-        correctAnswer:
-            questions[currentQuestion].answer,
-
-        isCorrect:false,
-
-        timeTakenInSeconds:
-            60 - questionTimers[currentQuestion],
-
+        question: questions[currentQuestion].question,
+        image: questions[currentQuestion].image,
+        selectedOption: "Not Answered",
+        correctAnswer: questions[currentQuestion].answer,
+        isCorrect: false,
+        timeTakenInSeconds: 60 - questionTimers[currentQuestion],
         skipReason: reason
     };
 }
@@ -344,480 +227,226 @@ function saveSkippedAnswer(reason){
 // =====================================
 // QUESTION STATUS
 // =====================================
-
 function updateQuestionStatus(){
-
     let html = "";
 
     for(let i = 0; i < questions.length; i++){
-
         let cls = "white";
 
         if(userAnswers[i]){
-
-            if(
-                userAnswers[i].selectedOption
-                !== "Not Answered"
-            ){
-
-                if(
-                    userAnswers[i]
-                    .timeTakenInSeconds >= 55
-                ){
-
+            if(userAnswers[i].selectedOption !== "Not Answered"){
+                if(userAnswers[i].timeTakenInSeconds >= 55){
                     cls = "orange";
-
-                }else{
-
+                } else {
                     cls = "green";
                 }
-
-            }else{
-
-                if(
-                    userAnswers[i]
-                    .skipReason === "timeout"
-                ){
-
+            } else {
+                if(userAnswers[i].skipReason === "timeout"){
                     cls = "brown";
-
-                }else{
-
+                } else {
                     cls = "red";
                 }
             }
         }
 
         if(i === currentQuestion){
-
             cls += " current";
         }
 
         html += `
-
-            <div
-                class="status-circle ${cls}"
-                onclick="goToQuestion(${i})"
-            >
-
+            <div class="status-circle ${cls}" onclick="goToQuestion(${i})">
                 ${i+1}
-
             </div>
-
         `;
     }
 
-    document.getElementById(
-        "questionStatusContainer"
-    ).innerHTML = html;
+    document.getElementById("questionStatusContainer").innerHTML = html;
 }
 
 // =====================================
 // GO TO QUESTION
 // =====================================
-
 function goToQuestion(i){
-
     clearInterval(localTimer);
-
     if(!userAnswers[currentQuestion]){
-
         saveSkippedAnswer("manual-skip");
     }
-
     currentQuestion = i;
-
     loadQuestion();
 }
 
 // =====================================
 // NEXT QUESTION
 // =====================================
-
 function nextQuestion(){
-
     clearInterval(localTimer);
-
     if(!userAnswers[currentQuestion]){
-
         saveSkippedAnswer("manual-skip");
     }
 
     if(currentQuestion === questions.length - 1){
-
-        finishTest();
-
+        isTestActive = false;
+        finishTest(false);
         return;
     }
 
     currentQuestion++;
-
     loadQuestion();
 }
 
 // =====================================
 // PREVIOUS QUESTION
 // =====================================
-
 function previousQuestion(){
-
     clearInterval(localTimer);
-
     if(!userAnswers[currentQuestion]){
-
         saveSkippedAnswer("manual-skip");
     }
 
     if(currentQuestion > 0){
-
         currentQuestion--;
-
         loadQuestion();
     }
 }
 
 // =====================================
-// FINISH TEST
+// FINISH TEST (Accepts Malpractice Flag)
 // =====================================
-
-async function finishTest(){
-
+async function finishTest(isMalpractice = false){
+    isTestActive = false;
     clearInterval(globalTimer);
-
     clearInterval(localTimer);
 
     let score = 0;
-
     let correctAnswers = 0;
-
     let wrongAnswers = 0;
-
     let skippedByTimeout = 0;
-
     let skippedWithTimeRemaining = 0;
-
     let totalThinkingTime = 0;
-
     let fastAnsweredQuestions = 0;
-
     let slowAnsweredQuestions = 0;
-
     let easyCorrect = 0;
-
     let moderateCorrect = 0;
-
     let hardCorrect = 0;
-
     const questionAnalysis = [];
 
-    // =====================================
-    // ANALYSIS
-    // =====================================
-
-    userAnswers.forEach((a,index) => {
-
+    // Process answers if they completed it regularly
+    userAnswers.forEach((a, index) => {
         if(!a){
-
             skippedWithTimeRemaining++;
-
             return;
         }
 
-        totalThinkingTime +=
-            a.timeTakenInSeconds;
-
-        // CLUSTER ANALYSIS
+        totalThinkingTime += a.timeTakenInSeconds;
 
         if(a.isCorrect){
-
             const qNo = index + 1;
-
-            if(clusters.easy.includes(qNo)){
-
-                easyCorrect++;
-            }
-
-            if(clusters.moderate.includes(qNo)){
-
-                moderateCorrect++;
-            }
-
-            if(clusters.hard.includes(qNo)){
-
-                hardCorrect++;
-            }
+            if(clusters.easy.includes(qNo)) easyCorrect++;
+            if(clusters.moderate.includes(qNo)) moderateCorrect++;
+            if(clusters.hard.includes(qNo)) hardCorrect++;
         }
 
-        // ANSWERED
-
-        if(
-            a.selectedOption !== "Not Answered"
-        ){
-
+        if(a.selectedOption !== "Not Answered"){
             if(a.isCorrect){
-
                 score++;
-
                 correctAnswers++;
-
-            }else{
-
+            } else {
                 wrongAnswers++;
             }
-
-            if(a.timeTakenInSeconds <= 15){
-
-                fastAnsweredQuestions++;
-            }
-
-            if(a.timeTakenInSeconds >= 45){
-
-                slowAnsweredQuestions++;
-            }
-
-        }
-
-        // NOT ANSWERED
-
-        else{
-
+            if(a.timeTakenInSeconds <= 15) fastAnsweredQuestions++;
+            if(a.timeTakenInSeconds >= 45) slowAnsweredQuestions++;
+        } else {
             wrongAnswers++;
-
             if(a.skipReason === "timeout"){
-
                 skippedByTimeout++;
-
-            }else{
-
+            } else {
                 skippedWithTimeRemaining++;
             }
         }
 
         questionAnalysis.push({
-
             questionIndex: index + 1,
-
             selected: a.selectedOption,
-
             correct: a.correctAnswer,
-
             isCorrect: a.isCorrect,
-
             timeSpent: a.timeTakenInSeconds,
-
             skipReason: a.skipReason
-
         });
-
     });
 
-    // =====================================
-    // KPI
-    // =====================================
+    const attemptedQuestions = correctAnswers + wrongAnswers;
+    const accuracy = ((correctAnswers / questions.length) * 100).toFixed(2);
+    const averageThinkingTime = (totalThinkingTime / questions.length).toFixed(2);
+    const confidenceScore = Math.max(0, 100 - (skippedByTimeout * 15 + slowAnsweredQuestions * 5));
+    const hesitationScore = ((slowAnsweredQuestions / questions.length) * 100).toFixed(2);
+    const completionRate = ((attemptedQuestions / questions.length) * 100).toFixed(2);
 
-    const attemptedQuestions =
+    const easyPerformance = ((easyCorrect / 4) * 100).toFixed(2);
+    const moderatePerformance = ((moderateCorrect / 3) * 100).toFixed(2);
+    const hardPerformance = ((hardCorrect / 3) * 100).toFixed(2);
 
-        correctAnswers + wrongAnswers;
-
-    const accuracy =
-
-        (
-            (correctAnswers / questions.length) * 100
-        ).toFixed(2);
-
-    const averageThinkingTime =
-
-        (
-            totalThinkingTime / questions.length
-        ).toFixed(2);
-
-    const confidenceScore =
-
-        Math.max(
-
-            0,
-
-            100 -
-
-            (
-                skippedByTimeout * 15 +
-
-                slowAnsweredQuestions * 5
-            )
-        );
-
-    const hesitationScore =
-
-        (
-            (slowAnsweredQuestions / questions.length)
-            * 100
-        ).toFixed(2);
-
-    const completionRate =
-
-        (
-            (attemptedQuestions / questions.length)
-            * 100
-        ).toFixed(2);
-
-    // =====================================
-    // CLUSTER PERFORMANCE
-    // =====================================
-
-    const easyPerformance =
-
-        (
-            (easyCorrect / 4) * 100
-        ).toFixed(2);
-
-    const moderatePerformance =
-
-        (
-            (moderateCorrect / 3) * 100
-        ).toFixed(2);
-
-    const hardPerformance =
-
-        (
-            (hardCorrect / 3) * 100
-        ).toFixed(2);
-
-    // =====================================
-    // AI ANALYSIS
-    // =====================================
-
-    let behaviorAnalysis =
-        "Balanced Performance";
-
-    if(fastAnsweredQuestions >= 5){
-
-        behaviorAnalysis =
-            "Rapid Responder";
+    // AI Analysis Override for Cheating
+    let behaviorAnalysis = "Balanced Performance";
+    if (isMalpractice) {
+        behaviorAnalysis = "Disqualified (Malpractice)";
+    } else {
+        if(fastAnsweredQuestions >= 5) behaviorAnalysis = "Rapid Responder";
+        if(slowAnsweredQuestions >= 5) behaviorAnalysis = "Deliberate Analyzer";
     }
-
-    if(slowAnsweredQuestions >= 5){
-
-        behaviorAnalysis =
-            "Deliberate Analyzer";
-    }
-
-    // =====================================
-    // REPORT DATA
-    // =====================================
 
     const reportData = {
-
-        name:
-            document.getElementById("name").value,
-
-        gender:
-            document.getElementById("gender").value,
-
-        age:
-            document.getElementById("age").value,
-
-        profession:
-            document.getElementById("profession").value,
-
-        experience:
-            document.getElementById("experience").value,
-
-        email:
-            document.getElementById("email").value,
-
-        college:
-            document.getElementById("college").value,
-
-        department:
-            document.getElementById("department").value,
-
-        gender:
-            document.getElementById("gender").value,
-
-        score,
-
-        totalQuestions:
-            questions.length,
-
-        correctAnswers,
-
-        wrongAnswers,
-
-        accuracy,
-
-        confidenceScore,
-
-        hesitationScore,
-
-        completionRate,
-
-        skippedByTimeout,
-
-        skippedWithTimeRemaining,
-
-        attemptedQuestions,
-
-        totalThinkingTime,
-
-        averageThinkingTime,
-
-        fastAnsweredQuestions,
-
-        slowAnsweredQuestions,
-
-        easyPerformance,
-
-        moderatePerformance,
-
-        hardPerformance,
-
-        behaviorAnalysis,
-
-        questionAnalysis,
-
+        name: document.getElementById("name").value,
+        gender: document.getElementById("gender").value,
+        age: document.getElementById("age").value,
+        profession: document.getElementById("profession").value,
+        experience: document.getElementById("experience").value,
+        email: document.getElementById("email").value,
+        college: document.getElementById("college").value,
+        department: document.getElementById("department").value,
+        score: isMalpractice ? 0 : score, // Force zero score if cheating
+        totalQuestions: questions.length,
+        correctAnswers: isMalpractice ? 0 : correctAnswers,
+        wrongAnswers: isMalpractice ? questions.length : wrongAnswers,
+        accuracy: isMalpractice ? "0.00" : accuracy,
+        confidenceScore: isMalpractice ? 0 : confidenceScore,
+        hesitationScore: isMalpractice ? "100.00" : hesitationScore,
+        completionRate: completionRate,
+        skippedByTimeout: skippedByTimeout,
+        skippedWithTimeRemaining: skippedWithTimeRemaining,
+        attemptedQuestions: attemptedQuestions,
+        totalThinkingTime: totalThinkingTime,
+        averageThinkingTime: averageThinkingTime,
+        fastAnsweredQuestions: fastAnsweredQuestions,
+        slowAnsweredQuestions: slowAnsweredQuestions,
+        easyPerformance: isMalpractice ? "0.00" : easyPerformance,
+        moderatePerformance: isMalpractice ? "0.00" : moderatePerformance,
+        hardPerformance: isMalpractice ? "0.00" : hardPerformance,
+        behaviorAnalysis: behaviorAnalysis,
+        questionAnalysis: questionAnalysis,
         answers: userAnswers,
-
-        submittedAt:
-            new Date()
+        malpracticeDetected: isMalpractice, // Explicit flag sent to the database
+        submittedAt: new Date()
     };
 
     // =====================================
-    // SAVE TO DATABASE
+    // SAVE TO DATABASE & REDIRECT
     // =====================================
     try {
+        localStorage.setItem("testReport", JSON.stringify(reportData));
+        console.log("Report Saved To LocalStorage");
 
-    localStorage.setItem(
-        "testReport",
-        JSON.stringify(reportData)
-    );
-
-    console.log("Report Saved To LocalStorage");
-
-    const response = await fetch(
-        "https://online-test-system-pqd0.onrender.com/save-result",
-        {
+        const response = await fetch("https://online-test-system-pqd0.onrender.com/save-result", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(reportData)
-        }
-    );
+        });
 
-    const data = await response.json();
-
-    console.log(data);
-
-    window.location.href = "report.html";
-
-}
-catch(error){
-
-    console.log(error);
-
-    // Even if DB fails, report should still open
-    window.location.href = "report.html";
-
-}
-
+        const data = await response.json();
+        console.log(data);
+        window.location.href = "report.html";
+    }
+    catch(error){
+        console.log(error);
+        window.location.href = "report.html";
+    }
 }
