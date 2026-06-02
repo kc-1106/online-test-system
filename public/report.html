@@ -25,7 +25,7 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #2563eb;
         }
 
@@ -40,7 +40,7 @@
         .score-container {
             display: flex;
             gap: 20px;
-            margin: 25px 0;
+            margin: 30px 0;
         }
 
         .score-card {
@@ -67,14 +67,13 @@
             margin-top: 5px;
         }
 
-        /* Custom badge colors based on outcome */
         .score-card.passed { border-left: 5px solid #16a34a; }
         .score-card.passed .value { color: #16a34a; }
         .score-card.failed { border-left: 5px solid #dc2626; }
         .score-card.failed .value { color: #dc2626; }
 
         /* =====================================
-           MALPRACTICE STYLES
+           MALPRACTICE BANNER
            ===================================== */
         .malpractice-banner {
             background: #fef2f2;
@@ -159,28 +158,21 @@
             // Detect Malpractice Status Flag
             const isMalpractice = report.malpracticeDetected === true || report.behaviorAnalysis === "Disqualified (Malpractice)";
 
-            let html = `
-                <h1 style="text-align:center; color:${isMalpractice ? '#dc2626' : '#2563eb'};">
-                    PSVT-R Assessment Report
-                </h1>
-            `;
+            let html = "";
 
             if (isMalpractice) {
+                // 1. RENDER MALPRACTICE REPORT DISPLAY
                 html += `
+                    <h1 style="text-align:center; color:#dc2626;">
+                        Assessment Submitted Successfully
+                    </h1>
+
                     <div class="malpractice-banner">
                         <h2>🚨 ASSESSMENT DISQUALIFIED (MALPRACTICE) 🚨</h2>
                         <p>
                             This test session was terminated immediately because you navigated away from the testing interface. 
                             Under standard examination security protocols, your performance result has been set to zero.
                         </p>
-                    </div>
-
-                    <div class="info">
-                        <p><strong>Name:</strong> ${report.name}</p>
-                        <p><strong>Email:</strong> ${report.email}</p>
-                        <p><strong>Gender:</strong> ${report.gender}</p>
-                        <p><strong>Age:</strong> ${report.age}</p>
-                        <p><strong>Profession:</strong> ${report.profession}</p>
                     </div>
 
                     <div class="score-container">
@@ -197,16 +189,22 @@
                             <div class="value" style="font-size: 24px; padding-top: 10px;">DISQUALIFIED</div>
                         </div>
                     </div>
-                `;
-            } else {
-                html += `
+
                     <div class="info">
+                        <h2 style="margin-top:20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">Participant Profile</h2>
                         <p><strong>Name:</strong> ${report.name}</p>
                         <p><strong>Email:</strong> ${report.email}</p>
                         <p><strong>Gender:</strong> ${report.gender}</p>
                         <p><strong>Age:</strong> ${report.age}</p>
                         <p><strong>Profession:</strong> ${report.profession}</p>
                     </div>
+                `;
+            } else {
+                // 2. RENDER HONEST REPORT DISPLAY (SCORE AT TOP)
+                html += `
+                    <h1 style="text-align:center; color:#2563eb;">
+                        Assessment Submitted Successfully
+                    </h1>
 
                     <div class="score-container">
                         <div class="score-card passed">
@@ -223,7 +221,16 @@
                         </div>
                     </div>
 
-                    <h2 style="margin-top:30px;">Question Wise Analysis</h2>
+                    <div class="info">
+                        <h2 style="margin-top:20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">Participant Profile</h2>
+                        <p><strong>Name:</strong> ${report.name}</p>
+                        <p><strong>Email:</strong> ${report.email}</p>
+                        <p><strong>Gender:</strong> ${report.gender}</p>
+                        <p><strong>Age:</strong> ${report.age}</p>
+                        <p><strong>Profession:</strong> ${report.profession}</p>
+                    </div>
+
+                    <h2 style="margin-top:40px;">Question Wise Analysis</h2>
                     <table>
                         <tr>
                             <th>Question</th>
