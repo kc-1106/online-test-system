@@ -35,16 +35,17 @@
         }
 
         /* =====================================
-           SCORE DISPLAY BADGES
+           SCORE DISPLAY BADGE (CENTERED)
            ===================================== */
         .score-container {
             display: flex;
-            gap: 20px;
+            justify-content: center;
             margin: 30px 0;
         }
 
         .score-card {
-            flex: 1;
+            width: 100%;
+            max-width: 350px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
@@ -92,11 +93,6 @@
             font-weight: bold;
         }
 
-        .text-danger {
-            color: #dc2626 !important;
-            font-weight: bold;
-        }
-
         /* =====================================
            TABLE STYLES
            ===================================== */
@@ -123,6 +119,7 @@
 
     <div class="container">
 
+        <!-- SUBMISSION WAITING SCREEN -->
         <div id="loadingBox">
             <h1 style="text-align:center; color:#2563eb;">
                 Assessment Submitted Successfully
@@ -136,6 +133,7 @@
             </p>
         </div>
 
+        <!-- TARGET REPORT RENDER WRAPPER -->
         <div id="reportData" style="display:none;"></div>
 
     </div>
@@ -175,14 +173,11 @@
                         </p>
                     </div>
 
+                    <!-- SINGLE SCORE DISPLAY BLOCK (FORCED MALPRACTICE ERROR) -->
                     <div class="score-container">
                         <div class="score-card failed">
                             <div class="label">Final Score</div>
                             <div class="value">0 / ${report.totalQuestions || 10}</div>
-                        </div>
-                        <div class="score-card failed">
-                            <div class="label">Accuracy Rate</div>
-                            <div class="value">0.00%</div>
                         </div>
                     </div>
 
@@ -196,20 +191,17 @@
                     </div>
                 `;
             } else {
-                // 2. RENDER HONEST REPORT DISPLAY (SCORE AT TOP)
+                // 2. RENDER HONEST REPORT DISPLAY (SCORE ALONE AT TOP)
                 html += `
                     <h1 style="text-align:center; color:#2563eb;">
                         Assessment Submitted Successfully
                     </h1>
 
+                    <!-- SINGLE SCORE DISPLAY BLOCK (HONEST PERFORMANCE SUMMARY) -->
                     <div class="score-container">
                         <div class="score-card passed">
                             <div class="label">Final Score</div>
                             <div class="value">${report.score} / ${report.totalQuestions}</div>
-                        </div>
-                        <div class="score-card passed">
-                            <div class="label">Accuracy Rate</div>
-                            <div class="value">${report.accuracy}%</div>
                         </div>
                     </div>
 
