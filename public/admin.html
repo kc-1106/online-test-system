@@ -122,7 +122,7 @@ th{
 
 <br>
 
-<div class="card">
+<div class="card" style="text-align: center;">
     <button onclick="exportCSV()">Export CSV</button>
 </div>
 
@@ -156,7 +156,7 @@ async function loadDashboard(){
         const students = await response.json();
         allStudents = Array.isArray(students) ? students : [];
 
-        /* KPI Calculation Elements */
+        /* KPI Block Calculations */
         document.getElementById("totalStudents").innerText = allStudents.length;
 
         let totalScore = 0;
@@ -164,6 +164,7 @@ async function loadDashboard(){
         let totalConfidence = 0;
 
         allStudents.forEach(s => {
+            if (!s) return;
             totalScore += s.score || 0;
             totalAccuracy += parseFloat(s.accuracy || 0);
             totalConfidence += s.confidenceScore || 0;
@@ -175,13 +176,13 @@ async function loadDashboard(){
             document.getElementById("avgConfidence").innerText = (totalConfidence / allStudents.length).toFixed(2);
         }
 
-        /* OVERALL CLUSTER METRICS WITH NULL-SAFETY RUNTIME FILTERS */
+        /* OVERALL PERFORMANCE CALCULATIONS */
         let c1=0, c2=0, c3=0;
         allStudents.forEach(student => {
             if (!student || !Array.isArray(student.answers)) return;
             
             student.answers.forEach((ans, index) => {
-                if (!ans) return; // Prevent "Cannot read properties of null (reading 'isCorrect')"
+                if (!ans) return; // Strict inline catch to counter raw database gaps
                 const q = index + 1;
                 if(ans.isCorrect){
                     if([1,2,6,10].includes(q)) c1++;
@@ -208,32 +209,35 @@ async function loadDashboard(){
             dataLabels: { enabled: true }
         }).render();
 
-        /* Male Performance Demographics */
+        /* Male Rendering */
         const males = allStudents.filter(s => s && s.gender === "Male");
         drawGenderChart(males, "#maleChart", "Male Performance");
 
-        /* Female Performance Demographics */
+        /* Female Rendering */
         const females = allStudents.filter(s => s && s.gender === "Female");
         drawGenderChart(females, "#femaleChart", "Female Performance");
 
-        /* Cluster-Wise Dynamic Line Distribution */
+        /* Multi-Axis Line Render */
         generateClusterGenderCharts(allStudents);
 
-        /* Table Mapping */
-        const sorted = [...allStudents].sort((a, b) => (b.score || 0) - (a.score || 0));
-        document.getElementById("studentTable").innerHTML = sorted.map((s, i) => `
-            <tr>
-                <td>#${i + 1}</td>
-                <td>${s.name || ''}</td>
-                <td>${s.email || ''}</td>
-                <td>${s.gender || ''}</td>
-                <td>${s.score || 0}</td>
-                <td>${s.accuracy || 0}%</td>
-                <td>${s.confidenceScore || 0}</td>
-            </tr>
-        `).join("");
+        /* Sorted Table Population */
+        const sorted = [...allStudents].sort((a, b) => ((b && b.score) || 0) - ((a && a.score) || 0));
+        document.getElementById("studentTable").innerHTML = sorted.map((s, i) => {
+            if (!s) return '';
+            return `
+                <tr>
+                    <td>#${i + 1}</td>
+                    <td>${s.name || ''}</td>
+                    <td>${s.email || ''}</td>
+                    <td>${s.gender || ''}</td>
+                    <td>${s.score || 0}</td>
+                    <td>${s.accuracy || 0}%</td>
+                    <td>${s.confidenceScore || 0}</td>
+                </tr>
+            `;
+        }).join("");
 
-        /* Isolated Scatter Plot Fetch Layer */
+        /* Asynchronous Scatter Fetch Processing Block */
         try {
             const scatterResponse = await fetch(BASE + "/scatter-data");
             const scatter = await scatterResponse.json();
@@ -243,10 +247,13 @@ async function loadDashboard(){
                     chart: { type: 'scatter', height: 350 },
                     series: [{
                         name: "Students",
-                        data: scatter.map(s => ({
-                            x: s.thinkingTime || 0,
-                            y: s.score || 0
-                        }))
+                        data: scatter.map(s => {
+                            if (!s) return { x: 0, y: 0 };
+                            return {
+                                x: s.thinkingTime || 0,
+                                y: s.score || 0
+                            };
+                        })
                     }],
                     title: { text: 'Thinking Time vs Score' },
                     xaxis: { title: { text: 'Thinking Time' } },
@@ -254,11 +261,11 @@ async function loadDashboard(){
                 }).render();
             }
         } catch (scatterError) {
-            console.error("Scatter plot chart endpoint calculation error bypass:", scatterError);
+            console.error("Scatter plot failure bypassed securely:", scatterError);
         }
 
     } catch (globalError) {
-        console.error("Critical Runtime System Exception Engine Alert: ", globalError);
+        console.error("Critical Dashboard Loop Intercept Alert: ", globalError);
     }
 }
 
@@ -268,7 +275,7 @@ function drawGenderChart(students, selector, title){
         if (!student || !Array.isArray(student.answers)) return;
         
         student.answers.forEach((ans, index) => {
-            if (!ans) return; // Prevent nested property check errors
+            if (!ans) return; // Strict runtime filter check logic
             const q = index + 1;
             if(ans.isCorrect){
                 if([1,2,6,10].includes(q)) c1++;
@@ -302,14 +309,14 @@ function generateClusterGenderCharts(students){
 
     function clusterAccuracy(group, questions){
         let correct = 0;
-        let evaluableStudentsCount = 0;
+        let validStudentTrackCount = 0;
 
         group.forEach(student => {
             if (!student || !Array.isArray(student.answers)) return;
-            evaluableStudentsCount++;
+            validStudentTrackCount++;
             
             student.answers.forEach((ans, index) => {
-                if (!ans) return;
+                if (!ans) return; // Hardened nested parameter layout support
                 const qNo = index + 1;
                 if(questions.includes(qNo) && ans.isCorrect){
                     correct++;
@@ -317,7 +324,7 @@ function generateClusterGenderCharts(students){
             });
         });
 
-        const total = evaluableStudentsCount * questions.length;
+        const total = validStudentTrackCount * questions.length;
         return total ? Number(((correct / total) * 100).toFixed(2)) : 0;
     }
 
