@@ -30,7 +30,8 @@ let localTimer;
 let localTime = 60;
 let globalTime = 600;
 let globalTimer;
-let isTestActive = false; // Tracks if the user is actively taking the test
+let isTestActive = false; 
+let securityHeartbeat; // Continuous tracking interval
 
 // =====================================
 // START TEST
@@ -77,36 +78,46 @@ function beginActualTest(){
     document.getElementById("displayUserName").innerText = document.getElementById("name").value;
     document.getElementById("displayUserEmail").innerText = document.getElementById("email").value;
 
-    isTestActive = true; // Security guard is now active
+    isTestActive = true; 
     startGlobalTimer();
     loadQuestion();
+    startSecurityHeartbeat(); // Fire active tracking loop
 }
 
 // =====================================
-// ANTI-MALPRACTICE SECURITY SYSTEM
+// HARDENED ANTI-MALPRACTICE SYSTEMS
 // =====================================
 function triggerMalpractice() {
-    // Prevent recursive or duplicate triggers
     if (!isTestActive) return; 
     isTestActive = false;
 
+    // Instantly kill loops
     clearInterval(globalTimer);
     clearInterval(localTimer);
+    clearInterval(securityHeartbeat);
 
-    alert("Malpractice Detected! You left the test window/tab. Your assessment has been automatically terminated.");
+    alert("🚨 MALPRACTICE DETECTED! 🚨\n\nYou navigated away from the testing window. Your test environment has been terminated immediately.");
     
-    // Call finishTest with a flag indicating a security violation
     finishTest(true);
 }
 
-// Event listener for moving tabs, minimizing windows, or opening OS menus
+// Redundant Tracking Loop (Runs every 200ms to verify system focus state)
+function startSecurityHeartbeat() {
+    securityHeartbeat = setInterval(() => {
+        if (!document.hasFocus() || document.hidden) {
+            triggerMalpractice();
+        }
+    }, 200);
+}
+
+// Event Interceptor: Tab Switching & Minimizing
 document.addEventListener("visibilitychange", () => {
     if (document.hidden && isTestActive) {
         triggerMalpractice();
     }
 });
 
-// Event listener for clicking outside the browser screen or changing applications
+// Event Interceptor: Application Switching & Clicking Outside Window
 window.addEventListener("blur", () => {
     if (isTestActive) {
         triggerMalpractice();
@@ -127,6 +138,7 @@ function startGlobalTimer(){
 
         if(globalTime <= 0){
             clearInterval(globalTimer);
+            clearInterval(securityHeartbeat);
             isTestActive = false;
             finishTest(false);
         }
@@ -286,6 +298,7 @@ function nextQuestion(){
 
     if(currentQuestion === questions.length - 1){
         isTestActive = false;
+        clearInterval(securityHeartbeat);
         finishTest(false);
         return;
     }
@@ -310,12 +323,13 @@ function previousQuestion(){
 }
 
 // =====================================
-// FINISH TEST (Accepts Malpractice Flag)
+// FINISH TEST 
 // =====================================
 async function finishTest(isMalpractice = false){
     isTestActive = false;
     clearInterval(globalTimer);
     clearInterval(localTimer);
+    clearInterval(securityHeartbeat);
 
     let score = 0;
     let correctAnswers = 0;
@@ -330,7 +344,6 @@ async function finishTest(isMalpractice = false){
     let hardCorrect = 0;
     const questionAnalysis = [];
 
-    // Process answers if they completed it regularly
     userAnswers.forEach((a, index) => {
         if(!a){
             skippedWithTimeRemaining++;
@@ -385,7 +398,6 @@ async function finishTest(isMalpractice = false){
     const moderatePerformance = ((moderateCorrect / 3) * 100).toFixed(2);
     const hardPerformance = ((hardCorrect / 3) * 100).toFixed(2);
 
-    // AI Analysis Override for Cheating
     let behaviorAnalysis = "Balanced Performance";
     if (isMalpractice) {
         behaviorAnalysis = "Disqualified (Malpractice)";
@@ -403,7 +415,7 @@ async function finishTest(isMalpractice = false){
         email: document.getElementById("email").value,
         college: document.getElementById("college").value,
         department: document.getElementById("department").value,
-        score: isMalpractice ? 0 : score, // Force zero score if cheating
+        score: isMalpractice ? 0 : score, 
         totalQuestions: questions.length,
         correctAnswers: isMalpractice ? 0 : correctAnswers,
         wrongAnswers: isMalpractice ? questions.length : wrongAnswers,
@@ -424,13 +436,10 @@ async function finishTest(isMalpractice = false){
         behaviorAnalysis: behaviorAnalysis,
         questionAnalysis: questionAnalysis,
         answers: userAnswers,
-        malpracticeDetected: isMalpractice, // Explicit flag sent to the database
+        malpracticeDetected: isMalpractice, 
         submittedAt: new Date()
     };
 
-    // =====================================
-    // SAVE TO DATABASE & REDIRECT
-    // =====================================
     try {
         localStorage.setItem("testReport", JSON.stringify(reportData));
         console.log("Report Saved To LocalStorage");
