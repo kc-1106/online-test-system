@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSVT-R KPI Dashboard</title>
 
+<!-- ApexCharts Script Definition -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <style>
@@ -22,11 +23,10 @@ h1{
 
 .grid{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
 }
 
-/* 2-Column top header layout adjustments */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -38,20 +38,23 @@ h1{
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .kpi{
     text-align: center;
 }
 
-.kpi h2{
-    color: #2563eb;
-    margin-top: 10px;
-    font-size: 32px;
+.kpi h3 {
+    margin: 0;
+    color: #64748b;
+    font-size: 16px;
 }
 
-.chart{
-    height: 350px;
+.kpi h2{
+    color: #2563eb;
+    margin: 10px 0 0 0;
+    font-size: 36px;
 }
 
 button{
@@ -72,10 +75,11 @@ button:hover {
 table{
     width: 100%;
     border-collapse: collapse;
+    margin-top: 15px;
 }
 
 th, td{
-    border: 1px solid #ddd;
+    border: 1px solid #e2e8f0;
     padding: 12px;
     text-align: center;
 }
@@ -83,6 +87,11 @@ th, td{
 th{
     background: #2563eb;
     color: white;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
 }
 
 @media (max-width: 600px) {
@@ -96,7 +105,7 @@ th{
 
 <h1>PSVT-R KPI Dashboard</h1>
 
-<!-- UPDATED KPI OVERVIEW PANELS (ACCURACY & BEHAVIOR TRACKERS REMOVED) -->
+<!-- Clean Two-Card KPI Header Block Layout -->
 <div class="kpi-grid">
     <div class="card kpi">
         <h3>Total Students</h3>
@@ -109,8 +118,7 @@ th{
     </div>
 </div>
 
-<br>
-
+<!-- Main Graphic Metrics Chart Layout Grid Section -->
 <div class="grid">
     <div class="card">
         <div id="overallChart"></div>
@@ -129,20 +137,15 @@ th{
     </div> 
 </div>
 
-<br>
-
 <div class="card">
     <div id="scatterChart"></div>
 </div>
-
-<br>
 
 <div class="card" style="text-align: center;">
     <button onclick="exportCSV()">Export Cleaned CSV Ledger</button>
 </div>
 
-<br>
-
+<!-- Ledger Student Placement Scoring Table -->
 <div class="card">
     <h2>Student Ranking Table</h2>
     <table>
@@ -167,25 +170,25 @@ async function loadDashboard(){
     try {
         const response = await fetch(BASE + "/results");
         const students = await response.json();
-        allStudents = students;
+        allStudents = Array.isArray(students) ? students : [];
 
-        /* KPI RENDERING ENGINE */
-        document.getElementById("totalStudents").innerText = students.length;
+        /* 1. TOP CARDS CALCULATION ENGINE */
+        document.getElementById("totalStudents").innerText = allStudents.length;
 
         let totalScore = 0;
-        students.forEach(s=>{
-            totalScore += s.score || 0;
+        allStudents.forEach(s => {
+            totalScore += Number(s.score || 0);
         });
 
-        if(students.length){
-            document.getElementById("avgScore").innerText = (totalScore / students.length).toFixed(2);
+        if(allStudents.length){
+            document.getElementById("avgScore").innerText = (totalScore / allStudents.length).toFixed(2);
         }
 
-        /* OVERALL PERFORMANCE GRAPH AGGREGATIONS */
+        /* 2. OVERALL ANALYTICS CONFIGURATION */
         let c1=0, c2=0, c3=0;
-        students.forEach(student=>{
+        allStudents.forEach(student => {
             if(!student.answers) return;
-            student.answers.forEach((ans, index)=>{
+            student.answers.forEach((ans, index) => {
                 const q = index + 1;
                 if(ans.isCorrect){
                     if([1,2,6,10].includes(q)) c1++;
@@ -195,7 +198,7 @@ async function loadDashboard(){
             });
         });
 
-        const totalStudentsCount = students.length || 1;
+        const totalStudentsCount = allStudents.length || 1;
         const c1Acc = ((c1 / (totalStudentsCount * 4)) * 100).toFixed(2);
         const c2Acc = ((c2 / (totalStudentsCount * 3)) * 100).toFixed(2);
         const c3Acc = ((c3 / (totalStudentsCount * 3)) * 100).toFixed(2);
@@ -204,7 +207,7 @@ async function loadDashboard(){
         new ApexCharts(document.querySelector("#overallChart"), {
             chart: { type: 'bar', height: 350 },
             series: [{
-                name: 'Accuracy',
+                name: 'Accuracy %',
                 data: [Number(c1Acc), Number(c2Acc), Number(c3Acc), Number(overall)]
             }],
             xaxis: { categories: ['C1', 'C2', 'C3', 'Overall'] },
@@ -212,51 +215,59 @@ async function loadDashboard(){
             dataLabels: { enabled: true }
         }).render();
 
-        /* MALE GRAPH RENDERING ENGINE */
-        const males = students.filter(s => s.gender === "Male");
+        /* 3. GENDER BREAKDOWN ANALYTICS ENGINE */
+        const males = allStudents.filter(s => s.gender === "Male");
         drawGenderChart(males, "#maleChart", "Male Performance Profile");
 
-        /* FEMALE GRAPH RENDERING ENGINE */
-        const females = students.filter(s => s.gender === "Female");
+        const females = allStudents.filter(s => s.gender === "Female");
         drawGenderChart(females, "#femaleChart", "Female Performance Profile");
 
-        /* SCATTER TIME PLOTTING SYSTEM */
-        const scatter = await fetch(BASE + "/scatter-data").then(r => r.json());
-        new ApexCharts(document.querySelector("#scatterChart"), {
-            chart: { type: 'scatter', height: 350 },
-            series: [{
-                name: "Students",
-                data: scatter.map(s => ({ x: s.thinkingTime, y: s.score }))
-            }],
-            title: { text: 'Thinking Time vs Final Score Performance' },
-            xaxis: { title: { text: 'Thinking Time (Seconds)' } },
-            yaxis: { title: { text: 'Score Status' } }
-        }).render();
+        /* 4. SCATTER MATRIX DISPERSION INTERFACE */
+        try {
+            const scatterResponse = await fetch(BASE + "/scatter-data");
+            const scatterData = await scatterResponse.json();
+            
+            if(Array.isArray(scatterData)) {
+                new ApexCharts(document.querySelector("#scatterChart"), {
+                    chart: { type: 'scatter', height: 350 },
+                    series: [{
+                        name: "Students",
+                        data: scatterData.map(s => ({ x: Number(s.thinkingTime || 0), y: Number(s.score || 0) }))
+                    }],
+                    title: { text: 'Thinking Time vs Final Score Performance' },
+                    xaxis: { title: { text: 'Thinking Time (Seconds)' } },
+                    yaxis: { title: { text: 'Score Status' } }
+                }).render();
+            }
+        } catch(scatterErr) {
+            console.error("Scatter plot data feed encountered a rendering exception: ", scatterErr);
+        }
 
-        generateClusterGenderCharts(students);
+        /* 5. MULTI-AXIS LINE SPLINE GENERATION */
+        generateClusterGenderCharts(allStudents);
 
-        /* TABLE STRUCTURAL INJECTIONS */
-        const sorted = [...students].sort((a, b) => b.score - a.score);
+        /* 6. SYSTEM RANKINGS MATRIX SHEET POPULATION */
+        const sorted = [...allStudents].sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
         document.getElementById("studentTable").innerHTML = sorted.map((s, i) => `
             <tr>
                 <td>#${i + 1}</td>
-                <td>${s.name || ''}</td>
-                <td>${s.email || ''}</td>
-                <td>${s.gender || ''}</td>
+                <td>${s.name || 'Anonymous'}</td>
+                <td>${s.email || 'N/A'}</td>
+                <td>${s.gender || 'Unspecified'}</td>
                 <td><strong>${s.score || 0}</strong></td>
             </tr>
         `).join("");
 
     } catch(err) {
-        console.error("Dashboard error collection processing breakdown: ", err);
+        console.error("Dashboard engine critical loop failure alert: ", err);
     }
 }
 
 function drawGenderChart(students, selector, title){
     let c1=0, c2=0, c3=0;
-    students.forEach(student=>{
+    students.forEach(student => {
         if(!student.answers) return;
-        student.answers.forEach((ans, index)=>{
+        student.answers.forEach((ans, index) => {
             const q = index + 1;
             if(ans.isCorrect){
                 if([1,2,6,10].includes(q)) c1++;
@@ -275,7 +286,7 @@ function drawGenderChart(students, selector, title){
     new ApexCharts(document.querySelector(selector), {
         chart: { type: 'bar', height: 350 },
         series: [{
-            name: 'Accuracy',
+            name: 'Accuracy %',
             data: [Number(a), Number(b), Number(c), Number(overall)]
         }],
         xaxis: { categories: ['C1', 'C2', 'C3', 'Overall'] },
@@ -292,7 +303,7 @@ function generateClusterGenderCharts(students){
         let correct = 0;
         group.forEach(student => {
             if(!student.answers) return;
-            student.answers.forEach((ans, index)=>{
+            student.answers.forEach((ans, index) => {
                 const qNo = index + 1;
                 if(questions.includes(qNo) && ans.isCorrect){
                     correct++;
@@ -330,19 +341,19 @@ function generateClusterGenderCharts(students){
 }
 
 function exportCSV(){
-    // Modified header structure maps cleanly to update settings
     let csv = "Name,Email,Gender,Score\n";
-    allStudents.forEach(s=>{
-        csv += `${s.name || ''},${s.email || ''},${s.gender || ''},${s.score || 0}\n`;
+    allStudents.forEach(s => {
+        csv += `"${s.name || 'Anonymous'}","${s.email || 'N/A'}","${s.gender || 'Unspecified'}",${s.score || 0}\n`;
     });
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "student_results_summary.csv";
     a.click();
 }
 
+// Global invocation statement run trigger
 loadDashboard();
 </script>
 </body>
