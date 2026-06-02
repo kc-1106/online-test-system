@@ -2,235 +2,210 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            padding: 40px;
+        }
 
-<meta charset="UTF-8">
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            color: black;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.4);
+        }
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2563eb;
+        }
 
-<title>Test Report</title>
+        .info p {
+            font-size: 20px;
+            margin: 15px 0;
+        }
 
-<style>
+        /* ========================= */
+        /* MALPRACTICE STYLES */
+        /* ========================= */
+        .malpractice-banner {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-left: 8px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            color: #991b1b;
+            margin: 25px 0;
+            text-align: center;
+        }
 
-body{
+        .malpractice-banner h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
 
-    font-family:Arial,sans-serif;
+        .malpractice-banner p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
 
-    background:#0f172a;
+        .text-danger {
+            color: #dc2626 !important;
+            font-weight: bold;
+        }
 
-    color:white;
+        /* ========================= */
+        /* TABLE STYLES */
+        /* ========================= */
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
 
-    padding:40px;
-}
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
 
-.container{
-
-    max-width:1000px;
-
-    margin:auto;
-
-    background:white;
-
-    color:black;
-
-    padding:40px;
-
-    border-radius:20px;
-}
-
-h1{
-
-    text-align:center;
-
-    margin-bottom:30px;
-
-    color:#2563eb;
-}
-
-.info p{
-
-    font-size:20px;
-
-    margin:15px 0;
-}
-
-table{
-
-    width:100%;
-
-    margin-top:30px;
-
-    border-collapse:collapse;
-}
-
-th,td{
-
-    border:1px solid #ccc;
-
-    padding:12px;
-
-    text-align:center;
-}
-
-th{
-
-    background:#2563eb;
-
-    color:white;
-}
-
-</style>
-
+        th {
+            background: #2563eb;
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <h1>Test Report</h1>
+        <!-- SUBMISSION WAITING SCREEN -->
+        <div id="loadingBox">
+            <h1 style="text-align:center; color:#2563eb;">
+                Assessment Submitted Successfully
+            </h1>
+            <p style="margin-top:30px; text-align:center; font-size:22px; line-height:1.8;">
+                ✅ Your assessment has been submitted successfully.
+                <br><br>
+                📄 Please wait for your assessment report.
+                <br><br>
+                ⏳ It will take a few seconds to generate.
+            </p>
+        </div>
 
-    <div id="loadingBox">
+        <!-- TARGET REPORT RENDER WRAPPER -->
+        <div id="reportData" style="display:none;"></div>
 
-    <h1 style="
-        text-align:center;
-        color:#2563eb;
-    ">
-        Assessment Submitted Successfully
-    </h1>
+    </div>
 
-    <p style="
-        margin-top:30px;
-        text-align:center;
-        font-size:22px;
-        line-height:1.8;
-    ">
+    <script>
+        setTimeout(() => {
+            document.getElementById("loadingBox").style.display = "none";
+            document.getElementById("reportData").style.display = "block";
 
-        ✅ Your assessment has been submitted successfully.
+            const report = JSON.parse(localStorage.getItem("testReport"));
 
-        <br><br>
+            if (!report) {
+                document.getElementById("reportData").innerHTML = `
+                    <h2 style="text-align:center; color:red;">
+                        No Report Data Found
+                    </h2>`;
+                return;
+            }
 
-        📄 Please wait for your assessment report.
+            // Check if user was flagged for cheating
+            const isMalpractice = report.malpracticeDetected === true || report.behaviorAnalysis === "Disqualified (Malpractice)";
 
-        <br><br>
+            let html = `
+                <h1 style="text-align:center; color:${isMalpractice ? '#dc2626' : '#2563eb'};">
+                    PSVT-R Assessment Report
+                </h1>
+            `;
 
-        ⏳ It will take a few seconds to generate.
+            if (isMalpractice) {
+                // 1. RENDER MALPRACTICE DISQUALIFICATION SCREEN
+                html += `
+                    <div class="malpractice-banner">
+                        <h2>🚨 ASSESSMENT DISQUALIFIED (MALPRACTICE) 🚨</h2>
+                        <p>
+                            This test session was terminated immediately because you navigated away from the testing interface 
+                            (opened another window, switched tabs, or lost window focus). Under standard examination protocols, 
+                            your data has been classified as corrupted, and this profile has been formally disqualified.
+                        </p>
+                    </div>
 
-    </p>
+                    <div class="info">
+                        <p><strong>Name:</strong> ${report.name}</p>
+                        <p><strong>Email:</strong> ${report.email}</p>
+                        <p><strong>Gender:</strong> ${report.gender}</p>
+                        <p><strong>Age:</strong> ${report.age}</p>
+                        <p><strong>Profession:</strong> ${report.profession}</p>
+                        <p><strong>Accuracy Rate:</strong> <span class="text-danger">0.00% (Forced Disqualification)</span></p>
+                        <p><strong>Status Profile:</strong> <span class="text-danger">DISQUALIFIED</span></p>
+                    </div>
+                `;
+            } else {
+                // 2. RENDER STANDARD HONEST REPORT REPORT
+                html += `
+                    <div class="info">
+                        <p><strong>Name:</strong> ${report.name}</p>
+                        <p><strong>Email:</strong> ${report.email}</p>
+                        <p><strong>Gender:</strong> ${report.gender}</p>
+                        <p><strong>Age:</strong> ${report.age}</p>
+                        <p><strong>Profession:</strong> ${report.profession}</p>
+                        <p><strong>Accuracy Rate:</strong> ${report.accuracy}%</p>
+                        <p><strong>Status Profile:</strong> <span style="color:#16a34a; font-weight:bold;">${report.behaviorAnalysis}</span></p>
+                    </div>
 
-</div>
+                    <h2 style="margin-top:30px;">Question Wise Analysis</h2>
+                    <table>
+                        <tr>
+                            <th>Question</th>
+                            <th>Your Answer</th>
+                            <th>Correct Answer</th>
+                            <th>Status</th>
+                            <th>Time Taken</th>
+                        </tr>
+                `;
 
-<div id="reportData"
-     style="display:none;">
-</div>
+                // Build out standard rows dynamically
+                report.answers.forEach(answer => {
+                    // Fallback block if question data structure properties are empty strings
+                    const selected = answer.selectedOption ? answer.selectedOption : "Not Answered";
+                    const correct = answer.correctAnswer ? answer.correctAnswer : "N/A";
+                    
+                    html += `
+                        <tr>
+                            <td>${answer.question}</td>
+                            <td>${selected}</td>
+                            <td>${correct}</td>
+                            <td>
+                                ${answer.isCorrect ? "✅ Correct" : "❌ Wrong"}
+                            </td>
+                            <td>${answer.timeTakenInSeconds} sec</td>
+                        </tr>
+                    `;
+                });
 
-</div>
+                html += `</table>`;
+            }
 
+            // Push generated structural design build string straight into view container viewport
+            document.getElementById("reportData").innerHTML = html;
 
-
-<script>
-
-setTimeout(() => {
-
-    document.getElementById(
-        "loadingBox"
-    ).style.display = "none";
-
-    document.getElementById(
-        "reportData"
-    ).style.display = "block";
-
-    const report =
-        JSON.parse(
-            localStorage.getItem(
-                "testReport"
-            )
-        );
-
-    if(!report){
-
-        document.getElementById(
-            "reportData"
-        ).innerHTML =
-
-        `<h2 style="
-            text-align:center;
-            color:red;
-        ">
-            No Report Data Found
-        </h2>`;
-
-        return;
-    }
-
-   let html = `
-
-<h1 style="text-align:center;color:#2563eb;">
-    PSVT-R Assessment Report
-</h1>
-
-<div class="info">
-
-    <p><strong>Name:</strong> ${report.name}</p>
-
-    <p><strong>Email:</strong> ${report.email}</p>
-
-    <p><strong>Gender:</strong> ${report.gender}</p>
-
-    <p><strong>Age:</strong> ${report.age}</p>
-
-    <p><strong>Profession:</strong> ${report.profession}</p>
-
-    <p><strong>Accuracy Rate:</strong> ${report.accuracy}%</p>
-
-</div>
-
-<h2 style="margin-top:30px;">
-    Question Wise Analysis
-</h2>
-
-<table>
-
-<tr>
-    <th>Question</th>
-    <th>Your Answer</th>
-    <th>Correct Answer</th>
-    <th>Status</th>
-    <th>Time Taken</th>
-</tr>
-
-`;
-
-report.answers.forEach(answer => {
-
-    html += `
-
-    <tr>
-
-        <td>${answer.question}</td>
-
-        <td>${answer.selectedOption}</td>
-
-        <td>${answer.correctAnswer}</td>
-
-        <td>
-            ${answer.isCorrect
-                ? "✅ Correct"
-                : "❌ Wrong"}
-        </td>
-
-        <td>${answer.timeTakenInSeconds} sec</td>
-
-    </tr>
-
-    `;
-});
-
-html += `</table>`;
-
-document.getElementById("reportData").innerHTML = html;
-    
-},3000);
-
-</script>
+        }, 3000);
+    </script>
 </body>
+
 </html>
