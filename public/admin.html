@@ -8,642 +8,342 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <style>
-
 body{
-    font-family:Arial, sans-serif;
-    background:#f5f7fb;
-    margin:0;
-    padding:20px;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    margin: 0;
+    padding: 20px;
 }
 
 h1{
-    text-align:center;
-    margin-bottom:20px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* 2-Column top header layout adjustments */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 }
 
 .card{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .kpi{
-    text-align:center;
+    text-align: center;
 }
 
 .kpi h2{
-    color:#2563eb;
-    margin-top:10px;
+    color: #2563eb;
+    margin-top: 10px;
+    font-size: 32px;
 }
 
 .chart{
-    height:350px;
+    height: 350px;
 }
 
 button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:10px 20px;
-    border-radius:8px;
-    cursor:pointer;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1d4ed8;
 }
 
 table{
-    width:100%;
-    border-collapse:collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
+th, td{
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
 }
 
 th{
-    background:#2563eb;
-    color:white;
+    background: #2563eb;
+    color: white;
 }
 
+@media (max-width: 600px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 </head>
 <body>
 
 <h1>PSVT-R KPI Dashboard</h1>
 
-<div class="grid">
+<!-- UPDATED KPI OVERVIEW PANELS (ACCURACY & BEHAVIOR TRACKERS REMOVED) -->
+<div class="kpi-grid">
+    <div class="card kpi">
+        <h3>Total Students</h3>
+        <h2 id="totalStudents">0</h2>
+    </div>
 
-<div class="card kpi">
-<h3>Total Students</h3>
-<h2 id="totalStudents">0</h2>
-</div>
-
-<div class="card kpi">
-<h3>Average Score</h3>
-<h2 id="avgScore">0</h2>
-</div>
-
-<div class="card kpi">
-<h3>Average Accuracy</h3>
-<h2 id="avgAccuracy">0%</h2>
-</div>
-
-<div class="card kpi">
-<h3>Average Confidence</h3>
-<h2 id="avgConfidence">0</h2>
-</div>
-
+    <div class="card kpi">
+        <h3>Average Score</h3>
+        <h2 id="avgScore">0</h2>
+    </div>
 </div>
 
 <br>
 
 <div class="grid">
+    <div class="card">
+        <div id="overallChart"></div>
+    </div>
 
-<div class="card">
-<div id="overallChart"></div>
-</div>
+    <div class="card">
+        <div id="maleChart"></div>
+    </div>
 
-<div class="card">
-<div id="maleChart"></div>
-</div>
+    <div class="card">
+        <div id="femaleChart"></div>
+    </div>
 
-<div class="card">
-<div id="femaleChart"></div>
-</div>
-
-<div class="grid">
-
-   <div class="card">
-    <div id="cluster1LineChart"></div>
-</div>
-
-</div> </div>
-
-<br>
-
-<div class="card">
-<div id="scatterChart"></div>
+    <div class="card">
+        <div id="cluster1LineChart"></div>
+    </div> 
 </div>
 
 <br>
 
 <div class="card">
-<button onclick="exportCSV()">Export CSV</button>
+    <div id="scatterChart"></div>
+</div>
+
+<br>
+
+<div class="card" style="text-align: center;">
+    <button onclick="exportCSV()">Export Cleaned CSV Ledger</button>
 </div>
 
 <br>
 
 <div class="card">
-
-<h2>Student Ranking</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>Rank</th>
-<th>Name</th>
-<th>Email</th>
-<th>Gender</th>
-<th>Score</th>
-<th>Accuracy</th>
-<th>Confidence</th>
-</tr>
-</thead>
-
-<tbody id="studentTable"></tbody>
-
-</table>
-
+    <h2>Student Ranking Table</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Gender</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
 </div>
 
 <script>
-
-const BASE =
-"https://online-test-system-pqd0.onrender.com";
-
+const BASE = "https://online-test-system-pqd0.onrender.com";
 let allStudents = [];
 
 async function loadDashboard(){
+    try {
+        const response = await fetch(BASE + "/results");
+        const students = await response.json();
+        allStudents = students;
 
-const response =
-await fetch(BASE + "/results");
+        /* KPI RENDERING ENGINE */
+        document.getElementById("totalStudents").innerText = students.length;
 
-const students =
-await response.json();
+        let totalScore = 0;
+        students.forEach(s=>{
+            totalScore += s.score || 0;
+        });
 
-allStudents = students;
+        if(students.length){
+            document.getElementById("avgScore").innerText = (totalScore / students.length).toFixed(2);
+        }
 
-/* KPI */
+        /* OVERALL PERFORMANCE GRAPH AGGREGATIONS */
+        let c1=0, c2=0, c3=0;
+        students.forEach(student=>{
+            if(!student.answers) return;
+            student.answers.forEach((ans, index)=>{
+                const q = index + 1;
+                if(ans.isCorrect){
+                    if([1,2,6,10].includes(q)) c1++;
+                    if([3,4,5].includes(q)) c2++;
+                    if([7,8,9].includes(q)) c3++;
+                }
+            });
+        });
 
-document.getElementById(
-"totalStudents"
-).innerText = students.length;
+        const totalStudentsCount = students.length || 1;
+        const c1Acc = ((c1 / (totalStudentsCount * 4)) * 100).toFixed(2);
+        const c2Acc = ((c2 / (totalStudentsCount * 3)) * 100).toFixed(2);
+        const c3Acc = ((c3 / (totalStudentsCount * 3)) * 100).toFixed(2);
+        const overall = ((parseFloat(c1Acc) + parseFloat(c2Acc) + parseFloat(c3Acc)) / 3).toFixed(2);
 
-let totalScore = 0;
-let totalAccuracy = 0;
-let totalConfidence = 0;
+        new ApexCharts(document.querySelector("#overallChart"), {
+            chart: { type: 'bar', height: 350 },
+            series: [{
+                name: 'Accuracy',
+                data: [Number(c1Acc), Number(c2Acc), Number(c3Acc), Number(overall)]
+            }],
+            xaxis: { categories: ['C1', 'C2', 'C3', 'Overall'] },
+            title: { text: 'Overall Performance Breakdown' },
+            dataLabels: { enabled: true }
+        }).render();
 
-students.forEach(s=>{
+        /* MALE GRAPH RENDERING ENGINE */
+        const males = students.filter(s => s.gender === "Male");
+        drawGenderChart(males, "#maleChart", "Male Performance Profile");
 
-totalScore += s.score || 0;
-totalAccuracy += parseFloat(s.accuracy || 0);
-totalConfidence += s.confidenceScore || 0;
+        /* FEMALE GRAPH RENDERING ENGINE */
+        const females = students.filter(s => s.gender === "Female");
+        drawGenderChart(females, "#femaleChart", "Female Performance Profile");
 
-});
+        /* SCATTER TIME PLOTTING SYSTEM */
+        const scatter = await fetch(BASE + "/scatter-data").then(r => r.json());
+        new ApexCharts(document.querySelector("#scatterChart"), {
+            chart: { type: 'scatter', height: 350 },
+            series: [{
+                name: "Students",
+                data: scatter.map(s => ({ x: s.thinkingTime, y: s.score }))
+            }],
+            title: { text: 'Thinking Time vs Final Score Performance' },
+            xaxis: { title: { text: 'Thinking Time (Seconds)' } },
+            yaxis: { title: { text: 'Score Status' } }
+        }).render();
 
-if(students.length){
+        generateClusterGenderCharts(students);
 
-document.getElementById(
-"avgScore"
-).innerText =
-(totalScore/students.length).toFixed(2);
+        /* TABLE STRUCTURAL INJECTIONS */
+        const sorted = [...students].sort((a, b) => b.score - a.score);
+        document.getElementById("studentTable").innerHTML = sorted.map((s, i) => `
+            <tr>
+                <td>#${i + 1}</td>
+                <td>${s.name || ''}</td>
+                <td>${s.email || ''}</td>
+                <td>${s.gender || ''}</td>
+                <td><strong>${s.score || 0}</strong></td>
+            </tr>
+        `).join("");
 
-document.getElementById(
-"avgAccuracy"
-).innerText =
-(totalAccuracy/students.length).toFixed(2)+"%";
-
-document.getElementById(
-"avgConfidence"
-).innerText =
-(totalConfidence/students.length).toFixed(2);
-
+    } catch(err) {
+        console.error("Dashboard error collection processing breakdown: ", err);
+    }
 }
 
-/* OVERALL CLUSTER */
-
-let c1=0,c2=0,c3=0;
-
-students.forEach(student=>{
-
-if(!student.answers) return;
-
-student.answers.forEach((ans,index)=>{
-
-const q=index+1;
-
-if(ans.isCorrect){
-
-if([1,2,6,10].includes(q)) c1++;
-if([3,4,5].includes(q)) c2++;
-if([7,8,9].includes(q)) c3++;
-
-}
-
-});
-
-});
-
-const totalStudents = students.length;
-
-const c1Acc =
-((c1/(totalStudents*4))*100 || 0).toFixed(2);
-
-const c2Acc =
-((c2/(totalStudents*3))*100 || 0).toFixed(2);
-
-const c3Acc =
-((c3/(totalStudents*3))*100 || 0).toFixed(2);
-
-const overall =
-(
-(parseFloat(c1Acc)+
- parseFloat(c2Acc)+
- parseFloat(c3Acc))/3
-).toFixed(2);
-
-new ApexCharts(
-
-document.querySelector("#overallChart"),
-
-{
-chart:{type:'bar',height:350},
-
-series:[{
-name:'Accuracy',
-data:[
-Number(c1Acc),
-Number(c2Acc),
-Number(c3Acc),
-Number(overall)
-]
-}],
-
-xaxis:{
-categories:[
-'C1',
-'C2',
-'C3',
-'Overall'
-]
-},
-
-title:{
-text:'Overall Performance'
-},
-
-dataLabels:{
-enabled:true
-}
-
-}
-
-).render();
-
-/* MALE */
-
-const males =
-students.filter(
-s=>s.gender==="Male"
-);
-
-drawGenderChart(
-males,
-"#maleChart",
-"Male Performance"
-);
-
-/* FEMALE */
-
-const females =
-students.filter(
-s=>s.gender==="Female"
-);
-
-drawGenderChart(
-females,
-"#femaleChart",
-"Female Performance"
-);
-
-/* SCATTER */
-
-const scatter =
-await fetch(BASE+"/scatter-data")
-.then(r=>r.json());
-
-new ApexCharts(
-
-document.querySelector("#scatterChart"),
-
-{
-
-chart:{
-type:'scatter',
-height:350
-},
-
-series:[{
-
-name:"Students",
-
-data:
-scatter.map(s=>({
-
-x:s.thinkingTime,
-y:s.score
-
-}))
-
-}],
-
-title:{
-text:'Thinking Time vs Score'
-},
-
-xaxis:{
-title:{
-text:'Thinking Time'
-}
-},
-
-yaxis:{
-title:{
-text:'Score'
-}
-}
-
-}
-
-).render();
-
-generateClusterGenderCharts(students);
-
-/* TABLE */
-
-const sorted =
-[...students]
-.sort((a,b)=>b.score-a.score);
-
-document.getElementById(
-"studentTable"
-).innerHTML =
-sorted.map((s,i)=>`
-
-<tr>
-
-<td>#${i+1}</td>
-
-<td>${s.name||''}</td>
-
-<td>${s.email||''}</td>
-
-<td>${s.gender||''}</td>
-
-<td>${s.score||0}</td>
-
-<td>${s.accuracy||0}%</td>
-
-<td>${s.confidenceScore||0}</td>
-
-</tr>
-
-`).join("");
-
-}
-
-function drawGenderChart(
-students,
-selector,
-title
-){
-
-let c1=0,c2=0,c3=0;
-
-students.forEach(student=>{
-
-if(!student.answers) return;
-
-student.answers.forEach((ans,index)=>{
-
-const q=index+1;
-
-if(ans.isCorrect){
-
-if([1,2,6,10].includes(q)) c1++;
-if([3,4,5].includes(q)) c2++;
-if([7,8,9].includes(q)) c3++;
-
-}
-
-});
-
-});
-
-const total =
-students.length || 1;
-
-const a =
-((c1/(total*4))*100).toFixed(2);
-
-const b =
-((c2/(total*3))*100).toFixed(2);
-
-const c =
-((c3/(total*3))*100).toFixed(2);
-
-const overall =
-(
-(parseFloat(a)+
- parseFloat(b)+
- parseFloat(c))/3
-).toFixed(2);
-
-new ApexCharts(
-
-document.querySelector(selector),
-
-{
-
-chart:{
-type:'bar',
-height:350
-},
-
-series:[{
-
-name:'Accuracy',
-
-data:[
-Number(a),
-Number(b),
-Number(c),
-Number(overall)
-]
-
-}],
-
-xaxis:{
-
-categories:[
-'C1',
-'C2',
-'C3',
-'Overall'
-]
-
-},
-
-title:{
-text:title
-},
-
-dataLabels:{
-enabled:true
-}
-
-}
-
-).render();
-
+function drawGenderChart(students, selector, title){
+    let c1=0, c2=0, c3=0;
+    students.forEach(student=>{
+        if(!student.answers) return;
+        student.answers.forEach((ans, index)=>{
+            const q = index + 1;
+            if(ans.isCorrect){
+                if([1,2,6,10].includes(q)) c1++;
+                if([3,4,5].includes(q)) c2++;
+                if([7,8,9].includes(q)) c3++;
+            }
+        });
+    });
+
+    const total = students.length || 1;
+    const a = ((c1 / (total * 4)) * 100).toFixed(2);
+    const b = ((c2 / (total * 3)) * 100).toFixed(2);
+    const c = ((c3 / (total * 3)) * 100).toFixed(2);
+    const overall = ((parseFloat(a) + parseFloat(b) + parseFloat(c)) / 3).toFixed(2);
+
+    new ApexCharts(document.querySelector(selector), {
+        chart: { type: 'bar', height: 350 },
+        series: [{
+            name: 'Accuracy',
+            data: [Number(a), Number(b), Number(c), Number(overall)]
+        }],
+        xaxis: { categories: ['C1', 'C2', 'C3', 'Overall'] },
+        title: { text: title },
+        dataLabels: { enabled: true }
+    }).render();
 }
 
 function generateClusterGenderCharts(students){
-
-    const males =
-        students.filter(s => s.gender === "Male");
-
-    const females =
-        students.filter(s => s.gender === "Female");
+    const males = students.filter(s => s.gender === "Male");
+    const females = students.filter(s => s.gender === "Female");
 
     function clusterAccuracy(group, questions){
-
         let correct = 0;
-
         group.forEach(student => {
-
             if(!student.answers) return;
-
-            student.answers.forEach((ans,index)=>{
-
+            student.answers.forEach((ans, index)=>{
                 const qNo = index + 1;
-
-                if(
-                    questions.includes(qNo) &&
-                    ans.isCorrect
-                ){
+                if(questions.includes(qNo) && ans.isCorrect){
                     correct++;
                 }
-
             });
-
         });
 
-        const total =
-            group.length * questions.length;
-
-        return total
-            ? Number(
-                (
-                    correct /
-                    total *
-                    100
-                ).toFixed(2)
-            )
-            : 0;
-
+        const total = group.length * questions.length;
+        return total ? Number(((correct / total) * 100).toFixed(2)) : 0;
     }
 
     const maleData = [
-
-        clusterAccuracy(males,[1,2,6,10]),
-        clusterAccuracy(males,[3,4,5]),
-        clusterAccuracy(males,[7,8,9])
-
+        clusterAccuracy(males, [1,2,6,10]),
+        clusterAccuracy(males, [3,4,5]),
+        clusterAccuracy(males, [7,8,9])
     ];
 
     const femaleData = [
-
-        clusterAccuracy(females,[1,2,6,10]),
-        clusterAccuracy(females,[3,4,5]),
-        clusterAccuracy(females,[7,8,9])
-
+        clusterAccuracy(females, [1,2,6,10]),
+        clusterAccuracy(females, [3,4,5]),
+        clusterAccuracy(females, [7,8,9])
     ];
 
-    new ApexCharts(
-        document.querySelector("#cluster1LineChart"),
-        {
-            chart:{
-                type:'line',
-                height:350
-            },
-
-            series:[
-                {
-                    name:'Male',
-                    data:maleData
-                },
-                {
-                    name:'Female',
-                    data:femaleData
-                }
-            ],
-
-            xaxis:{
-                categories:[
-                    'Cluster 1',
-                    'Cluster 2',
-                    'Cluster 3'
-                ]
-            },
-
-            title:{
-                text:'Cluster-wise Male vs Female Comparison'
-            },
-
-            stroke:{
-                width:4
-            },
-
-            markers:{
-                size:6
-            }
-        }
-    ).render();
-
+    new ApexCharts(document.querySelector("#cluster1LineChart"), {
+        chart: { type: 'line', height: 350 },
+        series: [
+            { name: 'Male', data: maleData },
+            { name: 'Female', data: femaleData }
+        ],
+        xaxis: { categories: ['Cluster 1', 'Cluster 2', 'Cluster 3'] },
+        title: { text: 'Cluster-wise Male vs Female Performance Spread' },
+        stroke: { width: 4 },
+        markers: { size: 6 }
+    }).render();
 }
 
 function exportCSV(){
+    // Modified header structure maps cleanly to update settings
+    let csv = "Name,Email,Gender,Score\n";
+    allStudents.forEach(s=>{
+        csv += `${s.name || ''},${s.email || ''},${s.gender || ''},${s.score || 0}\n`;
+    });
 
-let csv =
-"Name,Email,Gender,Score,Accuracy,Confidence\n";
-
-allStudents.forEach(s=>{
-
-csv +=
-`${s.name},${s.email},${s.gender},${s.score},${s.accuracy},${s.confidenceScore}\n`;
-
-});
-
-const blob =
-new Blob([csv],{
-type:"text/csv"
-});
-
-const a =
-document.createElement("a");
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-"student_results.csv";
-
-a.click();
-
+    const blob = new Blob([csv], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "student_results_summary.csv";
+    a.click();
 }
 
 loadDashboard();
-
 </script>
-
 </body>
 </html>

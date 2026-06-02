@@ -337,28 +337,5 @@ button{
     background:red;
     color:white;
 }
-/* NOT ANSWERED */
-.not-answered{
-
-    background:red;
-
-    color:white;
-}
-
-/* TIMEOUT */
-.timeout{
-
-    background:#7c3aed;
-
-    color:white;
-}
-
-/* LAST SECOND ANSWER */
-.last-second{
-
-    background:#2563eb;
-
-    color:white;
-}
 }
 
