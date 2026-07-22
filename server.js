@@ -67,7 +67,7 @@ app.post("/admin-login", (req, res) => {
 
     if (
         username === "admin" &&
-        password === "admin123"
+        password === "nitttr_2k26"
     ) {
 
         req.session.isAdmin = true;
