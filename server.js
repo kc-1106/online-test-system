@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const session = require("express-session");
 
 const Result = require("./models/Result");
 
@@ -22,6 +23,15 @@ app.use(express.json({
 app.use(express.urlencoded({
     extended: true,
     limit: "50mb"
+}));
+
+app.use(session({
+    secret: "online-test-system-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 // 1 hour
+    }
 }));
 
 /* =====================================
@@ -51,8 +61,37 @@ app.get("/", (req, res) => {
 /* =====================================
    ADMIN PAGE
 ===================================== */
+app.post("/admin-login", (req, res) => {
+
+    const { username, password } = req.body;
+
+    if (
+        username === "admin" &&
+        password === "admin123"
+    ) {
+
+        req.session.isAdmin = true;
+
+        return res.json({
+            success: true
+        });
+
+    }
+
+    res.status(401).json({
+        success: false,
+        message: "Invalid Username or Password"
+    });
+
+});
 
 app.get("/admin", (req, res) => {
+
+    if (!req.session.isAdmin) {
+
+        return res.redirect("/admin-login.html");
+
+    }
 
     res.sendFile(
         path.join(
@@ -61,6 +100,16 @@ app.get("/admin", (req, res) => {
             "admin.html"
         )
     );
+
+});
+
+app.get("/admin-logout", (req, res) => {
+
+    req.session.destroy(() => {
+
+        res.redirect("/admin-login.html");
+
+    });
 
 });
 
