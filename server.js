@@ -39,7 +39,10 @@ app.use(session({
 ===================================== */
 
 app.use(express.static(
-    path.join(__dirname, "public")
+    path.join(__dirname, "public"),
+    {
+        index: false
+    }
 ));
 
 /* =====================================
@@ -85,28 +88,6 @@ app.post("/admin-login", (req, res) => {
 
 });
 
-app.use(express.static(
-    path.join(__dirname, "public"),
-    {
-        index: false
-    }
-));
-
-/* =====================================
-   HOME PAGE
-===================================== */
-
-app.get("/", (req, res) => {
-
-    res.sendFile(
-        path.join(
-            __dirname,
-            "public",
-            "index.html"
-        )
-    );
-
-});
 
 /* =====================================
    MONGODB CONNECTION
