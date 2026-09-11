@@ -35,17 +35,6 @@ app.use(session({
 }));
 
 /* =====================================
-   STATIC FILES
-===================================== */
-
-app.use(express.static(
-    path.join(__dirname, "public"),
-    {
-        index: false
-    }
-));
-
-/* =====================================
    HOME PAGE
 ===================================== */
 
@@ -55,11 +44,20 @@ app.get("/", (req, res) => {
         path.join(
             __dirname,
             "public",
-            "index.html"
+            "dashboard.html"
         )
     );
 
 });
+
+/* =====================================
+   STATIC FILES
+===================================== */
+
+app.use(express.static(
+    path.join(__dirname, "public")
+));
+
 
 /* =====================================
    ADMIN PAGE
