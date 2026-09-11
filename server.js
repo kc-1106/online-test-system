@@ -85,6 +85,13 @@ app.post("/admin-login", (req, res) => {
 
 });
 
+app.use(express.static(
+    path.join(__dirname, "public"),
+    {
+        index: false
+    }
+));
+
 /* =====================================
    HOME PAGE
 ===================================== */
