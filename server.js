@@ -85,31 +85,19 @@ app.post("/admin-login", (req, res) => {
 
 });
 
-app.get("/admin", (req, res) => {
+/* =====================================
+   HOME PAGE
+===================================== */
 
-    if (!req.session.isAdmin) {
-
-        return res.redirect("/admin-login.html");
-
-    }
+app.get("/", (req, res) => {
 
     res.sendFile(
         path.join(
             __dirname,
             "public",
-            "admin.html"
+            "index.html"
         )
     );
-
-});
-
-app.get("/admin-logout", (req, res) => {
-
-    req.session.destroy(() => {
-
-        res.redirect("/admin-login.html");
-
-    });
 
 });
 
