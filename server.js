@@ -86,7 +86,27 @@ app.post("/admin-login", (req, res) => {
 
 });
 
+/* =====================================
+   ADMIN DASHBOARD
+===================================== */
 
+app.get("/admin", (req, res) => {
+
+    if (!req.session.isAdmin) {
+
+        return res.redirect("/admin-login.html");
+
+    }
+
+    res.sendFile(
+        path.join(
+            __dirname,
+            "public",
+            "admin.html"
+        )
+    );
+
+});
 /* =====================================
    MONGODB CONNECTION
 ===================================== */
